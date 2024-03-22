@@ -3,6 +3,16 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { Providers } from "@microsoft/mgt-element";
+import { Msal2Provider } from "@microsoft/mgt-msal2-provider";
+import * as Constants from './common/Constants';
+import * as Scopes from './common/Scopes';
+
+Providers.globalProvider = new Msal2Provider({
+  clientId: Constants.AZURE_CLIENT_ID!,
+  authority: Constants.AUTH_AUTHORITY,
+  scopes: Scopes.ALL_FRONTEND_SCOPES
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

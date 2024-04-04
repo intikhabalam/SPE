@@ -15,7 +15,9 @@ const containersApi = ContainersApiProvider.instance;
 
 const useStyles = makeStyles({
     containerSelectorControls: {
-        width: '400px',
+        minWidth: '150px',
+        maxWidth: '250px',
+        width: '200px',
     }
 });
 
@@ -34,11 +36,10 @@ export const ContainerSelector: React.FunctionComponent<IContainerSelectorProps>
     useEffect(() => {
         (async () => {
             setLoading(true);
-            const updatedContainers = await containersApi.list();
-            if (updatedContainers) {
-                setContainers(updatedContainers);
-            }
-            setLoading(false);
+            containersApi.list()
+                .then(setContainers)
+                .catch(console.error)
+                .finally(() => setLoading(false));
         })();
     }, [props.refreshTime]);
     
@@ -56,7 +57,7 @@ export const ContainerSelector: React.FunctionComponent<IContainerSelectorProps>
             <Dropdown
                 id={containerSelector}
                 disabled={loading}
-                placeholder="Select a Storage Container"
+                placeholder="Select a Container"
                 value={containers?.find((container) => container.id === selectedContainerId)?.displayName || ''}
                 selectedOptions={selectedContainerId ? [selectedContainerId] : []}
                 className={styles.containerSelectorControls}

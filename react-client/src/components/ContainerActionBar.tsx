@@ -17,7 +17,7 @@ import {
     Folder24Filled,
 } from '@fluentui/react-icons';
 import { IDriveItem } from '../common/FileSchemas';
-import { GraphFilesProvider } from '../providers/GraphFilesProvider';
+import { GraphProvider } from '../providers/GraphProvider';
 import { getFileTypeIconProps } from '@fluentui/react-file-type-icons';
 import { Icon } from '@fluentui/react';
 import { ContainerSettingsDialog } from './ContainerSettingsDialog';
@@ -25,8 +25,7 @@ import { IContainer } from '../../../common/schemas/ContainerSchemas';
 import { ContainersApiProvider } from '../providers/ContainersApiProvider';
 
 const containersApi = ContainersApiProvider.instance;
-
-const filesApi = GraphFilesProvider.instance;
+const filesApi = GraphProvider.instance;
 
 const useStyles = makeStyles({
     actionBar: {

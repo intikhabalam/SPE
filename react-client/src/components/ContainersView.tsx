@@ -28,11 +28,7 @@ const useStyles = makeStyles({
 
 export const ContainersView: React.FunctionComponent = (props: any) => {
     const [selectedContainer, setSelectedContainer] = useState<IContainer | undefined>(undefined);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [containersRefreshTime, setContainersRefreshTime] = useState(Date.now());
-
     const styles = useStyles();
-    //
     return (
         <div className={styles.root}>
             <div className={styles.containerSelector}>      

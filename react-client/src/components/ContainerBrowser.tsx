@@ -5,7 +5,7 @@ import {
     BreadcrumbButton,
     BreadcrumbItem,
     BreadcrumbDivider,
-    makeStyles, shorthands, 
+    makeStyles, shorthands,
     Link, DataGrid, DataGridHeader, DataGridRow, DataGridHeaderCell, DataGridBody, DataGridCell, TableColumnDefinition, createTableColumn, TableCellLayout, OnSelectionChangeData,
 } from '@fluentui/react-components';
 import {
@@ -16,59 +16,13 @@ import {
 import { IContainer } from '../../../common/schemas/ContainerSchemas';
 import { ContainersApiProvider } from '../providers/ContainersApiProvider';
 import { IDriveItem } from '../common/FileSchemas';
-import { GraphFilesProvider } from '../providers/GraphFilesProvider';
+import { GraphProvider } from '../providers/GraphProvider';
 import { getFileTypeIconProps } from '@fluentui/react-file-type-icons';
 import { Icon } from '@fluentui/react';
 import ContainerActionBar from './ContainerActionBar';
 
 const containersApi = ContainersApiProvider.instance;
-const filesApi = GraphFilesProvider.instance;
-
-const useStyles = makeStyles({
-    content: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        rowGap: '10px',
-        ...shorthands.padding('25px'),
-        width: '70%',
-        marginTop: '50px',
-        paddingBottom: '50px',
-    },
-    actionBar: {
-        columnGap: "2px",
-        display: "flex",
-        fontSize: '10px',
-        minWidth: '90%',
-        marginBottom: '20px',
-        ...shorthands.padding('10px'),
-    },
-    breadcrumb: {
-        //width: '65%',
-        textAlign: 'left',
-        alignItems: 'left',
-        justifyContent: 'left',
-        minWidth: '90%',
-        ...shorthands.margin('0px'),
-        backgroundColor: '#EFEFEF',
-        ...shorthands.padding('10px'),
-    },
-    filesTable: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '12px',
-        minWidth: '90%',
-        minHeight: '200px',
-        backgroundColor: 'white',
-        //paddingLeft: '50px',
-        //paddingRight: '100px',
-        ...shorthands.borderRadius('10px'),
-        ...shorthands.padding('20px'),
-    },
-});
+const filesApi = GraphProvider.instance;
 
 export interface IContainerContentBrowserProps {
     container: IContainer;
@@ -85,13 +39,17 @@ export const ContainerBrowser: React.FunctionComponent<IContainerContentBrowserP
 
     useEffect(() => {
         (async () => {
-            containersApi.get(props.container.id).then(setContainer);
+            containersApi.get(props.container.id)
+                .then(setContainer)
+                .catch(console.error);
         })();
     }, [props.container.id, refreshTime]);
 
     useEffect(() => {
         (async () => {
-            filesApi.listItems(props.container.id, parentId).then(setDriveItems);
+            filesApi.listItems(props.container.id, parentId)
+                .then(setDriveItems)
+                .catch(console.error);
         })();
     }, [props.container.id, parentId, refreshTime]);
 
@@ -168,9 +126,9 @@ export const ContainerBrowser: React.FunctionComponent<IContainerContentBrowserP
         }
         return <Link onClick={() => onFilePreviewSelected(driveItem)}>{driveItem.name}</Link>;
     }
-   
+
     const columns: TableColumnDefinition<IDriveItem>[] = [
-        createTableColumn({
+        createTableColumn<IDriveItem>({
             columnId: 'driveItemName',
             renderHeaderCell: () => {
                 return 'Name'
@@ -183,7 +141,7 @@ export const ContainerBrowser: React.FunctionComponent<IContainerContentBrowserP
                 )
             }
         }),
-        createTableColumn({
+        createTableColumn<IDriveItem>({
             columnId: 'lastModifiedTimestamp',
             renderHeaderCell: () => {
                 return 'Modified'
@@ -196,7 +154,7 @@ export const ContainerBrowser: React.FunctionComponent<IContainerContentBrowserP
                 )
             }
         }),
-        createTableColumn({
+        createTableColumn<IDriveItem>({
             columnId: 'lastModifiedBy',
             renderHeaderCell: () => {
                 return 'Modified By'
@@ -219,7 +177,7 @@ export const ContainerBrowser: React.FunctionComponent<IContainerContentBrowserP
     ];
     if (container.customProperties?.docProcessingSubscriptionId) {
         columns.push(
-            createTableColumn({
+            createTableColumn<IDriveItem>({
                 columnId: 'Merchant',
                 renderHeaderCell: () => {
                     return 'Merchant'
@@ -234,7 +192,7 @@ export const ContainerBrowser: React.FunctionComponent<IContainerContentBrowserP
             })
         );
         columns.push(
-            createTableColumn({
+            createTableColumn<IDriveItem>({
                 columnId: 'Total',
                 renderHeaderCell: () => {
                     return 'Total'
@@ -249,7 +207,7 @@ export const ContainerBrowser: React.FunctionComponent<IContainerContentBrowserP
             })
         );
         columns.push(
-            createTableColumn({
+            createTableColumn<IDriveItem>({
                 columnId: 'DocProcessingCompleted',
                 renderHeaderCell: () => {
                     return 'Processed'
@@ -283,19 +241,18 @@ export const ContainerBrowser: React.FunctionComponent<IContainerContentBrowserP
         },
     };
 
-    const styles = useStyles();
     return (
-        <div className={styles.content}>
-            <div className={styles.actionBar}>
-                <ContainerActionBar 
-                    container={container} 
-                    parentId={parentId} 
+        <div className="container-browser">
+            <div className="container-actions">
+                <ContainerActionBar
+                    container={container}
+                    parentId={parentId}
                     selectedItem={selectedItem}
                     onFilePreviewSelected={onFilePreviewSelected}
                     onItemsUpdated={refresh}
                 />
             </div>
-            <div className={styles.breadcrumb}>
+            <div className="container-breadcrumb">
                 <Breadcrumb size='large'>
                     <BreadcrumbItem>
                         <BreadcrumbButton size='large' onClick={() => setLocation([])}>{container.displayName}</BreadcrumbButton>
@@ -310,33 +267,36 @@ export const ContainerBrowser: React.FunctionComponent<IContainerContentBrowserP
                     ))}
                 </Breadcrumb>
             </div>
-            <div className={styles.filesTable}>
+            <div className="files-list-container">
                 <DataGrid
                     items={driveItems}
                     columns={columns}
-                    getRowId={(item) => item.id}
+                    getRowId={(driveItem) => driveItem.id}
                     resizableColumns
                     selectionMode="single"
                     columnSizingOptions={columnSizingOptions}
                     selectedItems={selectedItemKeys}
                     onSelectionChange={onSelectionChange}
+                    style={{ minWidth: '100%', maxWidth: '100%', width: '100%' }}
                 >
                     <DataGridHeader>
                         <DataGridRow
-                            selectionCell={{checkboxIndicator: { "aria-label": "Select row" }}}
+                            selectionCell={{ checkboxIndicator: { "aria-label": "Select row" } }}
                         >
                             {({ renderHeaderCell }) => (
-                                <DataGridHeaderCell><b>{renderHeaderCell()}</b></DataGridHeaderCell>
+                                <DataGridHeaderCell>
+                                    <b>{renderHeaderCell()}</b>
+                                </DataGridHeaderCell>
                             )}
                         </DataGridRow>
                     </DataGridHeader>
                     <DataGridBody<IDriveItem>>
                         {({ item, rowId }) => (
-                            <DataGridRow<IDriveItem> 
+                            <DataGridRow<IDriveItem>
                                 key={rowId}
-                                selectionCell={{checkboxIndicator: { "aria-label": "Select row" }}}
+                                selectionCell={{ checkboxIndicator: { "aria-label": "Select row" } }}
                             >
-                                {({ renderCell, columnId }) => (
+                                {({ renderCell }) => (
                                     <DataGridCell>
                                         {renderCell(item)}
                                     </DataGridCell>

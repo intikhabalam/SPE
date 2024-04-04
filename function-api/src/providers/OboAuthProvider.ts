@@ -1,27 +1,18 @@
 import { OnBehalfOfRequest } from "@azure/msal-node";
 import { AuthProvider } from "./AuthProvider";
-import { MissingAccessTokenError } from "../common/Errors";
+import { JwtProvider } from "./JwtProvider";
 
 export class OboAuthProvider extends AuthProvider {
-    public constructor(public userToken: string, scopes: string[] = ['FileStorageContainer.Selected']) {
-        super(scopes);
+    public constructor(private _jwt: JwtProvider, scopes: string[] = ['FileStorageContainer.Selected']) {
+        super(_jwt.tid!, scopes);
     }
     public async getToken(): Promise<string> {
         const request: OnBehalfOfRequest = {
-            oboAssertion: this.userToken,
+            oboAssertion: this._jwt.token,
             scopes: this.scopes
         };
         const result = await this.client.acquireTokenOnBehalfOf(request);
         return result!.accessToken;
     }
-    public static fromAuthorizationHeader(auth: string | null): OboAuthProvider {
-        if (!auth) {
-            throw new MissingAccessTokenError();
-        }
-        const [bearer, token] = auth.split(' ');
-        if (!token) {
-            throw new MissingAccessTokenError();
-        }
-        return new OboAuthProvider(token);
-    }
+
 }

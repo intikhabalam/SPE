@@ -3,9 +3,10 @@ import { DriveItem } from "@microsoft/microsoft-graph-types";
 import { OboAuthProvider } from "../providers/OboAuthProvider";
 import { GraphProvider, IDriveProcessingItem } from "../providers/GraphProvider";
 import { IContainerClientCreateRequest, IContainerColumn, IContainerCustomProperties, IContainerUpdateRequest } from "../../../common/schemas/ContainerSchemas";
-import { ApiError, MissingContainerDisplayNameError, MissingContainerIdError } from "../common/Errors";
+import { ApiError, InvalidAccessTokenError, MissingContainerDisplayNameError, MissingContainerIdError } from "../common/Errors";
 import { AppAuthProvider } from "../providers/AppAuthProvider";
 import { AzureDocAnalysisProvider, IReceiptFields } from "../providers/AzureDocAnalysisProvider";
+import { JwtProvider } from "../providers/JwtProvider";
 
 const processingStatusColumn = 'DocProcessingCompleted';
 const processingExclusionFilter = `listitem/fields/${processingStatusColumn} ne true`
@@ -25,8 +26,12 @@ export async function disableContainerProcessing(request: HttpRequest, context: 
         if (!containerId) {
             throw new MissingContainerIdError();
         }
-        const authProvider = new AppAuthProvider();//OboAuthProvider.fromAuthorizationHeader(request.headers.get('Authorization'));
-        const graph = new GraphProvider(authProvider);
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        if (!jwt || !await jwt.authorize() || !jwt.tid) {
+            throw new InvalidAccessTokenError();
+        }
+        const graph = new GraphProvider(new AppAuthProvider(jwt.tid));
+
         const container = await graph.getContainer(containerId);
         if (!container) {
             throw new Error(`Container ${containerId} not found`);
@@ -59,8 +64,11 @@ export async function enableContainerProcessing(request: HttpRequest, context: I
         if (!containerId) {
             throw new MissingContainerIdError();
         }
-        const authProvider = new AppAuthProvider();//OboAuthProvider.fromAuthorizationHeader(request.headers.get('Authorization'));
-        const graph = new GraphProvider(authProvider);
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        if (!jwt || !await jwt.authorize() || !jwt.tid) {
+            throw new InvalidAccessTokenError();
+        }
+        const graph = new GraphProvider(new AppAuthProvider(jwt.tid));
         const container = await graph.getContainer(containerId);
         if (!container) {
             throw new Error(`Container ${containerId} not found`);
@@ -92,7 +100,7 @@ export async function enableContainerProcessing(request: HttpRequest, context: I
             }
         }
 
-        const notificationUrl = `${process.env.API_HOSTNAME}/api/onDriveChanged?driveId=${containerId}`;
+        const notificationUrl = `${process.env.API_HOSTNAME}/api/onDriveChanged?tid=${jwt.tid}driveId=${containerId}`;
         console.log(`Subscribing to drive changes at ${notificationUrl}`);
         const subscription = await graph.subscribeToDriveChanges(containerId, notificationUrl);
         
@@ -126,10 +134,11 @@ export async function onDriveChanged(request: HttpRequest, context: InvocationCo
         const requestBody = await request.json() as IChangeNotificationRequestBody;
         validationToken = requestBody.validationToken!;
     }
-
+    const tenantId = request.query.get('driveId') || '';
     const driveId = request.query.get('driveId') || '';
-    if (driveId) {
-        processDrive(driveId).catch(console.error);
+    if (tenantId && driveId) {
+        const graph = new GraphProvider(new AppAuthProvider(tenantId));
+        processDrive(graph, driveId).catch(console.error);
     }
     if (validationToken) {
         return { 
@@ -140,9 +149,8 @@ export async function onDriveChanged(request: HttpRequest, context: InvocationCo
     return { };
 }
 
-async function processDrive(driveId: string): Promise<void> {
+async function processDrive(graph: GraphProvider, driveId: string): Promise<void> {
     try {
-        const graph = new GraphProvider(new AppAuthProvider());
         const items = await graph.getUnprocessedItems(driveId, processingExclusionFilter);
         for (const item of items) {
             // One at a time, and we'll abort the whole thing if one fails

@@ -19,9 +19,9 @@ import {
 import { Icon } from '@fluentui/react/lib/Icon';
 import { getFileTypeIconProps } from '@fluentui/react-file-type-icons';
 import { IDriveItem } from '../common/FileSchemas';
-import { GraphFilesProvider } from '../providers/GraphFilesProvider';
+import { GraphProvider } from '../providers/GraphProvider';
 
-const filesApi = GraphFilesProvider.instance;
+const filesApi = GraphProvider.instance;
 
 interface IFilesTableProps {
     containerId: string;

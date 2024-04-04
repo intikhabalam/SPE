@@ -10,7 +10,7 @@ import {
 } from '@fluentui/react-components';
 import { IContainer } from '../../../common/schemas/ContainerSchemas';
 import { ContainersApiProvider } from '../providers/ContainersApiProvider';
-import { CreateContainerDialog } from './CreateContainerButton';
+import { CreateContainerButton } from './CreateContainerButton';
 
 const containersApi = ContainersApiProvider.instance;
 
@@ -72,7 +72,7 @@ export const ContainersDropdown: React.FunctionComponent<IContainerDropdownProps
                     <Option key={option.id} value={option.id}>{option.displayName}</Option>
                 ))}
             </Dropdown>
-            <CreateContainerDialog isOpen={false} onContainerCreated={containerCreatedHandler} />
+            <CreateContainerButton isOpen={false} onContainerCreated={containerCreatedHandler} />
         </React.Fragment>
         
     );

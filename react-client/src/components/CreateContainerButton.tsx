@@ -15,6 +15,9 @@ import {
     Spinner,
     makeStyles,
 } from '@fluentui/react-components';
+import {
+    Add32Regular
+  } from '@fluentui/react-icons';
 import { IContainer, IContainerClientCreateRequest } from '../../../common/schemas/ContainerSchemas';
 import { ContainersApiProvider } from '../providers/ContainersApiProvider';
 
@@ -32,13 +35,13 @@ const useStyles = makeStyles({
     }
 });
 
-export type ICreateContainerDialogProps = {
+export type ICreateContainerButtonProps = {
     isOpen?: boolean;
     onAbort?: () => void;
     onContainerCreated?: (container: IContainer) => void;
 }
 
-export const CreateContainerDialog: React.FunctionComponent<ICreateContainerDialogProps> = (props: ICreateContainerDialogProps) => {
+export const CreateContainerButton: React.FunctionComponent<ICreateContainerButtonProps> = (props: ICreateContainerButtonProps) => {
     const [isOpen, setIsOpen] = useState(props.isOpen || false);
     const [displayName, setDisplayName] = React.useState('');
     const [description, setDescription] = React.useState('');
@@ -82,12 +85,7 @@ export const CreateContainerDialog: React.FunctionComponent<ICreateContainerDial
     const styles = useStyles();
     return (
         <>
-            <Button
-                appearance='primary'
-                onClick={() => setIsOpen(true)}
-            >
-                Create storage container
-            </Button>
+            <Button onClick={() => setIsOpen(true)} icon={<Add32Regular />} style={{ marginLeft: '5px'}} />
             <Dialog open={isOpen}>
                 <DialogSurface>
                     <DialogBody>

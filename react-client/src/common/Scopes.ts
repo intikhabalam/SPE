@@ -10,7 +10,7 @@ export const GRAPH_OPENID_CONNECT_BASIC = ["openid", "profile", "offline_access"
 export const GRAPH_FILESTORAGECONTAINER_SELECTED= 'FileStorageContainer.Selected';
 
 // microsoft graph scopes array
-export const ALL_GRAPH_SCOPES = [
+export const GRAPH_SCOPES = [
     GRAPH_USER_READ,
     GRAPH_USER_READ_ALL,
     GRAPH_FILESTORAGECONTAINER_SELECTED,
@@ -21,6 +21,14 @@ export const ALL_GRAPH_SCOPES = [
 export const SAMPLE_API_CONTAINER_MANAGE = `api://${Constants.AZURE_CLIENT_ID}/Container.Manage`;
 
 // sample app API scopes array
-export const ALL_SAMPLE_API_SCOPES = [
+export const SAMPLE_API_SCOPES = [
     SAMPLE_API_CONTAINER_MANAGE
+];
+
+// sharepoint scopes
+export const SP_CONTAINER_SELECTED = `${Constants.SP_ROOT_SITE_URL}/Container.Selected`;
+
+// embedded chat scopes
+export const CHAT_SCOPES = [
+    SP_CONTAINER_SELECTED
 ];

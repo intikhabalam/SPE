@@ -11,6 +11,11 @@ export class MissingAccessTokenError extends ApiError {
     }
 }
 
+export class InvalidAccessTokenError extends ApiError {
+    constructor() {
+        super('Invalid access token provided', 403);
+    }
+}
 export class MissingContainerDisplayNameError extends ApiError {
     constructor() {
         super('displayName is required', 400);

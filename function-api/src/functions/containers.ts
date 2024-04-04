@@ -2,8 +2,9 @@ import { app, HttpFunctionOptions, HttpRequest, HttpResponseInit, InvocationCont
 import { OboAuthProvider } from "../providers/OboAuthProvider";
 import { GraphProvider } from "../providers/GraphProvider";
 import { IContainerClientCreateRequest, IContainerUpdateRequest } from "../../../common/schemas/ContainerSchemas";
-import { ApiError, MissingContainerDisplayNameError } from "../common/Errors";
+import { ApiError, InvalidAccessTokenError, MissingContainerDisplayNameError } from "../common/Errors";
 import { AppAuthProvider } from "../providers/AppAuthProvider";
+import { JwtProvider } from "../providers/JwtProvider";
 
 export async function containers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     return request.method === 'POST' ? createContainer(request, context) : listContainers(request, context);
@@ -11,7 +12,12 @@ export async function containers(request: HttpRequest, context: InvocationContex
 
 export async function listContainers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const graph = new GraphProvider(new AppAuthProvider());
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        if (!jwt || !await jwt.authorize() || !jwt.tid) {
+            throw new InvalidAccessTokenError();
+        }
+        console.log(await new AppAuthProvider(jwt.tid).getToken());
+        const graph = new GraphProvider(new AppAuthProvider(jwt.tid));
         const containers = await graph.listContainers();
         return { jsonBody: containers };
     } catch (error) {
@@ -24,12 +30,15 @@ export async function listContainers(request: HttpRequest, context: InvocationCo
 
 export async function createContainer(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const authProvider = OboAuthProvider.fromAuthorizationHeader(request.headers.get('Authorization'));
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        if (!jwt || !await jwt.authorize() || !jwt.tid) {
+            throw new InvalidAccessTokenError();
+        }
+        const graph = new GraphProvider(new OboAuthProvider(jwt));
         const clientCreateRequest: IContainerClientCreateRequest = await request.json() as IContainerClientCreateRequest;
         if (!clientCreateRequest.displayName) {
             throw new MissingContainerDisplayNameError();
         }
-        const graph = new GraphProvider(authProvider);
         return { jsonBody: await graph.createContainer(clientCreateRequest) };
     } catch (error) {
         if (error instanceof ApiError) {
@@ -45,10 +54,13 @@ export async function container(request: HttpRequest, context: InvocationContext
 
 export async function updateContainer(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const authProvider = OboAuthProvider.fromAuthorizationHeader(request.headers.get('Authorization'));
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        if (!jwt || !await jwt.authorize() || !jwt.tid) {
+            throw new InvalidAccessTokenError();
+        }
+        const graph = new GraphProvider(new OboAuthProvider(jwt));
         const id = request.params.id;
         const updateRequest: IContainerUpdateRequest = await request.json() as IContainerUpdateRequest;
-        const graph = new GraphProvider(authProvider);
         return { jsonBody: await graph.updateContainer(id, updateRequest) };
     } catch (error) {
         if (error instanceof ApiError) {
@@ -60,9 +72,12 @@ export async function updateContainer(request: HttpRequest, context: InvocationC
 
 export async function getContainer(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const authProvider = OboAuthProvider.fromAuthorizationHeader(request.headers.get('Authorization'));
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        if (!jwt || !await jwt.authorize() || !jwt.tid) {
+            throw new InvalidAccessTokenError();
+        }
+        const graph = new GraphProvider(new OboAuthProvider(jwt));
         const id = request.params.id;
-        const graph = new GraphProvider(authProvider);
         return { jsonBody: await graph.getContainer(id) };
     } catch (error) {
         if (error instanceof ApiError) {
@@ -71,6 +86,45 @@ export async function getContainer(request: HttpRequest, context: InvocationCont
         return { status: 500, body: `Get container failed: ${error}` };
     }
 };
+
+export async function validate(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        const userToken = {
+            token: jwt!.token,
+            decoded: jwt!.decoded,
+            tid: jwt!.tid,
+            valid: await jwt!.verify(),
+            authorized: await jwt!.authorize()
+        }
+        const appTokenString = await new AppAuthProvider(jwt!.tid!).getToken();
+        const appJwt = new JwtProvider(appTokenString);
+        const appToken = {
+            token: appJwt!.token,
+            decoded: appJwt!.decoded,
+            tid: appJwt!.tid,
+            valid: await appJwt!.verify(),
+            authorized: await appJwt!.authorize()       
+        }
+        const response = {
+            userToken: userToken,
+            appToken: appToken
+        }
+        return { jsonBody: response };
+    } catch (error) {
+        if (error instanceof ApiError) {
+            return { status: error.status, body: error.message };
+        }
+        return { status: 500, body: `Get container failed: ${error}` };
+    }
+};
+
+
+app.http('validate', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    handler: validate
+});
 
 app.http('containers', {
     methods: ['GET', 'POST'],

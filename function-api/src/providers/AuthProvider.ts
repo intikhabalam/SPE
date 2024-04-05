@@ -17,6 +17,7 @@ export abstract class AuthProvider {
                 clientSecret: process.env.AZURE_CLIENT_SECRET
             }
         });
+        console.log(this.client);
     }
 
     public static async verifyAuthHeader(auth: string | null): Promise<boolean> {

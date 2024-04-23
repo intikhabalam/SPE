@@ -503,7 +503,6 @@ export const EmbeddedChat = React.forwardRef<ICopilotChatHostRef | undefined, IC
       <iframe
         data-automationid='ChatODSPFrame'
         className="spe-chatodsp-iframe"
-        //className={styles.frame}
         ref={onIFrameRef}
         onError={onIFrameError}
         title='ChatODSPFrame'

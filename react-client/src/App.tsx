@@ -3,6 +3,7 @@ import './App.css';
 import React, {
   useState, useEffect
 } from "react";
+import type { IQueryAnnotation } from '@augloop-types/odsp-copilot';
 import {
   Providers,
   ProviderState
@@ -47,6 +48,9 @@ import ContainerBrowser from './components/ContainerBrowser';
 import { IContainer } from '../../common/schemas/ContainerSchemas';
 import { CreateContainerButton } from './components/CreateContainerButton';
 import { GraphProvider } from './providers/GraphProvider';
+import { ICommand, IResult } from '@ms/utilities-cross-window';
+import { generate } from '@ms/utilities-guid';
+import { IChatODSPGenerateQueryContextResult } from '@ms/embed-host-contracts/lib/chatodsp/Result';
 
 const chatAuthProvider = new ChatAuthProvider();
 
@@ -89,7 +93,7 @@ function App() {
     if (isSignedIn) {
       GraphProvider.instance.getSpUrl().then((url) => {
         setSpUrl(url);
-        setChatUrl(`${url}/_layouts/15/chat.aspx`);
+        setChatUrl(`${url}/_layouts/15/chatEmbedded.aspx`);
       });
     }
   }, [isSignedIn]);
@@ -103,6 +107,16 @@ function App() {
       const scope = `${spUrl}/Container.Selected`;
       return chatAuthProvider.getToken([scope]);
     }
+  }
+
+  const preProcessQuery = (query: string, annotations: IQueryAnnotation[] | undefined): Promise<string> => {
+    console.log(`preProcessQuery: ${query}`);
+    return Promise.resolve(query);
+  }
+
+  const generateQueryContext = (query: string, annotations: IQueryAnnotation[] | undefined): Promise<string> => {
+    console.log(`generateQueryContext: ${query}`);
+    return Promise.resolve('');
   }
 
   const toggleChat = () => {
@@ -217,6 +231,8 @@ function App() {
                     chatEmbeddedPageUrl={chatUrl}
                     onLoad={onEmbeddedChatLoad}
                     getAuthToken={getChatToken}
+                    preProcessQuery={preProcessQuery}
+                    generateQueryContext={generateQueryContext}
                   />
                 )}
               </div>

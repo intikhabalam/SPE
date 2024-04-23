@@ -9,7 +9,10 @@
     "prestart": "npm run clean && npm run build",
     "start": "func start --port 7072",
     "test": "echo \"No tests yet...\"",
-    "host": "ngrok http 7072"
+    "host": "ngrok http 7072",
+    "publish": "npm run publish-bits && npm run publish-settings",
+    "publish-bits": "func azure functionapp publish marcspefunctions",
+    "publish-settings": "func azure functionapp publish marcspefunctions --publish-settings-only"
   },
   "dependencies": {
     "@azure/ai-form-recognizer": "^5.0.0",

@@ -10,6 +10,9 @@ export abstract class AuthProvider {
     protected client: ConfidentialClientApplication;
     public constructor(private readonly _tid: string, public readonly scopes: string[] = ['https://graph.microsoft.com/.default']) {
         const authority = `https://login.microsoftonline.com/${_tid}`;
+        console.log(`Authority: ${authority}`);
+        console.log(`Client ID: ${process.env.AZURE_CLIENT_ID}`);
+        console.log(`Client Secret: ${process.env.AZURE_CLIENT_SECRET}`);
         this.client = new ConfidentialClientApplication({
             auth: {
                 clientId: process.env.AZURE_CLIENT_ID!,
@@ -17,7 +20,6 @@ export abstract class AuthProvider {
                 clientSecret: process.env.AZURE_CLIENT_SECRET
             }
         });
-        console.log(this.client);
     }
 
     public static async verifyAuthHeader(auth: string | null): Promise<boolean> {

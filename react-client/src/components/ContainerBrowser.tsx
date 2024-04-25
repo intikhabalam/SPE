@@ -20,38 +20,67 @@ import { GraphProvider } from '../providers/GraphProvider';
 import { getFileTypeIconProps } from '@fluentui/react-file-type-icons';
 import { Icon } from '@fluentui/react';
 import ContainerActionBar from './ContainerActionBar';
+import { useLoaderData } from 'react-router-dom';
+import { ILoaderParams } from '../common/ILoaderParams';
 
 const containersApi = ContainersApiProvider.instance;
 const filesApi = GraphProvider.instance;
 
 export interface IContainerContentBrowserProps {
-    container: IContainer;
+    container: IContainer | string;
 }
 
-export const ContainerBrowser: React.FunctionComponent<IContainerContentBrowserProps> = (props: IContainerContentBrowserProps) => {
-    const [container, setContainer] = useState<IContainer>(props.container);
+export async function loader({ params }: ILoaderParams): Promise<IContainer | undefined> {
+    console.log('ContainerBrowser.loader');
+    console.log(params);
+    const containerId = params.containerId as string || undefined;
+    if (containerId) {
+        console.log('fetching container using id ' + containerId);
+        const container = await containersApi.get(containerId);
+        console.log('fetched container ' + container.displayName);
+        return container;
+    }
+}
+
+export const ContainerBrowser: React.FunctionComponent = () => {
+    //const [container, setContainer] = useState<IContainer | undefined>();
+    const container = useLoaderData() as IContainer | undefined;
+    console.log('ContainerBrowser');
+    console.log(container);
     const [parentId, setParentId] = useState<string>('root');
     const [driveItems, setDriveItems] = useState<IDriveItem[]>([] as IDriveItem[]);
     const [folderPath, setFolderPath] = useState<IDriveItem[]>([] as IDriveItem[]);
     const [selectedItem, setSelectedItem] = useState<IDriveItem | undefined>(undefined);
     const [selectedItemKeys, setSelectedItemKeys] = useState<string[]>([]);
     const [refreshTime, setRefreshTime] = useState<number>(0);
+/*
+    let containerId: string;
+    if (props.container instanceof String) {
+        containerId = props.container as string;
+    } else {
+        const containerObj = props.container as IContainer;
+        containerId = containerObj.id;
+        setContainer(containerObj);
+    }
 
     useEffect(() => {
         (async () => {
-            containersApi.get(props.container.id)
+            containersApi.get(containerId)
                 .then(setContainer)
                 .catch(console.error);
         })();
-    }, [props.container.id, refreshTime]);
-
+    }, [containerId, refreshTime]);
+*/
     useEffect(() => {
         (async () => {
-            filesApi.listItems(props.container.id, parentId)
+            if (!container) {
+                return;
+            }
+            filesApi.listItems(container.id, parentId)
                 .then(setDriveItems)
                 .catch(console.error);
         })();
-    }, [props.container.id, parentId, refreshTime]);
+    }, [container, parentId, refreshTime]);
 
     const refresh = () => {
         setRefreshTime(new Date().getTime());
@@ -99,6 +128,9 @@ export const ContainerBrowser: React.FunctionComponent<IContainerContentBrowserP
     }
 
     const onFilePreviewSelected = async (file: IDriveItem) => {
+        if (!container) {
+            return;
+        }
         if (!file.isFile) {
             return;
         }
@@ -175,7 +207,7 @@ export const ContainerBrowser: React.FunctionComponent<IContainerContentBrowserP
             }
         }),
     ];
-    if (container.customProperties?.docProcessingSubscriptionId) {
+    if (container?.customProperties?.docProcessingSubscriptionId) {
         columns.push(
             createTableColumn<IDriveItem>({
                 columnId: 'Merchant',
@@ -243,6 +275,7 @@ export const ContainerBrowser: React.FunctionComponent<IContainerContentBrowserP
 
     return (
         <div className="container-browser">
+            { container && (<>
             <div className="container-actions">
                 <ContainerActionBar
                     container={container}
@@ -306,6 +339,7 @@ export const ContainerBrowser: React.FunctionComponent<IContainerContentBrowserP
                     </DataGridBody>
                 </DataGrid>
             </div>
+            </>)}
         </div>
     );
 }

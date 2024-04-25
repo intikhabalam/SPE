@@ -3,8 +3,15 @@ import * as Msal from '@azure/msal-browser';
 import * as Constants from '../common/Constants';
 import * as Scopes from '../common/Scopes';
 
-export class ChatAuthProvider {
+export class CustomAppApiAuthProvider {
 
+    private _initialized: boolean = false;
+    private async initialize(): Promise<void> {
+        if (!this._initialized) {
+            await this.client.initialize();
+            this._initialized = true;
+        }
+    }
     public client: Msal.PublicClientApplication;
     
     public constructor() {
@@ -14,7 +21,7 @@ export class ChatAuthProvider {
                 authority: Constants.AUTH_AUTHORITY,
             },
             cache: {
-                cacheLocation: 'localStorage',
+                cacheLocation: 'sessionStorage',
                 storeAuthStateInCookie: false
             }
         };
@@ -31,18 +38,30 @@ export class ChatAuthProvider {
         return `${protocol}//${hostname}${port}`;
     }
 
-    public async getToken(scopes: string[] = Scopes.CHAT_SCOPES): Promise<string> {
-        await this.client.initialize();
+    public async getToken(scopes: string[] = [Scopes.SAMPLE_API_CONTAINER_MANAGE]): Promise<string> {
+        await this.initialize();
+
         const tokenRequest: Msal.SilentRequest = {
             scopes: scopes,
             prompt: 'select_account',
-            //redirectUri: this.redirectUri
+            redirectUri: this.redirectUri,
         };
+        let account = this.client.getActiveAccount();
         try {
-            return (await this.client.acquireTokenSilent(tokenRequest)).accessToken;
+            if (account) {
+                tokenRequest.account = account;
+                const result = await this.client.acquireTokenSilent(tokenRequest);
+                this.client.setActiveAccount(result.account);
+                return result.accessToken;
+            }
+            throw new Msal.InteractionRequiredAuthError();
         } catch (error) {
             if (error instanceof Msal.InteractionRequiredAuthError) {
-                return (await this.client.acquireTokenPopup(tokenRequest)).accessToken;
+                //await this.client.acquireTokenRedirect(tokenRequest);
+                //return '';
+                const result = await this.client.acquireTokenPopup(tokenRequest);
+                this.client.setActiveAccount(result.account);
+                return result.accessToken;
             } else {
                 throw error;
             }

@@ -99,8 +99,9 @@ export async function enableContainerProcessing(request: HttpRequest, context: I
                 await graph.addContainerColumn(containerId, newColumn);
             }
         }
-
-        const notificationUrl = `${process.env.API_HOSTNAME}/api/onDriveChanged?tid=${jwt.tid}driveId=${containerId}`;
+        const url = new URL(request.url);
+        const hostname = url.hostname;
+        const notificationUrl = `${hostname}/api/onDriveChanged?tid=${jwt.tid}driveId=${containerId}`;
         console.log(`Subscribing to drive changes at ${notificationUrl}`);
         const subscription = await graph.subscribeToDriveChanges(containerId, notificationUrl);
         

@@ -1,21 +1,30 @@
 
 import { IContainer, IContainerClientCreateRequest, IContainerUpdateRequest } from '../../../common/schemas/ContainerSchemas';
-import { ContainersApiAuthProvider } from './ContainersApiAuthProvider';
+import * as Scopes from '../common/Scopes';
+import { ProviderState, Providers } from '@microsoft/mgt-element';
+import { CustomAppApiAuthProvider } from './CustomAppApiAuthProvider';
 
 export class ContainersApiProvider {
     public readonly apiUrl: string = process.env.REACT_APP_SAMPLE_API_URL || 'http://localhost:7071/api';
-    private readonly _authProvider: ContainersApiAuthProvider;
+    public readonly apiScope: string = Scopes.SAMPLE_API_CONTAINER_MANAGE;
 
     public static readonly instance: ContainersApiProvider = new ContainersApiProvider();
-
-    private constructor(authProvider: ContainersApiAuthProvider = new ContainersApiAuthProvider()) {
-        this._authProvider = authProvider;
+    private _authProvider: { getToken: () => Promise<string> };
+    public get authProvider() {
+        return this._authProvider;
+    }
+    public set authProvider(value: { getToken: () => Promise<string> }) {
+        this._authProvider = value;
+    }
+    
+    private constructor() {
+        this._authProvider = new CustomAppApiAuthProvider();
     }
     
     public async list(): Promise<IContainer[]> {
         const request: RequestInit = {
             method: 'GET',
-            headers: this._headers(await this._authProvider.getToken())
+            headers: this._headers(await this.authProvider.getToken())
         };
         return await this._send('/containers', request) as IContainer[];
     }
@@ -23,7 +32,7 @@ export class ContainersApiProvider {
     public async get(id: string): Promise<IContainer> {
         const request: RequestInit = {
             method: 'GET',
-            headers: this._headers(await this._authProvider.getToken())
+            headers: this._headers(await this.authProvider.getToken())
         };
         return await this._send(`/containers/${id}`, request) as IContainer;
     }
@@ -31,7 +40,7 @@ export class ContainersApiProvider {
     public async create(container: IContainerClientCreateRequest): Promise<IContainer> {
         const request: RequestInit = {
             method: 'POST',
-            headers: this._headers(await this._authProvider.getToken()),
+            headers: this._headers(await this.authProvider.getToken()),
             body: JSON.stringify(container)
         };
         return await this._send('/containers', request) as IContainer;
@@ -40,7 +49,7 @@ export class ContainersApiProvider {
     public async enableProcessing(id: string): Promise<IContainer> {
         const request: RequestInit = {
             method: 'GET',
-            headers: this._headers(await this._authProvider.getToken())
+            headers: this._headers(await this.authProvider.getToken())
         };
         return await this._send(`/enableContainerProcessing?containerId=${id}`, request) as IContainer;
     }
@@ -48,7 +57,7 @@ export class ContainersApiProvider {
     public async disableProcessing(id: string): Promise<IContainer> {
         const request: RequestInit = {
             method: 'GET',
-            headers: this._headers(await this._authProvider.getToken())
+            headers: this._headers(await this.authProvider.getToken())
         };
         return await this._send(`/disableContainerProcessing?containerId=${id}`, request) as IContainer;
     }
@@ -62,7 +71,7 @@ export class ContainersApiProvider {
         delete containerUpdate.id;
         const request: RequestInit = {
             method: 'PUT',
-            headers: this._headers(await this._authProvider.getToken()),
+            headers: this._headers(await this.authProvider.getToken()),
             body: JSON.stringify(containerUpdate)
         };
         return await this._send(`/containers/${id}`, request) as IContainer;

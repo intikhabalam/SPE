@@ -71,6 +71,12 @@ export class GraphProvider {
         return response as IContainer;
     }
 
+    public async deleteContainer(id: string): Promise<void> {
+        const response = await this._client
+            .api(`/storage/fileStorage/containers/${id}`)
+            .version('beta')
+            .delete();
+    }
     public async updateContainer(id: string, updateRequest: IContainerUpdateRequest): Promise<IContainer> {
         const response = await this._client
             .api(`/storage/fileStorage/containers/${id}`)
@@ -167,6 +173,19 @@ export class GraphProvider {
             .patch(fields);
     }
 
+    public async getDriveItemByPath(driveId: string, itemPath: string): Promise<DriveItem> {
+        const response = await this._client
+            .api(`/drives/${driveId}/root:/${itemPath}`)
+            .get();
+        return response as DriveItem;
+    }
+
+    public async createDriveItemAtRoot(driveId: string, itemName: string): Promise<DriveItem> {
+        const response = await this._client
+            .api(`/drives/${driveId}/root:/${itemName}:/content`)
+            .putStream(null);
+        return response as DriveItem;
+    }
 
     public async getDriveItemStream(downloadUrl: string): Promise<Readable> {
         const token = await this._authProvider.getToken();

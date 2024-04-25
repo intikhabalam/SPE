@@ -36,7 +36,7 @@ export const ContainersView: React.FunctionComponent = (props: any) => {
             </div>
             <div className={styles.containerSelector}>      
                 {selectedContainer && (
-                    <ContainerBrowser container={selectedContainer} />
+                    <ContainerBrowser />
                 )}
             </div>
         </div>

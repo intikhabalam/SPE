@@ -16,8 +16,10 @@ export async function listContainers(request: HttpRequest, context: InvocationCo
         if (!jwt || !await jwt.authorize() || !jwt.tid) {
             throw new InvalidAccessTokenError();
         }
-        console.log(await new AppAuthProvider(jwt.tid).getToken());
-        const graph = new GraphProvider(new AppAuthProvider(jwt.tid));
+        const authProvider = new AppAuthProvider(jwt.tid);
+        const token = await authProvider.getToken();
+        console.log(token);
+        const graph = new GraphProvider(authProvider);
         const containers = await graph.listContainers();
         return { jsonBody: containers };
     } catch (error) {

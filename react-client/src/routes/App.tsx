@@ -60,7 +60,7 @@ const useIsSignedIn = () => {
 
 function App() {  
   const containerTypeId = Constants.SPE_CONTAINER_TYPE_ID;
-  const baseSearchQuery = `ContainerTypeId:${containerTypeId} AND Title:'posting'`;
+  const baseSearchQuery = `ContainerTypeId:${containerTypeId} AND Title:'[Job Posting]*'`;
   const [selectedContainer, setSelectedContainer] = useState<IContainer | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState<string>(baseSearchQuery)
   const [showSearchResults, setShowSearchResults] = useState<boolean>(false);

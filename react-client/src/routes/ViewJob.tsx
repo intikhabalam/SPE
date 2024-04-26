@@ -21,6 +21,7 @@ export async function action({ params, request }: ILoaderParams) {
     if (job && fields.createPostingDoc) {
         await JobsApiProvider.instance.createPostingDoc(job.id);
         job = await JobsApiProvider.instance.get(job.id);
+        window.open(job.postingDoc?.webUrl, '_blank');
     }
     return job;
 }

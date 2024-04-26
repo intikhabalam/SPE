@@ -18,7 +18,7 @@ export class JobsApiProvider {
     }
     
     private constructor() {
-        this._authProvider = new CustomAppApiAuthProvider();
+        this._authProvider = CustomAppApiAuthProvider.instance;
     }
     
     public async list(): Promise<Job[]> {

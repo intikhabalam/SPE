@@ -26,6 +26,7 @@ export interface IJob extends IJobUpdateRequest {
     postingDoc?: IJobPostingDoc;
 }
 
+
 export interface IJobPostingDoc {
     id: string;
     lastModifiedDateTime: string;
@@ -37,6 +38,7 @@ export interface IJobPostingDoc {
         }
     },
     webUrl: string;
+    name: string;
 }
 
 export interface IJobColumn {

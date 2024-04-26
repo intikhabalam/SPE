@@ -92,12 +92,14 @@ function App() {
               onBlur={() => setTimeout(setShowSearchResults.bind(null, false), 200)}
             />
             {showSearchResults && (
+            <div className="spe-app-search-results-background">
             <SearchResults 
               className="spe-app-search-results"
               entityTypes={['driveItem']} 
               fetchThumbnail={true} 
               queryString={searchQuery} 
             />
+            </div>
             )}
           </div>
           <div className="spe-app-header-actions">

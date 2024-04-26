@@ -5,10 +5,11 @@ import App from './routes/App';
 import reportWebVitals from './reportWebVitals';
 import {
   createBrowserRouter,
+  redirect,
   RouterProvider
 } from "react-router-dom";
-import { CacheService, Providers, ProviderState } from "@microsoft/mgt-element";
-import { Msal2Provider } from "@microsoft/mgt-msal2-provider";
+import { CacheService, LoginType, Providers, ProviderState } from "@microsoft/mgt-element";
+import { Msal2Provider, PromptType } from "@microsoft/mgt-msal2-provider";
 import * as Constants from './common/Constants';
 import * as Scopes from './common/Scopes';
 import { initializeFileTypeIcons } from '@fluentui/react-file-type-icons';
@@ -20,23 +21,24 @@ import { JobsApiProvider } from './providers/JobsApiProvider';
 import { Jobs, loader as jobsLoader, action as createJobAction } from './routes/Jobs';
 import { ViewJob, loader as jobLoader, action as updateJobAction } from './routes/ViewJob';
 import { ViewJobPosting, loader as jobPostingLoader } from './routes/ViewJobPosting';
+import { Home } from './routes/Home';
 
 // Register icons and pull the fonts from the default Microsoft Fluent CDN:
 initializeFileTypeIcons();
 
 const provider = new Msal2Provider({
-  clientId: Constants.AZURE_CLIENT_ID!,
+  clientId: Constants.REACT_APP_AZURE_SERVER_APP_ID,
   authority: Constants.AUTH_AUTHORITY,
-  scopes: Scopes.GRAPH_SCOPES
+  scopes: Scopes.GRAPH_SCOPES,
+  redirectUri: window.location.origin,
+  loginType: LoginType.Redirect,
+  prompt: PromptType.SELECT_ACCOUNT,
 });
 Providers.globalProvider = provider;
+
 provider.onStateChanged(() => {
-  const account = provider.getActiveAccount();
-  if (account) {
-    const appApiAuthProvider = new CustomAppApiAuthProvider();
-    appApiAuthProvider.getToken().then(token => {
-      JobsApiProvider.instance.authProvider = appApiAuthProvider;
-    });
+  if (provider.state === ProviderState.SignedOut) {
+    CustomAppApiAuthProvider.instance.client.clearCache();
   }
 });
 
@@ -46,13 +48,10 @@ const router = createBrowserRouter([
     element: <App />,
     errorElement: <ErrorPage />,
     children: [
-      /*
       {
-        path: "/:containerId",
-        element: <ContainerBrowser />,
-        loader: containerLoader,
+        path: "/",
+        element: <Home />
       },
-      */
       {
         path: "/jobs",
         element: <Jobs />,
@@ -68,7 +67,7 @@ const router = createBrowserRouter([
     ]
   },
 ]);
-//<App />
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );

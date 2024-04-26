@@ -18,7 +18,7 @@ export class ContainersApiProvider {
     }
     
     private constructor() {
-        this._authProvider = new CustomAppApiAuthProvider();
+        this._authProvider = CustomAppApiAuthProvider.instance;
     }
     
     public async list(): Promise<IContainer[]> {
@@ -75,6 +75,14 @@ export class ContainersApiProvider {
             body: JSON.stringify(containerUpdate)
         };
         return await this._send(`/containers/${id}`, request) as IContainer;
+    }
+
+    public async registerContainerType(): Promise<any> {
+        const request: RequestInit = {
+            method: 'PUT',
+            headers: this._headers(await this.authProvider.getToken())
+        };
+        return await this._send('/registerContainerType', request);
     }
 
 

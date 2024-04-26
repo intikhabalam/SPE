@@ -2,12 +2,18 @@ import { Form, Link, useActionData, useLoaderData, useNavigate, useSubmit } from
 import { ILoaderParams } from "../common/ILoaderParams";
 import { JobsApiProvider } from "../providers/JobsApiProvider";
 import { IJob, IJobClientCreateRequest } from "../../../common/schemas/JobSchemas";
-import { Button, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle, DialogTrigger, Input, Label } from "@fluentui/react-components";
+import { Breadcrumb, BreadcrumbButton, BreadcrumbItem, Button, DataGrid, DataGridBody, DataGridCell, DataGridHeader, DataGridHeaderCell, DataGridRow, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle, DialogTrigger, Input, Label, TableCellLayout, TableColumnDefinition, Tag, createTableColumn } from "@fluentui/react-components";
 import { useRef, useState } from "react";
+import { Job } from "../model/Job";
+import { getFileTypeIconProps } from "@fluentui/react-file-type-icons";
+import { Icon, Link as FluentLink } from "@fluentui/react";
 
-
-export async function loader({ params }: ILoaderParams): Promise<IJob[]> {
-    return await JobsApiProvider.instance.list();
+export async function loader({ params }: ILoaderParams): Promise<Job[]> {
+    const jobsLite = await JobsApiProvider.instance.list();
+    const jobs = jobsLite.map(async (job) => {
+        return await JobsApiProvider.instance.get(job.id)
+    });
+    return Promise.all(jobs);
 }
 
 export async function action({ params, request }: ILoaderParams) {
@@ -36,8 +42,86 @@ export const Jobs: React.FunctionComponent = () => {
         setDescription("");
     }
 
+    const columns: TableColumnDefinition<Job>[] = [
+        createTableColumn({
+            columnId: 'displayName',
+            renderHeaderCell: () => {
+                return 'Job Title'
+            },
+            renderCell: (job) => {
+                return (
+                    <TableCellLayout>
+                        <Link to={job.id}>{job.displayName}</Link>
+                    </TableCellLayout>
+                )
+            }
+        }),
+        createTableColumn({
+            columnId: 'description',
+            renderHeaderCell: () => {
+                return 'Description'
+            },
+            renderCell: (job) => {
+                return (
+                    <TableCellLayout>
+                        {job.description}
+                    </TableCellLayout>
+                )
+            }
+        }),
+        createTableColumn({
+            columnId: 'createdDate',
+            renderHeaderCell: () => {
+                return 'Created'
+            },
+            renderCell: (job) => {
+                return (
+                    <TableCellLayout>
+                        {job.createdDateTime}
+                    </TableCellLayout>
+                )
+            }
+        }),
+        createTableColumn({
+            columnId: 'state',
+            renderHeaderCell: () => {
+                return 'State'
+            },
+            renderCell: (job) => {
+                return (
+                    <TableCellLayout>
+                        <Tag appearance="brand">{job.state}</Tag>
+                    </TableCellLayout>
+                )
+            }
+        }),
+        createTableColumn({
+            columnId: 'posting',
+            renderHeaderCell: () => {
+                return 'Posting Document'
+            },
+            renderCell: (job) => {
+                const iconProps = getFileTypeIconProps({ extension: 'docx', size: 24 });
+                return (
+                    <TableCellLayout>
+                        {job.postingDoc && job.postingDoc.name && job.postingDoc.webUrl && (<>
+                            <Icon {...iconProps} />
+                            <FluentLink href={job.postingDoc?.webUrl} target="_blank" >{job.postingDoc?.name}</FluentLink>
+                        </>)}
+                    </TableCellLayout>
+                )
+            }
+        }),
+    ];
     return (
         <div>
+            <div className="view-job-breadcrumb">
+                <Breadcrumb size='large'>
+                    <BreadcrumbItem>
+                        <BreadcrumbButton size='large' onClick={() => navigate('/jobs')}>Jobs</BreadcrumbButton>
+                    </BreadcrumbItem>
+                </Breadcrumb>
+            </div>
             <Form>
             <Dialog>
                 <DialogTrigger disableButtonEnhancement>
@@ -77,27 +161,41 @@ export const Jobs: React.FunctionComponent = () => {
                 </DialogSurface>
                 </Dialog>
             </Form>
-            <h1>Recent Jobs</h1>
-            <ul>
-                {jobs.map((job: IJob) => (
-                    <li key={job.id}>
-                        <Link to={job.id} >{ job.displayName }</Link>
-                    </li>
-                ))}
-            </ul>
-            <h1>New Job</h1>
-            <Form method="POST">
-                <Label>Job title</Label>
-                <input
-                    placeholder="Job title"
-                    aria-label="Job title"
-                    type="text"
-                    name="displayName"
-                />
-                <Button appearance="primary" type="submit">
-                    Create
-                </Button>
-            </Form>
+            <h2>Recent</h2>
+            <DataGrid
+                items={jobs}
+                columns={columns}
+                getRowId={(item) => item.id}
+                resizableColumns
+                selectionMode="single"
+                //columnSizingOptions={columnSizingOptions}
+                //selectedItems={selectedItems}
+                //onSelectionChange={onSelectionChange}
+            >
+            <DataGridHeader>
+                <DataGridRow
+                    selectionCell={{checkboxIndicator: { "aria-label": "Select row" }}}
+                >
+                    {({ renderHeaderCell }) => (
+                        <DataGridHeaderCell><b>{renderHeaderCell()}</b></DataGridHeaderCell>
+                    )}
+                </DataGridRow>
+            </DataGridHeader>
+            <DataGridBody<Job>>
+                {({ item, rowId }) => (
+                    <DataGridRow<Job> 
+                        key={rowId}
+                        selectionCell={{checkboxIndicator: { "aria-label": "Select row" }}}
+                    >
+                        {({ renderCell, columnId }) => (
+                            <DataGridCell>
+                                {renderCell(item)}
+                            </DataGridCell>
+                        )}
+                    </DataGridRow>
+                )}
+            </DataGridBody>
+        </DataGrid>
         </div>
     );
 }

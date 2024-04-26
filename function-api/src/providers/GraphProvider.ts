@@ -113,6 +113,13 @@ export class GraphProvider {
             .patch(customProperties);
     }
 
+    public async getRootSiteUrl(): Promise<string> {
+        const response = await this._client
+            .api('/sites/root')
+            .get();
+        return response.webUrl as string;
+    }
+
     public async removeDriveSubscriptions(driveId: string): Promise<void> {
         interface ISubscription {
             id: string;

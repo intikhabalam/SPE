@@ -2,6 +2,7 @@
 import * as Msal from '@azure/msal-browser';
 import * as Constants from '../common/Constants';
 import * as Scopes from '../common/Scopes';
+import { Providers } from '@microsoft/mgt-element';
 
 export class CustomAppApiAuthProvider {
 
@@ -12,16 +13,17 @@ export class CustomAppApiAuthProvider {
             this._initialized = true;
         }
     }
-    public client: Msal.PublicClientApplication;
+    public readonly client: Msal.PublicClientApplication;
+    public static readonly instance: CustomAppApiAuthProvider = new CustomAppApiAuthProvider();
     
-    public constructor() {
+    private constructor() {
         const msalConfig: Msal.Configuration = {
             auth: {
                 clientId: Constants.AZURE_CLIENT_ID!,
                 authority: Constants.AUTH_AUTHORITY,
             },
             cache: {
-                cacheLocation: 'sessionStorage',
+                cacheLocation: 'localStorage',
                 storeAuthStateInCookie: false
             }
         };
@@ -40,7 +42,6 @@ export class CustomAppApiAuthProvider {
 
     public async getToken(scopes: string[] = [Scopes.SAMPLE_API_CONTAINER_MANAGE]): Promise<string> {
         await this.initialize();
-
         const tokenRequest: Msal.SilentRequest = {
             scopes: scopes,
             prompt: 'select_account',
@@ -51,17 +52,24 @@ export class CustomAppApiAuthProvider {
             if (account) {
                 tokenRequest.account = account;
                 const result = await this.client.acquireTokenSilent(tokenRequest);
-                this.client.setActiveAccount(result.account);
+                //this.client.setActiveAccount(result.account);
                 return result.accessToken;
             }
             throw new Msal.InteractionRequiredAuthError();
         } catch (error) {
             if (error instanceof Msal.InteractionRequiredAuthError) {
-                //await this.client.acquireTokenRedirect(tokenRequest);
-                //return '';
-                const result = await this.client.acquireTokenPopup(tokenRequest);
-                this.client.setActiveAccount(result.account);
-                return result.accessToken;
+                const redirectResponse = await this.client.handleRedirectPromise();
+                if (redirectResponse && redirectResponse.account && redirectResponse.accessToken) {
+                    console.log('Redirect response:', redirectResponse);
+                    window.location.hash = '';
+                    this.client.setActiveAccount(redirectResponse.account);
+                    return redirectResponse.accessToken;
+                }
+                await this.client.acquireTokenRedirect(tokenRequest);
+                return '';
+                //const result = await this.client.acquireTokenPopup(tokenRequest);
+                //this.client.setActiveAccount(result.account);
+                //return result.accessToken;
             } else {
                 throw error;
             }

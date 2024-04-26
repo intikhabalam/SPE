@@ -58,6 +58,10 @@ body {
   overflow: auto;
 }
 
+.spe-app-search-results-background {
+  background-color: white;
+}
+
 .spe-app-header-actions {
   flex: 1;
   display: flex;
@@ -131,6 +135,12 @@ body {
   margin-right: 25px;
 
   background-color: white;
+}
+
+.setup-steps li {
+  margin: 20px;
+  font-size: 16px;
+
 }
 
 .edit-job {

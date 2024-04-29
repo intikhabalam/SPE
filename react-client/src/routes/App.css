@@ -283,7 +283,6 @@ body {
   font-weight: 500;;
 }
 
-
 .view-job-breadcrumb {
   margin-bottom: 40px;
 }
@@ -297,7 +296,7 @@ body {
   font-weight: 500;
 }
 
-.view-job-breadcrumb button {
+.edit-job button {
   margin: 5px;
 }
 

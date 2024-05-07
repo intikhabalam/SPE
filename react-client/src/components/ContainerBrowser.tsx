@@ -33,7 +33,7 @@ export interface IContainerContentBrowserProps {
 export async function loader({ params }: ILoaderParams): Promise<IContainer | undefined> {
     console.log('ContainerBrowser.loader');
     console.log(params);
-    const containerId = params.containerId as string || undefined;
+    const containerId = params.driveId as string || undefined;
     if (containerId) {
         console.log('fetching container using id ' + containerId);
         const container = await containersApi.get(containerId);

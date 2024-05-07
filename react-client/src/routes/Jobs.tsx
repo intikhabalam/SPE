@@ -7,6 +7,7 @@ import { useRef, useState } from "react";
 import { Job } from "../model/Job";
 import { getFileTypeIconProps } from "@fluentui/react-file-type-icons";
 import { Icon, Link as FluentLink } from "@fluentui/react";
+import { Spinner } from "@microsoft/mgt-react";
 
 export async function loader({ params }: ILoaderParams): Promise<Job[]> {
     const jobsLite = await JobsApiProvider.instance.list();
@@ -25,21 +26,27 @@ export async function action({ params, request }: ILoaderParams) {
 export const Jobs: React.FunctionComponent = () => {
     const [displayName, setDisplayName] = useState<string>("");
     const [description, setDescription] = useState<string>("");
+    const [showCreateDialog, setShowCreateDialog] = useState<boolean>(false);
+    const [showCreatingSpinner, setShowCreatingSpinner] = useState<boolean>(false);
     const navigate = useNavigate();
     const jobs = useLoaderData() as IJob[];
     const job = useActionData() as IJob | undefined;
     if (job) {
-        navigate(`/jobs/${job.id}`);
+        //navigate(`/jobs/${job.id}`);
+        //window.open(`/jobs/${job.id}`);
     }
     const submit = useSubmit();
     
     const submitCreateJob = async () => {
+        setShowCreatingSpinner(true);
         const formData = new FormData();
         formData.append("displayName", displayName);
         formData.append("description", description);
-        submit(formData, { method: "POST" });
+        await submit(formData, { method: "POST" });
         setDisplayName("");
         setDescription("");
+        setShowCreateDialog(false);
+        setShowCreatingSpinner(false);
     }
 
     const columns: TableColumnDefinition<Job>[] = [
@@ -113,6 +120,28 @@ export const Jobs: React.FunctionComponent = () => {
             }
         }),
     ];
+
+
+    const columnSizingOptions = {
+        displayName: {
+            minWidth: 250,
+            defaultWidth: 250,
+            idealWidth: 250
+        },
+        description: {
+            minWidth: 190,
+            defaultWidth: 190
+        },
+        createdDate: {
+            minWidth: 190,
+            defaultWidth: 190
+        },
+        state: {
+            minWidth: 90,
+            defaultWidth: 90
+        },
+    };
+
     return (
         <div>
             <div className="view-job-breadcrumb">
@@ -123,11 +152,12 @@ export const Jobs: React.FunctionComponent = () => {
                 </Breadcrumb>
             </div>
             <Form>
-            <Dialog>
+            <Dialog open={showCreateDialog}>
                 <DialogTrigger disableButtonEnhancement>
-                    <Button appearance="primary">Create New Job Posting</Button>
+                    <Button appearance="primary" onClick={() => setShowCreateDialog(true)}>Create New Job Posting</Button>
                 </DialogTrigger>
                 <DialogSurface>
+                    {!showCreatingSpinner && (
                     <DialogBody>
                     <DialogTitle>New Job Posting</DialogTitle>
                     <DialogContent className="create-job-content">
@@ -154,10 +184,15 @@ export const Jobs: React.FunctionComponent = () => {
                     <DialogActions>
                         <Button appearance="primary" type="submit" onClick={submitCreateJob}>Create</Button>
                         <DialogTrigger disableButtonEnhancement>
-                        <Button appearance="secondary">Cancel</Button>
+                        <Button appearance="secondary" onClick={() => setShowCreateDialog(false)}>Cancel</Button>
                         </DialogTrigger>
                     </DialogActions>
                     </DialogBody>
+                    )}
+                    {showCreatingSpinner && (<>
+                        <Spinner />
+                        <p>Creating job...</p>
+                    </>)}
                 </DialogSurface>
                 </Dialog>
             </Form>
@@ -168,7 +203,7 @@ export const Jobs: React.FunctionComponent = () => {
                 getRowId={(item) => item.id}
                 resizableColumns
                 selectionMode="single"
-                //columnSizingOptions={columnSizingOptions}
+                columnSizingOptions={columnSizingOptions}
                 //selectedItems={selectedItems}
                 //onSelectionChange={onSelectionChange}
             >

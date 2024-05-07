@@ -5,9 +5,10 @@ import { JobsApiProvider } from "../providers/JobsApiProvider";
 import { Job } from "../model/Job";
 import { useEffect, useState } from "react";
 import { GraphProvider } from "../providers/GraphProvider";
-import { Avatar, Body1, Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem, Button, Caption1, Card, CardFooter, CardHeader, CardPreview, Divider, Input, Label, Tab, TabList, Tag, Textarea, Title1, Title2, Toolbar, ToolbarButton, makeStyles, shorthands } from "@fluentui/react-components";
+import { Avatar, Body1, Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem, Button, Caption1, Card, CardFooter, CardHeader, CardPreview, Dialog, DialogActions, DialogContent, DialogSurface, DialogTitle, DialogTrigger, Divider, Input, Label, Tab, TabList, Tag, Textarea, Title1, Title2, Toolbar, ToolbarButton, makeStyles, shorthands } from "@fluentui/react-components";
 import { Edit20Filled, ArrowSync20Regular, ArrowReplyRegular, ShareRegular, ContentView16Regular, Note16Regular, MegaphoneLoud16Regular, Pen16Regular } from "@fluentui/react-icons";
 import { Panel } from "@fluentui/react";
+import ContainerBrowser from "../components/ContainerBrowser";
 
 let job: Job | undefined;
 
@@ -40,6 +41,7 @@ export const ViewJob: React.FunctionComponent = () => {
     const [selectedTab, setSelectedTab] = useState<string>('details');
     const [postingEditLink, setPostingEditLink] = useState<string | undefined>(undefined);
     const [postingPreviewLink, setPostingPreviewLink] = useState<string | undefined>(undefined);
+    const [showOfferDialog, setShowOfferDialog] = useState<boolean>(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -61,6 +63,26 @@ export const ViewJob: React.FunctionComponent = () => {
             navigate('/jobs');
         }
     }
+
+    const previewResume = async () => {
+        const name = 'resume.pdf';
+        const items = await GraphProvider.instance.listItems(job?.id!);
+        const item = items.find((item) => item.name === name);
+        if (item) {
+            const url = await GraphProvider.instance.getPreviewUrl(job?.id!, item.id);
+            window.open(url, '_blank');
+        }
+    }
+
+    const editInterviewNotes = async () => {
+        const name = 'notes.docx';
+        const items = await GraphProvider.instance.listItems(job?.id!);
+        const item = items.find((item) => item.name === name);
+        if (item) {
+            window.open(item.webUrl, '_blank');
+        }     
+    }
+
     const styles = useStyles();
     return (
         <>
@@ -150,24 +172,36 @@ export const ViewJob: React.FunctionComponent = () => {
             )}
 
             {selectedTab === 'applicants' && (
-            <div>
+            <div style={{padding: "20px" }}>
                 <Card className={styles.card}>
                     <CardHeader
                         header={
                             <Body1>
-                                <b>Megan Bowen</b> applied about 4 weeks ago
+                                <b>Alex Wilber</b> applied about 4 weeks ago
                             </Body1>                            
                         }
                         description={<Caption1>Status: <Tag appearance="brand" size="extra-small">Ready for offer</Tag></Caption1>}
                     >
                     </CardHeader>
                     <CardFooter>
-                        <Button appearance="primary" size="small" icon={<MegaphoneLoud16Regular />}>Send Offer</Button>
-                        <Button size="small" icon={<Note16Regular />}>View Interview Notes</Button>
-                        <Button size="small" icon={<ContentView16Regular />}>View Resume</Button>
+                        <Button onClick={() => setShowOfferDialog(true)} appearance="primary" size="small" icon={<MegaphoneLoud16Regular />}>Send Offer</Button>
+                        <Button onClick={() => editInterviewNotes()} size="small" icon={<Note16Regular />}>View Interview Notes</Button>
+                        <Button onClick={() => previewResume()} size="small" icon={<ContentView16Regular />}>View Resume</Button>
                         <Button size="small" icon={<ArrowReplyRegular fontSize={16} />}>Contact</Button>
                     </CardFooter>
                 </Card>
+
+                <Dialog open={showOfferDialog}>
+                    <DialogSurface>
+                        <DialogTitle>Offer Sent</DialogTitle>
+                        <DialogContent>
+                            <p>Offer letter has been sent to Alex Wilber.</p>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button appearance="primary">OK</Button>
+                        </DialogActions>
+                    </DialogSurface>
+                </Dialog>
                 
                 <Card className={styles.card}>
                     <CardHeader
@@ -219,6 +253,10 @@ export const ViewJob: React.FunctionComponent = () => {
                     </CardFooter>
                 </Card>
             </div>
+            )}
+
+            {selectedTab === 'settings' && (
+                <ContainerBrowser />
             )}
 
 

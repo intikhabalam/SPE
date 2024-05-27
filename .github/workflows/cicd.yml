@@ -78,4 +78,3 @@ jobs:
         api_build_command: 'npm run build'
         skip_app_build: false
         skip_api_build: false
-        azure_static_web_app_name: 'SPE-SWA'  # specify your static web app name

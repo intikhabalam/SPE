@@ -1,0 +1,78 @@
+name: CI/CD for React and Azure Functions
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Cache Node.js modules
+      uses: actions/cache@v2
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ matrix.node-version }}-
+
+    - name: Install dependencies (frontend)
+      run: |
+        cd react-client
+        npm install
+
+    - name: Build frontend
+      run: |
+        cd react-client
+        npm run build
+
+    - name: Install dependencies (backend)
+      run: |
+        cd function-api
+        npm install
+
+    - name: Build backend
+      run: |
+        cd function-api
+        npm run build
+
+    - name: Azure Login with OpenID Connect
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        allow-no-subscriptions: true
+        federated-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Deploy to Azure Static Web Apps
+      uses: Azure/static-web-apps-deploy@v1
+      with:
+        azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        action: 'upload'
+        app_location: 'react-client'
+        api_location: 'function-api'
+        output_location: 'react-client/build'
+        app_build_command: 'npm run build'
+        api_build_command: 'npm run build'
+        skip_app_build: false
+        skip_api_build: false
+        azure_static_web_app_name: 'SPE-SWA'  # specify your static web app name

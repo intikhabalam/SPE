@@ -55,7 +55,7 @@ jobs:
     - name: Build backend
       run: |
         cd function-api
-        npm run build
+        CI=false npm run build
 
     - name: Azure Login with OpenID Connect
       uses: azure/login@v1

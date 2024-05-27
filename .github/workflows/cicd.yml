@@ -18,7 +18,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [16.x] # Use Node.js 16.x
 
     steps:
     - name: Checkout repository
@@ -45,7 +45,7 @@ jobs:
     - name: Build frontend
       run: |
         cd react-client
-        CI=false npm run build
+        CI=false npm run build # Set CI=false to avoid treating warnings as errors
 
     - name: Install dependencies (backend)
       run: |

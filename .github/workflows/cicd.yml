@@ -55,7 +55,7 @@ jobs:
     - name: Build backend
       run: |
         cd function-api
-        CI=false npm run build
+        CI=false npm run build # Set CI=false to avoid treating warnings as errors
 
     - name: Azure Login with OpenID Connect
       uses: azure/login@v1
@@ -71,12 +71,12 @@ jobs:
         azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         action: 'upload'
-        app_location: 'react-client'
-        api_location: 'function-api'
+        app_location: 'react-client/build'
+        api_location: 'function-api/dist'
         output_location: 'react-client/build'
         app_build_command: 'npm run build'
         api_build_command: 'npm run build'
         skip_app_build: false
         skip_api_build: false    
-      env: 
-          CI: false
+      # env: 
+      #     CI: false

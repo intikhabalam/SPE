@@ -77,4 +77,6 @@ jobs:
         app_build_command: 'npm run build'
         api_build_command: 'npm run build'
         skip_app_build: false
-        skip_api_build: false
+        skip_api_build: false    
+      env: 
+          CI: false

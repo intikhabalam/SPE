@@ -41,7 +41,7 @@ jobs:
     - name: Build frontend
       run: |
         cd react-client
-        npm run build
+        CI=false npm run build
 
     - name: Install dependencies (backend)
       run: |

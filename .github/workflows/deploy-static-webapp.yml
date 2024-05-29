@@ -31,6 +31,6 @@ jobs:
     - name: Deploy Bicep file
       run: |
         az deployment group create \
-          --resource-group your-resource-group \
-          --template-file staticwebapp.bicep \
-          --parameters @parameters.json
+          --resource-group SPE_RS \
+          --template-file .github/workflows/staticwebapp.bicep \
+          --parameters .github/workflows/parameters.json

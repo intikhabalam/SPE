@@ -81,12 +81,12 @@ jobs:
 
     - name: Print value of STATIC_WEBAPP_TOKEN
       run: |
-        echo "Value of STATIC_WEBAPP_TOKEN: ${{ env.STATIC_WEBAPP_TOKEN }}"
+        echo "Value of STATIC_WEBAPP_TOKEN: ${{ steps.get_static_webapp_token.outputs.STATIC_WEBAPP_TOKEN }}"
               
     - name: Deploy to Azure Static Web Apps
       uses: Azure/static-web-apps-deploy@v1
       with:
-        azure_static_web_apps_api_token: ${{ env.STATIC_WEBAPP_TOKEN }}
+        azure_static_web_apps_api_token: ${{ steps.get_static_webapp_token.outputs.STATIC_WEBAPP_TOKEN }}
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         action: 'upload'
         app_location: 'react-client/build'

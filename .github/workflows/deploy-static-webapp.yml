@@ -34,24 +34,24 @@ jobs:
         echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
         echo "LOCATION=$LOCATION" >> $GITHUB_ENV
     
-    - name: Check if Resource Group & Static WebApp exists
-      id: check_rg
-      run: |
-        if az group show --name $RESOURCE_GROUP_NAME &> /dev/null; then
-          echo "Resource Group already exists."
-          if ! az staticwebapp show --name $RESOURCE_GROUP_NAME --resource-group $RESOURCE_GROUP_NAME &>/dev/null; then
-            echo "Static WebApp does not exist."
-            echo "staticWebApp_exists=false" >> $GITHUB_ENV
-          else
-            echo "Static WebApp exists."
-            echo "staticWebApp_exists=true" >> $GITHUB_ENV
-          fi
-        else
-          echo "Resource Group does not exist. Creating..."
-          az group create --name $RESOURCE_GROUP_NAME --location "$LOCATION"
-          echo "Resource Group created."
-          echo "staticWebApp_exists=false" >> $GITHUB_ENV
-        fi
+    # - name: Check if Resource Group & Static WebApp exists
+    #   id: check_rg
+    #   run: |
+    #     if az group show --name $RESOURCE_GROUP_NAME &> /dev/null; then
+    #       echo "Resource Group already exists."
+    #       if ! az staticwebapp show --name $RESOURCE_GROUP_NAME --resource-group $RESOURCE_GROUP_NAME &>/dev/null; then
+    #         echo "Static WebApp does not exist."
+    #         echo "staticWebApp_exists=false" >> $GITHUB_ENV
+    #       else
+    #         echo "Static WebApp exists."
+    #         echo "staticWebApp_exists=true" >> $GITHUB_ENV
+    #       fi
+    #     else
+    #       echo "Resource Group does not exist. Creating..."
+    #       az group create --name $RESOURCE_GROUP_NAME --location "$LOCATION"
+    #       echo "Resource Group created."
+    #       echo "staticWebApp_exists=false" >> $GITHUB_ENV
+    #     fi
     
     - name: Deploy Bicep file
       if: steps.check_rg.outputs.staticWebApp_exists == 'false'

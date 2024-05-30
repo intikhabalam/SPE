@@ -120,11 +120,17 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         allow-no-subscriptions: true
 
+    - name: Extract Static WebApp Name from parameters.json
+      id: extract_static_webapp_name
+      run: |
+        STATIC_WEBAPP_NAME=$(jq -r '.parameters.staticSiteName.value' .github/workflows/parameters.json)
+        echo "STATIC_WEBAPP_NAME=$STATIC_WEBAPP_NAME" >> $GITHUB_ENV
+
     - name: Get Azure Static Web App Token
       id: get_static_webapp_token
       run: |
         az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n ${{ secrets.STATIC_WEBAPP_NAME }} --query "properties.apiKey" -o tsv)
+        STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n $STATIC_WEBAPP_NAME --query "properties.apiKey" -o tsv)
         echo "STATIC_WEBAPP_TOKEN=$STATIC_WEBAPP_TOKEN" >> $GITHUB_ENV
 
     - name: Deploy to Azure Static Web Apps

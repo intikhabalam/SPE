@@ -52,8 +52,37 @@ jobs:
     #       echo "Resource Group created."
     #       echo "staticWebApp_exists=false" >> $GITHUB_ENV
     #     fi
-    
+
+    - name: Check if Resource Group exists
+      id: check_resource_group
+      run: |
+        RG_NAME=$(jq -r '.parameters.staticSiteName.value' .github/workflows/parameters.json)
+
+        # Check if the resource group already exists
+        if az group show --name $RG_NAME &>/dev/null; then
+          echo "Resource Group $RG_NAME already exists"
+          echo "::set-output name=rg_exists::true"
+        else
+          az group create --name $RESOURCE_GROUP_NAME --location "$LOCATION"
+          echo "Resource Group created."    
+        fi
+        
+    - name: Check if Static Web App exists
+      id: check_static_webapp
+      run: |
+        RG_NAME=$(jq -r '.parameters.staticSiteName.value' .github/workflows/parameters.json)
+
+        # Check if the static web app already exists
+        if az staticwebapp show --name $RG_NAME --resource-group $RG_NAME &>/dev/null; then
+          echo "Static Web App $RG_NAME already exists"
+          echo "::set-output name=webapp_exists::true"
+        else
+          echo "Static Web App $RG_NAME does not exist"
+          echo "::set-output name=webapp_exists::false"
+        fi
+
     - name: Deploy Bicep file
+      if: steps.check_static_webapp.outputs.webapp_exists == 'false'
       run: |
         az deployment group create \
           --resource-group $RESOURCE_GROUP_NAME \
@@ -91,15 +120,20 @@ jobs:
         cd react-client
         npm install
 
-    - name: Extract Static WebApp Name from parameters.json
-      id: extract_static_webapp_name
+    - name: Azure Login with OpenID Connect
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        allow-no-subscriptions: true
+
+    - name: Extract Static WebApp Name and Get REACT_APP_SP_ROOT_SITE_URL from parameters.json
+      id: extract_and_get_sp_root_site_url
       run: |
         STATIC_WEBAPP_NAME=$(jq -r '.parameters.staticSiteName.value' .github/workflows/parameters.json)
         echo "STATIC_WEBAPP_NAME=$STATIC_WEBAPP_NAME" >> $GITHUB_ENV
-
-    - name: Get REACT_APP_SP_ROOT_SITE_URL
-      id: get_sp_root_site_url
-      run: |
+        
         REACT_APP_SP_ROOT_SITE_URL=$(az staticwebapp show --name $STATIC_WEBAPP_NAME --query "defaultHostname" -o tsv)
         echo "REACT_APP_SP_ROOT_SITE_URL=$REACT_APP_SP_ROOT_SITE_URL" >> $GITHUB_ENV
   
@@ -122,14 +156,6 @@ jobs:
       run: |
         cd function-api
         CI=false npm run build # Set CI=false to avoid treating warnings as errors
-
-    - name: Azure Login with OpenID Connect
-      uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        allow-no-subscriptions: true
 
     - name: Get Azure Static Web App Token
       id: get_static_webapp_token

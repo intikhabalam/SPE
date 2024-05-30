@@ -34,7 +34,7 @@ jobs:
     - name: Extract location from parameters.json
       id: extract_location
       run: |
-        LOCATION=$(jq -r '.location.value' .github/workflows/parameters.json)
+        LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
         echo "LOCATION=$LOCATION" >> $GITHUB_ENV
 
     - name: Create Resource Group

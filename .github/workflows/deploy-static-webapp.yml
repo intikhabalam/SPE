@@ -182,7 +182,7 @@ jobs:
         action: 'upload'
         app_location: 'react-client/build'
         api_location: 'function-api/dist'
-        app_build_command: 'npm run build'
-        api_build_command: 'npm run build'
+        # app_build_command: 'npm run build'
+        # api_build_command: 'npm run build'
         # skip_app_build: true
         # skip_api_build: true

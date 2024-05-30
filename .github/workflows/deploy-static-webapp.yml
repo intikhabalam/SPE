@@ -54,7 +54,6 @@ jobs:
     #     fi
     
     - name: Deploy Bicep file
-      if: steps.check_rg.outputs.staticWebApp_exists == 'false'
       run: |
         az deployment group create \
           --resource-group $RESOURCE_GROUP_NAME \

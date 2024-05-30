@@ -37,7 +37,19 @@ jobs:
         LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
         echo "LOCATION=$LOCATION" >> $GITHUB_ENV
 
+    - name: Check if Resource Group exists
+      id: check_rg
+      run: |
+        if az group show --name ${{ github.event.inputs.resource_group }} &> /dev/null; then
+          echo "Resource Group already exists."
+          echo "::set-output name=rg_exists::true"
+        else
+          echo "Resource Group does not exist."
+          echo "::set-output name=rg_exists::false"
+        fi
+    
     - name: Create Resource Group
+      if: steps.check_rg.outputs.rg_exists == 'false'
       run: |
         az group create \
           --name ${{ github.event.inputs.resource_group }} \

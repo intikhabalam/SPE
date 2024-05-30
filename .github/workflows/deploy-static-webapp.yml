@@ -31,34 +31,40 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         allow-no-subscriptions: true
 
-    - name: Extract location from parameters.json
-      id: extract_location
+    - name: Extract RG Name and Location from parameters.json
+      id: extract_rg_location
       run: |
+        RESOURCE_GROUP_NAME=$(jq -r '.parameters.staticSiteName.value' .github/workflows/parameters.json)
         LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
-        echo "LOCATION=$LOCATION" >> $GITHUB_ENV
+        echo "Resource Group Name: $RESOURCE_GROUP_NAME"
+        echo "Location: $LOCATION"
+        echo "::set-env name=RESOURCE_GROUP_NAME::$RESOURCE_GROUP_NAME"
+        echo "::set-env name=LOCATION::$LOCATION"
 
-    - name: Check if Resource Group exists
+    - name: Check if Resource Group & Static WebApp exists
       id: check_rg
       run: |
-        if az group show --name ${{ github.event.inputs.resource_group }} &> /dev/null; then
+        if az group show --name $RESOURCE_GROUP_NAME &> /dev/null; then
           echo "Resource Group already exists."
-          echo "::set-output name=rg_exists::true"
+          if ! az staticwebapp show --name $RESOURCE_GROUP_NAME --resource-group $RESOURCE_GROUP_NAME &>/dev/null; then
+            echo "Static WebApp does not exist."
+            echo "::set-output name=staticWebApp_exists::false"
+          else
+            echo "Static WebApp exists."
+            echo "::set-output name=staticWebApp_exists::true"
+          fi
         else
-          echo "Resource Group does not exist."
-          echo "::set-output name=rg_exists::false"
+          echo "Resource Group does not exist. Creating..."
+          az group create --name $RESOURCE_GROUP_NAME --location "$LOCATION"
+          echo "Resource Group created."
+          echo "::set-output name=staticWebApp_exists::false"
         fi
-    
-    - name: Create Resource Group
-      if: steps.check_rg.outputs.rg_exists == 'false'
-      run: |
-        az group create \
-          --name ${{ github.event.inputs.resource_group }} \
-          --location "${{ env.LOCATION }}"
 
     - name: Deploy Bicep file
+      if: steps.check_rg.outputs.staticWebApp_exists == 'false'
       run: |
         az deployment group create \
-          --resource-group ${{ github.event.inputs.resource_group }} \
+          --resource-group $RESOURCE_GROUP_NAME \
           --template-file .github/workflows/staticwebapp.bicep \
           --parameters .github/workflows/parameters.json
 

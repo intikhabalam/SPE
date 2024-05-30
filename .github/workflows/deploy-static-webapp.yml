@@ -36,8 +36,8 @@ jobs:
       run: |
         RESOURCE_GROUP_NAME=$(jq -r '.parameters.staticSiteName.value' .github/workflows/parameters.json)
         LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
-        echo "Resource Group Name: $RESOURCE_GROUP_NAME" >> $GITHUB_ENV
-        echo "Location: $LOCATION" >> $GITHUB_ENV
+        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
+        echo "LOCATION=$LOCATION" >> $GITHUB_ENV
     
     - name: Check if Resource Group & Static WebApp exists
       id: check_rg
@@ -65,7 +65,7 @@ jobs:
           --resource-group $RESOURCE_GROUP_NAME \
           --template-file .github/workflows/staticwebapp.bicep \
           --parameters .github/workflows/parameters.json
-      
+            
 
   build_and_deploy:
     needs: deploy_bicep

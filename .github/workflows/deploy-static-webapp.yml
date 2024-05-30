@@ -91,6 +91,18 @@ jobs:
         cd react-client
         npm install
 
+    - name: Extract Static WebApp Name from parameters.json
+      id: extract_static_webapp_name
+      run: |
+        STATIC_WEBAPP_NAME=$(jq -r '.parameters.staticSiteName.value' .github/workflows/parameters.json)
+        echo "STATIC_WEBAPP_NAME=$STATIC_WEBAPP_NAME" >> $GITHUB_ENV
+
+    - name: Get REACT_APP_SP_ROOT_SITE_URL
+      id: get_sp_root_site_url
+      run: |
+        REACT_APP_SP_ROOT_SITE_URL=$(az staticwebapp show --name $STATIC_WEBAPP_NAME --query "defaultHostname" -o tsv)
+        echo "REACT_APP_SP_ROOT_SITE_URL=$REACT_APP_SP_ROOT_SITE_URL" >> $GITHUB_ENV
+  
     - name: Build frontend
       run: |
         cd react-client
@@ -98,7 +110,7 @@ jobs:
       env: 
           REACT_APP_AZURE_APP_ID: ${{ secrets.REACT_APP_AZURE_APP_ID }}
           REACT_APP_AZURE_SERVER_APP_ID: ${{ secrets.REACT_APP_AZURE_SERVER_APP_ID }}
-          REACT_APP_SP_ROOT_SITE_URL: ${{ secrets.REACT_APP_SP_ROOT_SITE_URL }}
+          REACT_APP_SP_ROOT_SITE_URL: ${{ env.REACT_APP_SP_ROOT_SITE_URL }}
           SPE_CONTAINER_TYPE_ID: ${{ secrets.SPE_CONTAINER_TYPE_ID }}
 
     - name: Install dependencies (backend)

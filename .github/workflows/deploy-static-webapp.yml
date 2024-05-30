@@ -91,12 +91,6 @@ jobs:
         cd react-client
         npm install
 
-    - name: Extract Static WebApp Name from parameters.json
-      id: extract_static_webapp_name
-      run: |
-        STATIC_WEBAPP_NAME=$(jq -r '.parameters.staticSiteName.value' .github/workflows/parameters.json)
-        echo "STATIC_WEBAPP_NAME=$STATIC_WEBAPP_NAME" >> $GITHUB_ENV
-
     - name: Get REACT_APP_SP_ROOT_SITE_URL
       id: get_sp_root_site_url
       run: |

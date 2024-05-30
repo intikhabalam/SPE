@@ -2,11 +2,6 @@ name: Deploy Static Web App
 
 on:
   workflow_dispatch:
-    inputs:
-      resource_group:
-        description: 'Resource group name'
-        required: true
-        default: 'SPE_RS'
   pull_request:
     branches:
       - main

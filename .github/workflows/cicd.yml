@@ -79,6 +79,10 @@ jobs:
         STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n ${{ secrets.STATIC_WEBAPP_NAME }} --query "properties.apiKey" -o tsv)
         echo "##vso[task.setvariable variable=STATIC_WEBAPP_TOKEN]$STATIC_WEBAPP_TOKEN"
 
+    - name: Print value of STATIC_WEBAPP_TOKEN
+      run: |
+        echo "Value of STATIC_WEBAPP_TOKEN: ${{ env.STATIC_WEBAPP_TOKEN }}"
+              
     - name: Deploy to Azure Static Web Apps
       uses: Azure/static-web-apps-deploy@v1
       with:

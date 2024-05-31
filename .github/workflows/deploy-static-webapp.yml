@@ -162,6 +162,18 @@ jobs:
         cd function-api
         npm install
 
+    - name: Verify Functions Configuration
+      run: |
+        cd function-api
+        if [ ! -f host.json ]; then
+          echo "host.json not found!"
+          exit 1
+        fi
+        if [ ! -d dist ]; then
+          echo "Build output directory 'dist' not found!"
+          exit 1
+        fi
+
     - name: Build backend
       run: |
         cd function-api

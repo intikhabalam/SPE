@@ -4,9 +4,6 @@
 name: Build and deploy Node.js project to Azure Function App - SPE-DEMO
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 env:

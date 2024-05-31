@@ -170,6 +170,13 @@ jobs:
         cd api
         CI=false npm run build # Set CI=false to avoid treating warnings as errors
 
+        - name: Deploy to Azure Function App
+        uses: azure/functions-action@v1
+        with:
+          app-name: 'SPE-DEMO'
+          package: 'api'
+          publish-profile: '<publishData><publishProfile profileName="SPE-DEMO - Web Deploy" publishMethod="MSDeploy" publishUrl="spe-demo.scm.azurewebsites.net:443" msdeploySite="SPE-DEMO" userName="$SPE-DEMO" userPWD="735XZHlGRctkrfzteaPjGegwNKyhwgZWtpP3c4BWlorBCQN4EHWNdhW5fah7" destinationAppUrl="https://spe-demo.azurewebsites.net" SQLServerDBConnectionString="" mySQLDBConnectionString="" hostingProviderForumLink="" controlPanelLink="https://portal.azure.com" webSystem="WebSites"><databases /></publishProfile><publishProfile profileName="SPE-DEMO - FTP" publishMethod="FTP" publishUrl="ftps://waws-prod-dm1-301.ftp.azurewebsites.windows.net/site/wwwroot" ftpPassiveMode="True" userName="SPE-DEMO\$SPE-DEMO" userPWD="735XZHlGRctkrfzteaPjGegwNKyhwgZWtpP3c4BWlorBCQN4EHWNdhW5fah7" destinationAppUrl="https://spe-demo.azurewebsites.net" SQLServerDBConnectionString="" mySQLDBConnectionString="" hostingProviderForumLink="" controlPanelLink="https://portal.azure.com" webSystem="WebSites"><databases /></publishProfile><publishProfile profileName="SPE-DEMO - Zip Deploy" publishMethod="ZipDeploy" publishUrl="spe-demo.scm.azurewebsites.net:443" userName="$SPE-DEMO" userPWD="735XZHlGRctkrfzteaPjGegwNKyhwgZWtpP3c4BWlorBCQN4EHWNdhW5fah7" destinationAppUrl="https://spe-demo.azurewebsites.net" SQLServerDBConnectionString="" mySQLDBConnectionString="" hostingProviderForumLink="" controlPanelLink="https://portal.azure.com" webSystem="WebSites"><databases /></publishProfile></publishData>'
+          
     - name: Verify Functions Configuration
       run: |
         cd api
@@ -201,3 +208,4 @@ jobs:
         # api_build_command: 'npm run build'
         # skip_app_build: true
         # skip_api_build: true
+

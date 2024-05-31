@@ -2,6 +2,9 @@ name: Deploy Static Web App
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main    
   pull_request:
     branches:
       - main
@@ -162,6 +165,11 @@ jobs:
         cd function-api
         npm install
 
+    - name: Build backend
+      run: |
+        cd function-api
+        CI=false npm run build # Set CI=false to avoid treating warnings as errors
+
     - name: Verify Functions Configuration
       run: |
         cd function-api
@@ -173,11 +181,6 @@ jobs:
           echo "Build output directory 'dist' not found!"
           exit 1
         fi
-
-    - name: Build backend
-      run: |
-        cd function-api
-        CI=false npm run build # Set CI=false to avoid treating warnings as errors
 
     - name: Get Azure Static Web App Token
       id: get_static_webapp_token

@@ -1,0 +1,20 @@
+
+import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { AppAuthProvider } from "../providers/AppAuthProvider";
+import { GraphProvider } from "../providers/GraphProvider";
+
+export async function listContainers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        const graph = new GraphProvider(new AppAuthProvider());
+        const containers = await graph.listContainers();
+        return { jsonBody: containers };
+    } catch (error) {
+        return { status: 500, body: `Failed to list containers: ${error}` };
+    }
+}
+
+app.http('containers', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    handler: listContainers
+});

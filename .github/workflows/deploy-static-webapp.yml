@@ -162,17 +162,17 @@ jobs:
 
     - name: Install dependencies (backend)
       run: |
-        cd function-api
+        cd api
         npm install
 
     - name: Build backend
       run: |
-        cd function-api
+        cd api
         CI=false npm run build # Set CI=false to avoid treating warnings as errors
 
     - name: Verify Functions Configuration
       run: |
-        cd function-api
+        cd api
         if [ ! -f host.json ]; then
           echo "host.json not found!"
           exit 1
@@ -196,7 +196,7 @@ jobs:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         action: 'upload'
         app_location: 'react-client/build'
-        api_location: 'function-api/dist'
+        api_location: 'api'
         # app_build_command: 'npm run build'
         # api_build_command: 'npm run build'
         # skip_app_build: true

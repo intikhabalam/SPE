@@ -29,69 +29,45 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         allow-no-subscriptions: true
 
-    - name: Extract RG Name and Location from parameters.json
+    - name: Extract RG Name, Static Web App Name, and Location from parameters.json
       id: extract_rg_location
       run: |
-        RESOURCE_GROUP_NAME=$(jq -r '.parameters.staticSiteName.value' .github/workflows/parameters.json)
+        RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
+        STATIC_WEB_APP_NAME=$(jq -r '.parameters.staticWebAppName.value' .github/workflows/parameters.json)
         LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
         echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
+        echo "STATIC_WEB_APP_NAME=$STATIC_WEB_APP_NAME" >> $GITHUB_ENV
         echo "LOCATION=$LOCATION" >> $GITHUB_ENV
-    
-    # - name: Check if Resource Group & Static WebApp exists
-    #   id: check_rg
-    #   run: |
-    #     if az group show --name $RESOURCE_GROUP_NAME &> /dev/null; then
-    #       echo "Resource Group already exists."
-    #       if ! az staticwebapp show --name $RESOURCE_GROUP_NAME --resource-group $RESOURCE_GROUP_NAME &>/dev/null; then
-    #         echo "Static WebApp does not exist."
-    #         echo "staticWebApp_exists=false" >> $GITHUB_ENV
-    #       else
-    #         echo "Static WebApp exists."
-    #         echo "staticWebApp_exists=true" >> $GITHUB_ENV
-    #       fi
-    #     else
-    #       echo "Resource Group does not exist. Creating..."
-    #       az group create --name $RESOURCE_GROUP_NAME --location "$LOCATION"
-    #       echo "Resource Group created."
-    #       echo "staticWebApp_exists=false" >> $GITHUB_ENV
-    #     fi
 
     - name: Check if Resource Group exists
       id: check_resource_group
       run: |
-        RG_NAME=$(jq -r '.parameters.staticSiteName.value' .github/workflows/parameters.json)
-
-        # Check if the resource group already exists
-        if az group show --name $RG_NAME &>/dev/null; then
-          echo "Resource Group $RG_NAME already exists"
+        if az group show --name ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
+          echo "Resource Group ${{ env.RESOURCE_GROUP_NAME }} already exists"
           echo "::set-output name=rg_exists::true"
         else
-          az group create --name $RESOURCE_GROUP_NAME --location "$LOCATION"
-          echo "Resource Group created."    
+          az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location "${{ env.LOCATION }}"
+          echo "Resource Group created."
         fi
-        
+
     - name: Check if Static Web App exists
       id: check_static_webapp
       run: |
-        RG_NAME=$(jq -r '.parameters.staticSiteName.value' .github/workflows/parameters.json)
-
-        # Check if the static web app already exists
-        if az staticwebapp show --name $RG_NAME --resource-group $RG_NAME &>/dev/null; then
-          echo "Static Web App $RG_NAME already exists"
-          echo "::set-output name=webapp_exists::true"
+        if ! az staticwebapp show --name ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
+          echo "Static Web App does not exist."
+          echo "staticWebApp_exists=false" >> $GITHUB_ENV
         else
-          echo "Static Web App $RG_NAME does not exist"
-          echo "::set-output name=webapp_exists::false"
+          echo "Static Web App exists."
+          echo "staticWebApp_exists=true" >> $GITHUB_ENV
         fi
 
     - name: Deploy Bicep file
-      if: steps.check_static_webapp.outputs.webapp_exists == 'false'
+      if: env.staticWebApp_exists == 'false'
       run: |
         az deployment group create \
-          --resource-group $RESOURCE_GROUP_NAME \
+          --resource-group ${{ env.RESOURCE_GROUP_NAME }} \
           --template-file .github/workflows/staticwebapp.bicep \
-          --parameters .github/workflows/parameters.json
-            
+          --parameters .github/workflows/parameters.json            
 
   build_and_deploy:
     needs: deploy_bicep
@@ -149,6 +125,7 @@ jobs:
           REACT_APP_AZURE_SERVER_APP_ID: 'a07be3cc-91fb-45d1-9564-77d2a9ac7be3'
           REACT_APP_SP_ROOT_SITE_URL: 'https://pkssandbox-admin.sharepoint.com/'
           SPE_CONTAINER_TYPE_ID: 'b7487f5e-3aec-02fe-1b67-f45441a7d315'
+          AUTH_AUTHORITY: '914f7cf7-562f-4c60-8f7c-3dc6ae04ad50'
         
     # - name: Build frontend
     #   run: |

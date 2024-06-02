@@ -1,31 +1,33 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-      "staticSiteName": {
-        "value": "SPE-StaticWebApp"
-      },
-      "location": {
-        "value": "Central US"
-      },
-      "skuName": {
-        "value": "Standard"
-      },
-      "skuTier": {
-        "value": "Standard"
-      },
-      "repositoryUrl": {
-        "value": "https://github.com/intikhabalam/SPE"
-      },
-      "branch": {
-        "value": "main"
-      },
-      "environment": {
-        "value": "Production"
-      },
-      "project": {
-        "value": "SharePointEmbedded"
-      }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "resourceGroupName": {
+      "value": "SPE-StaticWebApp"
+    },
+    "staticWebAppName": {
+      "value": "SPE-StaticWebApp"
+    },
+    "location": {
+      "value": "Central US"
+    },
+    "skuName": {
+      "value": "Standard"
+    },
+    "skuTier": {
+      "value": "Standard"
+    },
+    "repositoryUrl": {
+      "value": "https://github.com/intikhabalam/SPE"
+    },
+    "branch": {
+      "value": "main"
+    },
+    "environment": {
+      "value": "Production"
+    },
+    "project": {
+      "value": "SharePointEmbedded"
     }
   }
-  
+}

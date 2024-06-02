@@ -1,5 +1,5 @@
 @description('Name of the Static Web App')
-param staticSiteName string
+param staticWebAppName string
 
 @description('Location of the resource')
 param location string
@@ -23,7 +23,7 @@ param environment string
 param project string
 
 resource staticSite 'Microsoft.Web/staticSites@2022-09-01' = {
-  name: staticSiteName
+  name: staticWebAppName
   location: location
   tags: {
     Environment: environment

@@ -110,7 +110,7 @@ jobs:
     - name: Get REACT_APP_SP_ROOT_SITE_URL from Static Web App
       id: extract_and_get_sp_root_site_url
       run: |
-        REACT_APP_SP_ROOT_SITE_URL=$(az staticwebapp show --name $STATIC_WEB_APP_NAME --query "defaultHostname" -o tsv)
+        REACT_APP_SP_ROOT_SITE_URL=$(az staticwebapp show --name ${{ env.STATIC_WEB_APP_NAME }} --query "defaultHostname" -o tsv)
         echo "REACT_APP_SP_ROOT_SITE_URL=$REACT_APP_SP_ROOT_SITE_URL" >> $GITHUB_ENV
 
     # - name: Build frontend

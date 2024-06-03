@@ -113,27 +113,27 @@ jobs:
         REACT_APP_SP_ROOT_SITE_URL=$(az staticwebapp show --name ${{ env.STATIC_WEB_APP_NAME }} --query "defaultHostname" -o tsv)
         echo "REACT_APP_SP_ROOT_SITE_URL=$REACT_APP_SP_ROOT_SITE_URL" >> $GITHUB_ENV
 
-    # - name: Build frontend
-    #   run: |
-    #     cd react-client
-    #     CI=false npm run build # Set CI=false to avoid treating warnings as errors
-    #   env: 
-    #       REACT_APP_AZURE_APP_ID: 'a07be3cc-91fb-45d1-9564-77d2a9ac7be3'
-    #       REACT_APP_AZURE_SERVER_APP_ID: 'a07be3cc-91fb-45d1-9564-77d2a9ac7be3'
-    #       REACT_APP_SP_ROOT_SITE_URL: 'https://pkssandbox-admin.sharepoint.com/'
-    #       SPE_CONTAINER_TYPE_ID: 'b7487f5e-3aec-02fe-1b67-f45441a7d315'
-    #       AUTH_AUTHORITY: '914f7cf7-562f-4c60-8f7c-3dc6ae04ad50'
-        
     - name: Build frontend
       run: |
         cd react-client
         CI=false npm run build # Set CI=false to avoid treating warnings as errors
       env: 
-          REACT_APP_AZURE_APP_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          REACT_APP_AZURE_SERVER_APP_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          REACT_APP_SP_ROOT_SITE_URL: ${{ env.SP_ROOT_SITE_URL }}
-          SPE_CONTAINER_TYPE_ID: ${{ secrets.SPE_CONTAINER_TYPE_ID }}
-          AUTH_AUTHORITY:  ${{ secrets.AZURE_TENANT_ID }}
+          REACT_APP_AZURE_APP_ID: 'a07be3cc-91fb-45d1-9564-77d2a9ac7be3'
+          REACT_APP_AZURE_SERVER_APP_ID: 'a07be3cc-91fb-45d1-9564-77d2a9ac7be3'
+          REACT_APP_SP_ROOT_SITE_URL: 'https://pkssandbox-admin.sharepoint.com/'
+          SPE_CONTAINER_TYPE_ID: 'b7487f5e-3aec-02fe-1b67-f45441a7d315'
+          AUTH_AUTHORITY: '914f7cf7-562f-4c60-8f7c-3dc6ae04ad50'
+        
+    # - name: Build frontend
+    #   run: |
+    #     cd react-client
+    #     CI=false npm run build # Set CI=false to avoid treating warnings as errors
+    #   env: 
+    #       REACT_APP_AZURE_APP_ID: ${{ secrets.AZURE_CLIENT_ID }}
+    #       REACT_APP_AZURE_SERVER_APP_ID: ${{ secrets.AZURE_CLIENT_ID }}
+    #       REACT_APP_SP_ROOT_SITE_URL: ${{ env.SP_ROOT_SITE_URL }}
+    #       SPE_CONTAINER_TYPE_ID: ${{ secrets.SPE_CONTAINER_TYPE_ID }}
+    #       AUTH_AUTHORITY:  ${{ secrets.AZURE_TENANT_ID }}
 
     - name: Install dependencies (backend)
       run: |

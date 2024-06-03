@@ -99,6 +99,10 @@ jobs:
         cd react-client
         npm install
 
+    - name: Extracting variables from Parameters JSON file
+      id: extract_rg_location
+      run: |
+
     - name: Azure Login with OpenID Connect
       uses: azure/login@v1
       with:
@@ -110,6 +114,8 @@ jobs:
     - name: Get Azure Static Webapp Site URL & Api Token
       id: extract_and_get_sp_root_site_url
       run: |
+        STATIC_WEB_APP_NAME=$(jq -r '.parameters.staticWebAppName.value' .github/workflows/parameters.json)
+        echo "STATIC_WEB_APP_NAME=$STATIC_WEB_APP_NAME" >> $GITHUB_ENV
         REACT_APP_SP_ROOT_SITE_URL=$(az staticwebapp show --name ${{ env.STATIC_WEB_APP_NAME }} --query "defaultHostname" -o tsv)
         echo "REACT_APP_SP_ROOT_SITE_URL=$REACT_APP_SP_ROOT_SITE_URL" >> $GITHUB_ENV
         STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n ${{ env.STATIC_WEB_APP_NAME }}  --query "properties.apiKey" -o tsv)

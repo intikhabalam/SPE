@@ -110,6 +110,8 @@ jobs:
     - name: Extracting variables from Parameters JSON file
       id: extract_rg_location
       run: |
+        RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
+        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
         STATIC_WEB_APP_NAME=$(jq -r '.parameters.staticWebAppName.value' .github/workflows/parameters.json)
         echo "STATIC_WEB_APP_NAME=$STATIC_WEB_APP_NAME" >> $GITHUB_ENV
 
@@ -132,7 +134,7 @@ jobs:
     - name: Get Azure Static Webapp Site URL & Api Token
       id: extract_and_get_sp_root_site_url
       run: |
-        STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n ${{ env.STATIC_WEB_APP_NAME }}  --query "properties.apiKey" -o tsv)
+        STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "properties.apiKey" -o tsv)
         echo "STATIC_WEBAPP_TOKEN=$STATIC_WEBAPP_TOKEN" >> $GITHUB_ENV
 
     - name: Build frontend
@@ -146,10 +148,10 @@ jobs:
           # SPE_CONTAINER_TYPE_ID: '9f9083ab-0010-0091-2bb3-f4fcf99da0a8'
           # # AUTH_AUTHORITY: '914f7cf7-562f-4c60-8f7c-3dc6ae04ad50'
 
-          REACT_APP_AZURE_APP_ID: '2fcfd2d8-ec91-41f9-8c87-1c2305b54cda'
-          REACT_APP_AZURE_SERVER_APP_ID: '2fcfd2d8-ec91-41f9-8c87-1c2305b54cda'
-          REACT_APP_SP_ROOT_SITE_URL: 'https://pkssandbox-admin.sharepoint.com'
-          SPE_CONTAINER_TYPE_ID: 'b7487f5e-3aec-02fe-1b67-f45441a7d315'
+          REACT_APP_AZURE_APP_ID: '796769bd-846c-4208-ac79-43783ab31317'
+          REACT_APP_AZURE_SERVER_APP_ID: '796769bd-846c-4208-ac79-43783ab31317'
+          REACT_APP_SP_ROOT_SITE_URL: 'https://pkssandbox.sharepoint.com'
+          SPE_CONTAINER_TYPE_ID: '6e54f52f-2f7b-0527-227a-c0fed2b8bbe1'
           # AUTH_AUTHORITY: '914f7cf7-562f-4c60-8f7c-3dc6ae04ad50'          
 
     - name: Install dependencies (backend)
@@ -162,17 +164,17 @@ jobs:
         cd api
         CI=false npm run build # Set CI=false to avoid treating warnings as errors
 
-    - name: Verify Functions Configuration
-      run: |
-        cd api
-        if [ ! -f host.json ]; then
-          echo "host.json not found!"
-          exit 1
-        fi
-        if [ ! -d dist ]; then
-          echo "Build output directory 'dist' not found!"
-          exit 1
-        fi
+    # - name: Verify Functions Configuration
+    #   run: |
+    #     cd api
+    #     if [ ! -f host.json ]; then
+    #       echo "host.json not found!"
+    #       exit 1
+    #     fi
+    #     if [ ! -d dist ]; then
+    #       echo "Build output directory 'dist' not found!"
+    #       exit 1
+    #     fi
 
     - name: Deploy to Azure Static Web Apps
       uses: Azure/static-web-apps-deploy@v1

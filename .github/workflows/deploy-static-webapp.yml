@@ -21,12 +21,20 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    # - name: Azure Login
+    #   uses: azure/login@v1
+    #   with:
+    #     client-id: ${{ secrets.AZURE_CLIENT_ID_Pks }}
+    #     tenant-id: ${{ secrets.AZURE_TENANT_ID_Pks }}
+    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_Pks }}
+    #     allow-no-subscriptions: true
+
     - name: Azure Login
       uses: azure/login@v1
       with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID_Pks }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID_Pks }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_Pks }}
+        client-id: "1e01ff43-61a4-4c80-b865-e4dd62e0feee"
+        tenant-id: "80133990-1076-49d7-b8ee-1d5098569f89"
+        subscription-id: "2c87d256-12aa-44d7-b1e8-8c17d95ea37f"
         allow-no-subscriptions: true
 
     - name: Extracting variables from Parameters JSON file
@@ -70,7 +78,7 @@ jobs:
           --parameters .github/workflows/parameters.json            
 
   build_and_deploy_code:
-    # needs: deploy_infrastructure
+    needs: deploy_infrastructure
     runs-on: ubuntu-latest
 
     strategy:
@@ -105,12 +113,20 @@ jobs:
         STATIC_WEB_APP_NAME=$(jq -r '.parameters.staticWebAppName.value' .github/workflows/parameters.json)
         echo "STATIC_WEB_APP_NAME=$STATIC_WEB_APP_NAME" >> $GITHUB_ENV
 
-    - name: Azure Login with OpenID Connect
+    # - name: Azure Login with OpenID Connect
+    #   uses: azure/login@v1
+    #   with:
+    #     client-id: ${{ secrets.AZURE_CLIENT_ID_Pks }}
+    #     tenant-id: ${{ secrets.AZURE_TENANT_ID_Pks }}
+    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_Pks }}
+    #     allow-no-subscriptions: true
+
+    - name: Azure Login
       uses: azure/login@v1
       with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID_Pks }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID_Pks }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_Pks }}
+        client-id: "1e01ff43-61a4-4c80-b865-e4dd62e0feee"
+        tenant-id: "80133990-1076-49d7-b8ee-1d5098569f89"
+        subscription-id: "2c87d256-12aa-44d7-b1e8-8c17d95ea37f"
         allow-no-subscriptions: true
 
     - name: Get Azure Static Webapp Site URL & Api Token

@@ -128,7 +128,7 @@ jobs:
           REACT_APP_AZURE_SERVER_APP_ID: 'a07be3cc-91fb-45d1-9564-77d2a9ac7be3'
           REACT_APP_SP_ROOT_SITE_URL: 'https://pkssandbox-admin.sharepoint.com'
           SPE_CONTAINER_TYPE_ID: 'b7487f5e-3aec-02fe-1b67-f45441a7d315'
-          AUTH_AUTHORITY: '914f7cf7-562f-4c60-8f7c-3dc6ae04ad50'
+          # AUTH_AUTHORITY: '914f7cf7-562f-4c60-8f7c-3dc6ae04ad50'
         
     - name: Install dependencies (backend)
       run: |

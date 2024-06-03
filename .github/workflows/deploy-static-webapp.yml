@@ -21,21 +21,24 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        allow-no-subscriptions: true
-
+    # deploy in pksandbox
     # - name: Azure Login
     #   uses: azure/login@v1
     #   with:
-    #     client-id: "1e01ff43-61a4-4c80-b865-e4dd62e0feee"
-    #     tenant-id: "80133990-1076-49d7-b8ee-1d5098569f89"
-    #     subscription-id: "2c87d256-12aa-44d7-b1e8-8c17d95ea37f"
+    #     client-id: ${{ secrets.AZURE_CLIENT_ID }}
+    #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     #     allow-no-subscriptions: true
+
+
+    # deploy in pksmicrosoftcorp
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        client-id: "1e01ff43-61a4-4c80-b865-e4dd62e0feee"
+        tenant-id: "80133990-1076-49d7-b8ee-1d5098569f89"
+        subscription-id: "2c87d256-12aa-44d7-b1e8-8c17d95ea37f"
+        allow-no-subscriptions: true
 
     - name: Extracting variables from Parameters JSON file
       id: extract_rg_location
@@ -141,17 +144,17 @@ jobs:
       run: |
         cd react-client
         CI=false npm run build # Set CI=false to avoid treating warnings as errors
-      env: 
+      # env: 
           # REACT_APP_AZURE_APP_ID: 'e3c5d971-4f7a-4bb4-b5cd-7bafd998b190'
           # REACT_APP_AZURE_SERVER_APP_ID: 'e3c5d971-4f7a-4bb4-b5cd-7bafd998b190'
           # REACT_APP_SP_ROOT_SITE_URL: 'https://pksmicrosoftcorp.sharepoint.com'
           # SPE_CONTAINER_TYPE_ID: '9f9083ab-0010-0091-2bb3-f4fcf99da0a8'
           # # AUTH_AUTHORITY: '914f7cf7-562f-4c60-8f7c-3dc6ae04ad50'
 
-          REACT_APP_AZURE_APP_ID: '796769bd-846c-4208-ac79-43783ab31317'
-          REACT_APP_AZURE_SERVER_APP_ID: '796769bd-846c-4208-ac79-43783ab31317'
-          REACT_APP_SP_ROOT_SITE_URL: 'https://pkssandbox.sharepoint.com'
-          SPE_CONTAINER_TYPE_ID: '6e54f52f-2f7b-0527-227a-c0fed2b8bbe1'
+          # REACT_APP_AZURE_APP_ID: '796769bd-846c-4208-ac79-43783ab31317'
+          # REACT_APP_AZURE_SERVER_APP_ID: '796769bd-846c-4208-ac79-43783ab31317'
+          # REACT_APP_SP_ROOT_SITE_URL: 'https://pkssandbox.sharepoint.com'
+          # SPE_CONTAINER_TYPE_ID: '6e54f52f-2f7b-0527-227a-c0fed2b8bbe1'
           # AUTH_AUTHORITY: '914f7cf7-562f-4c60-8f7c-3dc6ae04ad50'          
 
     - name: Install dependencies (backend)

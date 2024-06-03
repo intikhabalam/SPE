@@ -5,7 +5,8 @@ import { ProviderState, Providers } from '@microsoft/mgt-element';
 import { CustomAppApiAuthProvider } from './CustomAppApiAuthProvider';
 
 export class ContainersApiProvider {
-    public readonly apiUrl: string = process.env.REACT_APP_SAMPLE_API_URL || 'https://white-meadow-08161a110.5.azurestaticapps.net/api';
+    // public readonly apiUrl: string = process.env.REACT_APP_SAMPLE_API_URL || 'https://white-meadow-08161a110.5.azurestaticapps.net/api'; // for pkssandbox
+    public readonly apiUrl: string = process.env.REACT_APP_SAMPLE_API_URL || 'https://lemon-smoke-0de0c8110.5.azurestaticapps.net/api'; // for pksmicrosoftcorp
     public readonly apiScope: string = Scopes.SAMPLE_API_CONTAINER_MANAGE;
 
     public static readonly instance: ContainersApiProvider = new ContainersApiProvider();

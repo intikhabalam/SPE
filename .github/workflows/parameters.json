@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "resourceGroupName": {
-      "value": "SPE-StaticWebApp"
+      "value": "SharePointEmbedded-Demo-Rsg"
     },
     "staticWebAppName": {
       "value": "SPE-StaticWebApp"

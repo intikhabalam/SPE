@@ -1,6 +1,10 @@
 @description('Name of the Static Web App')
 param staticWebAppName string
 
+@description('Name of the Resource Group where the Static Web App will be created')
+param resourceGroupName string
+
+
 @description('Location of the resource')
 param location string
 

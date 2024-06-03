@@ -22,7 +22,7 @@ export const GRAPH_SCOPES = [
 ];
 
 // sample app API scopes
-export const SAMPLE_API_CONTAINER_MANAGE = `api://a07be3cc-91fb-45d1-9564-77d2a9ac7be3/Container.Manage`;
+export const SAMPLE_API_CONTAINER_MANAGE = `api://e3c5d971-4f7a-4bb4-b5cd-7bafd998b190/Container.Manage`;
 
 // sample app API scopes array
 export const SAMPLE_API_SCOPES = [

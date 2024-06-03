@@ -5,7 +5,7 @@ import { Job } from '../model/Job';
 import { CustomAppApiAuthProvider } from './CustomAppApiAuthProvider';
 
 export class JobsApiProvider {
-    public readonly apiUrl: string = process.env.REACT_APP_SAMPLE_API_URL || 'http://localhost:7072/api';
+    public readonly apiUrl: string = process.env.REACT_APP_SAMPLE_API_URL || 'http://lemon-smoke-0de0c8110.5.azurestaticapps.net/api';
     public readonly apiScope: string = Scopes.SAMPLE_API_CONTAINER_MANAGE;
 
     public static readonly instance: JobsApiProvider = new JobsApiProvider();

@@ -21,21 +21,21 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    # - name: Azure Login
-    #   uses: azure/login@v1
-    #   with:
-    #     client-id: ${{ secrets.AZURE_CLIENT_ID_Pks }}
-    #     tenant-id: ${{ secrets.AZURE_TENANT_ID_Pks }}
-    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_Pks }}
-    #     allow-no-subscriptions: true
-
     - name: Azure Login
       uses: azure/login@v1
       with:
-        client-id: "1e01ff43-61a4-4c80-b865-e4dd62e0feee"
-        tenant-id: "80133990-1076-49d7-b8ee-1d5098569f89"
-        subscription-id: "2c87d256-12aa-44d7-b1e8-8c17d95ea37f"
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         allow-no-subscriptions: true
+
+    # - name: Azure Login
+    #   uses: azure/login@v1
+    #   with:
+    #     client-id: "1e01ff43-61a4-4c80-b865-e4dd62e0feee"
+    #     tenant-id: "80133990-1076-49d7-b8ee-1d5098569f89"
+    #     subscription-id: "2c87d256-12aa-44d7-b1e8-8c17d95ea37f"
+    #     allow-no-subscriptions: true
 
     - name: Extracting variables from Parameters JSON file
       id: extract_rg_location
@@ -113,21 +113,21 @@ jobs:
         STATIC_WEB_APP_NAME=$(jq -r '.parameters.staticWebAppName.value' .github/workflows/parameters.json)
         echo "STATIC_WEB_APP_NAME=$STATIC_WEB_APP_NAME" >> $GITHUB_ENV
 
-    # - name: Azure Login with OpenID Connect
-    #   uses: azure/login@v1
-    #   with:
-    #     client-id: ${{ secrets.AZURE_CLIENT_ID_Pks }}
-    #     tenant-id: ${{ secrets.AZURE_TENANT_ID_Pks }}
-    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_Pks }}
-    #     allow-no-subscriptions: true
-
-    - name: Azure Login
+    - name: Azure Login with OpenID Connect
       uses: azure/login@v1
       with:
-        client-id: "1e01ff43-61a4-4c80-b865-e4dd62e0feee"
-        tenant-id: "80133990-1076-49d7-b8ee-1d5098569f89"
-        subscription-id: "2c87d256-12aa-44d7-b1e8-8c17d95ea37f"
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         allow-no-subscriptions: true
+
+    # - name: Azure Login
+    #   uses: azure/login@v1
+    #   with:
+    #     client-id: "1e01ff43-61a4-4c80-b865-e4dd62e0feee"
+    #     tenant-id: "80133990-1076-49d7-b8ee-1d5098569f89"
+    #     subscription-id: "2c87d256-12aa-44d7-b1e8-8c17d95ea37f"
+    #     allow-no-subscriptions: true
 
     - name: Get Azure Static Webapp Site URL & Api Token
       id: extract_and_get_sp_root_site_url
@@ -140,17 +140,17 @@ jobs:
         cd react-client
         CI=false npm run build # Set CI=false to avoid treating warnings as errors
       env: 
-          REACT_APP_AZURE_APP_ID: 'e3c5d971-4f7a-4bb4-b5cd-7bafd998b190'
-          REACT_APP_AZURE_SERVER_APP_ID: 'e3c5d971-4f7a-4bb4-b5cd-7bafd998b190'
-          REACT_APP_SP_ROOT_SITE_URL: 'https://pksmicrosoftcorp.sharepoint.com'
-          SPE_CONTAINER_TYPE_ID: '9f9083ab-0010-0091-2bb3-f4fcf99da0a8'
-          # AUTH_AUTHORITY: '914f7cf7-562f-4c60-8f7c-3dc6ae04ad50'
+          # REACT_APP_AZURE_APP_ID: 'e3c5d971-4f7a-4bb4-b5cd-7bafd998b190'
+          # REACT_APP_AZURE_SERVER_APP_ID: 'e3c5d971-4f7a-4bb4-b5cd-7bafd998b190'
+          # REACT_APP_SP_ROOT_SITE_URL: 'https://pksmicrosoftcorp.sharepoint.com'
+          # SPE_CONTAINER_TYPE_ID: '9f9083ab-0010-0091-2bb3-f4fcf99da0a8'
+          # # AUTH_AUTHORITY: '914f7cf7-562f-4c60-8f7c-3dc6ae04ad50'
 
-          # REACT_APP_AZURE_APP_ID: 'a07be3cc-91fb-45d1-9564-77d2a9ac7be3'
-          # REACT_APP_AZURE_SERVER_APP_ID: 'a07be3cc-91fb-45d1-9564-77d2a9ac7be3'
-          # REACT_APP_SP_ROOT_SITE_URL: 'https://pkssandbox-admin.sharepoint.com'
-          # SPE_CONTAINER_TYPE_ID: 'b7487f5e-3aec-02fe-1b67-f45441a7d315'
-          # # AUTH_AUTHORITY: '914f7cf7-562f-4c60-8f7c-3dc6ae04ad50'          
+          REACT_APP_AZURE_APP_ID: '2fcfd2d8-ec91-41f9-8c87-1c2305b54cda'
+          REACT_APP_AZURE_SERVER_APP_ID: '2fcfd2d8-ec91-41f9-8c87-1c2305b54cda'
+          REACT_APP_SP_ROOT_SITE_URL: 'https://pkssandbox-admin.sharepoint.com'
+          SPE_CONTAINER_TYPE_ID: 'b7487f5e-3aec-02fe-1b67-f45441a7d315'
+          # AUTH_AUTHORITY: '914f7cf7-562f-4c60-8f7c-3dc6ae04ad50'          
 
     - name: Install dependencies (backend)
       run: |

@@ -14,60 +14,60 @@ permissions:
   contents: read
 
 jobs:
-  # deploy_infrastructure:
-  #   runs-on: ubuntu-latest
+  deploy_infrastructure:
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #   - name: Checkout repository
-  #     uses: actions/checkout@v2
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-  #   - name: Azure Login
-  #     uses: azure/login@v1
-  #     with:
-  #       client-id: ${{ secrets.AZURE_CLIENT_ID }}
-  #       tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  #       allow-no-subscriptions: true
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID_Pks }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID_Pks }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_Pks }}
+        allow-no-subscriptions: true
 
-  #   - name: Extracting variables from Parameters JSON file
-  #     id: extract_rg_location
-  #     run: |
-  #       RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
-  #       STATIC_WEB_APP_NAME=$(jq -r '.parameters.staticWebAppName.value' .github/workflows/parameters.json)
-  #       LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
-  #       echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
-  #       echo "STATIC_WEB_APP_NAME=$STATIC_WEB_APP_NAME" >> $GITHUB_ENV
-  #       echo "LOCATION=$LOCATION" >> $GITHUB_ENV
+    - name: Extracting variables from Parameters JSON file
+      id: extract_rg_location
+      run: |
+        RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
+        STATIC_WEB_APP_NAME=$(jq -r '.parameters.staticWebAppName.value' .github/workflows/parameters.json)
+        LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
+        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
+        echo "STATIC_WEB_APP_NAME=$STATIC_WEB_APP_NAME" >> $GITHUB_ENV
+        echo "LOCATION=$LOCATION" >> $GITHUB_ENV
 
-  #   - name: Check if Resource Group exists
-  #     id: check_resource_group
-  #     run: |
-  #       if az group show --name ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
-  #         echo "Resource Group ${{ env.RESOURCE_GROUP_NAME }} already exists"
-  #         echo "::set-output name=rg_exists::true"
-  #       else
-  #         az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location "${{ env.LOCATION }}"
-  #         echo "Resource Group created."
-  #       fi
+    - name: Check if Resource Group exists
+      id: check_resource_group
+      run: |
+        if az group show --name ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
+          echo "Resource Group ${{ env.RESOURCE_GROUP_NAME }} already exists"
+          echo "::set-output name=rg_exists::true"
+        else
+          az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location "${{ env.LOCATION }}"
+          echo "Resource Group created."
+        fi
 
-  #   - name: Check if Static Web App exists
-  #     id: check_static_webapp
-  #     run: |
-  #       if ! az staticwebapp show --name ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
-  #         echo "Static Web App does not exist."
-  #         echo "staticWebApp_exists=false" >> $GITHUB_ENV
-  #       else
-  #         echo "Static Web App exists."
-  #         echo "staticWebApp_exists=true" >> $GITHUB_ENV
-  #       fi
+    - name: Check if Static Web App exists
+      id: check_static_webapp
+      run: |
+        if ! az staticwebapp show --name ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
+          echo "Static Web App does not exist."
+          echo "staticWebApp_exists=false" >> $GITHUB_ENV
+        else
+          echo "Static Web App exists."
+          echo "staticWebApp_exists=true" >> $GITHUB_ENV
+        fi
 
-  #   - name: Deploy Azure Static Webapp
-  #     if: env.staticWebApp_exists == 'false'
-  #     run: |
-  #       az deployment group create \
-  #         --resource-group ${{ env.RESOURCE_GROUP_NAME }} \
-  #         --template-file .github/workflows/staticwebapp.bicep \
-  #         --parameters .github/workflows/parameters.json            
+    - name: Deploy Azure Static Webapp
+      if: env.staticWebApp_exists == 'false'
+      run: |
+        az deployment group create \
+          --resource-group ${{ env.RESOURCE_GROUP_NAME }} \
+          --template-file .github/workflows/staticwebapp.bicep \
+          --parameters .github/workflows/parameters.json            
 
   build_and_deploy_code:
     # needs: deploy_infrastructure
@@ -108,9 +108,9 @@ jobs:
     - name: Azure Login with OpenID Connect
       uses: azure/login@v1
       with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        client-id: ${{ secrets.AZURE_CLIENT_ID_Pks }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID_Pks }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_Pks }}
         allow-no-subscriptions: true
 
     - name: Get Azure Static Webapp Site URL & Api Token
@@ -124,12 +124,18 @@ jobs:
         cd react-client
         CI=false npm run build # Set CI=false to avoid treating warnings as errors
       env: 
-          REACT_APP_AZURE_APP_ID: 'a07be3cc-91fb-45d1-9564-77d2a9ac7be3'
-          REACT_APP_AZURE_SERVER_APP_ID: 'a07be3cc-91fb-45d1-9564-77d2a9ac7be3'
-          REACT_APP_SP_ROOT_SITE_URL: 'https://pkssandbox-admin.sharepoint.com'
-          SPE_CONTAINER_TYPE_ID: 'b7487f5e-3aec-02fe-1b67-f45441a7d315'
+          REACT_APP_AZURE_APP_ID: 'e3c5d971-4f7a-4bb4-b5cd-7bafd998b190'
+          REACT_APP_AZURE_SERVER_APP_ID: 'e3c5d971-4f7a-4bb4-b5cd-7bafd998b190'
+          REACT_APP_SP_ROOT_SITE_URL: 'https://pksmicrosoftcorp.sharepoint.com'
+          SPE_CONTAINER_TYPE_ID: '9f9083ab-0010-0091-2bb3-f4fcf99da0a8'
           # AUTH_AUTHORITY: '914f7cf7-562f-4c60-8f7c-3dc6ae04ad50'
-        
+
+          # REACT_APP_AZURE_APP_ID: 'a07be3cc-91fb-45d1-9564-77d2a9ac7be3'
+          # REACT_APP_AZURE_SERVER_APP_ID: 'a07be3cc-91fb-45d1-9564-77d2a9ac7be3'
+          # REACT_APP_SP_ROOT_SITE_URL: 'https://pkssandbox-admin.sharepoint.com'
+          # SPE_CONTAINER_TYPE_ID: 'b7487f5e-3aec-02fe-1b67-f45441a7d315'
+          # # AUTH_AUTHORITY: '914f7cf7-562f-4c60-8f7c-3dc6ae04ad50'          
+
     - name: Install dependencies (backend)
       run: |
         cd api

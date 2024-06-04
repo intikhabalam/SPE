@@ -148,9 +148,9 @@ jobs:
         cd react-client
         CI=false npm run build # Set CI=false to avoid treating warnings as errors
       env:
-        AZURE_CLIENT_ID: '1f83ba3b-1066-4946-935d-e9ac61cb3f21'
-        REACT_APP_AZURE_SERVER_APP_ID: '1f83ba3b-1066-4946-935d-e9ac61cb3f21'
-        REACT_APP_AZURE_APP_ID: '1f83ba3b-1066-4946-935d-e9ac61cb3f21'
+        AZURE_CLIENT_ID: ''
+        REACT_APP_AZURE_SERVER_APP_ID: ''
+        REACT_APP_AZURE_APP_ID: ''
         REACT_APP_SPE_CONTAINER_TYPE_ID: '9f9083ab-0010-0091-2bb3-f4fcf99da0a8'
         REACT_APP_SP_ROOT_SITE_URL: 'https://pksmicrosoftcorp.sharepoint.com/'
         REACT_APP_SAMPLE_API_URL: 'https://lemon-smoke-0de0c8110.5.azurestaticapps.net/api'

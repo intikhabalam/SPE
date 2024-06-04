@@ -1,6 +1,6 @@
 
 import * as Graph from '@microsoft/microsoft-graph-client';
-import axios,{ AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { DriveItem } from "@microsoft/microsoft-graph-types";
 import { AuthProvider } from './AuthProvider';
 import { IContainer, IContainerClientCreateRequest, IContainerColumn, IContainerServerCreateRequest, IContainerUpdateRequest } from '../../../common/schemas/ContainerSchemas'
@@ -24,7 +24,7 @@ export interface IDriveItemFields {
 export class GraphProvider {
     private _client: Graph.Client;
     private _authProvider: AuthProvider;
-    private _containerTypeId: string = process.env.SPE_CONTAINER_TYPE_ID!;
+    private _containerTypeId: string = "9f9083ab-0010-0091-2bb3-f4fcf99da0a8"!;
 
     public constructor(authProvider: AuthProvider) {
         this._authProvider = authProvider;
@@ -55,9 +55,9 @@ export class GraphProvider {
     }
 
     public async getContainer(id: string, loadColumns: boolean = true): Promise<IContainer> {
-        const query = { 
+        const query = {
             $select: "id,displayName,containerTypeId,status,createdDateTime,description,customProperties,storageUsedInBytes,itemMajorVersionLimit,isItemVersioningEnabled",
-            $expand: "permissions" 
+            $expand: "permissions"
         };
         const response = await this._client
             .api(`/storage/fileStorage/containers/${id}`)
@@ -125,7 +125,7 @@ export class GraphProvider {
             id: string;
             resource: string;
         }
-        
+
         const response = await this._client
             .api(`/subscriptions`)
             .get();
@@ -173,7 +173,7 @@ export class GraphProvider {
             .get()
         return response.value as IDriveProcessingItem[];
     }
-    
+
     public async setDriveItemFields(driveId: string, itemId: string, fields: IDriveItemFields): Promise<void> {
         await this._client
             .api(`/drives/${driveId}/items/${itemId}/listitem/fields`)
@@ -199,11 +199,11 @@ export class GraphProvider {
         const config: AxiosRequestConfig = {
             method: "get",
             url: downloadUrl,
-            headers: { 
+            headers: {
                 "Authorization": `Bearer ${token}`
             },
             responseType: 'stream',
-        };       
+        };
         const response = await axios.get<Readable>(downloadUrl, config);
         return response.data;
     }

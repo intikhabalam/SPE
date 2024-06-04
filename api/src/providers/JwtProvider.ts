@@ -17,12 +17,12 @@ interface Key {
 export class JwtProvider {
     public static readonly KEY_ENDPOINT = `https://login.microsoftonline.com/${process.env.TENANT_ID}/discovery/keys`;
     // public static readonly KEY_ENDPOINT = 'https://login.microsoftonline.com/common/discovery/keys';
-    public static readonly AUDIENCE = `api://${process.env.AZURE_CLIENT_ID}`;
+    public static readonly AUDIENCE = `api://${"1f83ba3b-1066-4946-935d-e9ac61cb3f21"}`;
 
     private static _keys: Map<string, Key> = new Map<string, Key>();
 
 
-    public constructor(private readonly _token: string) {}
+    public constructor(private readonly _token: string) { }
 
     private static async _loadKeys(): Promise<void> {
         const response = await fetch(JwtProvider.KEY_ENDPOINT);

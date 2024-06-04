@@ -12,7 +12,7 @@ export async function registerContainerType(request: HttpRequest, context: Invoc
         if (!jwt || !await jwt.authorize() || !jwt.tid) {
             throw new InvalidAccessTokenError();
         }
-        
+
         const graph = new GraphProvider(new OboAuthProvider(jwt));
         const spRootSiteUrl = await graph.getRootSiteUrl();
         if (!spRootSiteUrl) {
@@ -20,12 +20,12 @@ export async function registerContainerType(request: HttpRequest, context: Invoc
         }
         const authProvider = new AppAuthProvider(jwt.tid, spRootSiteUrl);
         const token = await authProvider.getToken();
-        const containerTypeId = process.env.SPE_CONTAINER_TYPE_ID!;
+        const containerTypeId = "9f9083ab-0010-0091-2bb3-f4fcf99da0a8"!;
         const registerApi = `${spRootSiteUrl}/_api/v2.1/storageContainerTypes/${containerTypeId}/applicationPermissions`;
         const registerPayload = {
             value: [
                 {
-                    appId: process.env.AZURE_CLIENT_ID,
+                    appId: "1f83ba3b-1066-4946-935d-e9ac61cb3f21",
                     delegated: ['full'],
                     appOnly: ['full']
                 },
@@ -36,7 +36,7 @@ export async function registerContainerType(request: HttpRequest, context: Invoc
                 }
             ]
         };
-        
+
         const registerResponse = await fetch(registerApi, {
             method: 'PUT',
             headers: {
@@ -45,7 +45,7 @@ export async function registerContainerType(request: HttpRequest, context: Invoc
             },
             body: JSON.stringify(registerPayload)
         });
-        return { jsonBody: await registerResponse.json()};
+        return { jsonBody: await registerResponse.json() };
     } catch (error) {
         if (error instanceof ApiError) {
             return { status: error.status, body: error.message };

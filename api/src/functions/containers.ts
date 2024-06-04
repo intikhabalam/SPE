@@ -24,7 +24,10 @@ export async function listContainers(request: HttpRequest, context: InvocationCo
         }
 
         if (!jwt.tid) {
+
             context.log('Missing tenant ID');
+            context.log(`Decoded: ${JSON.stringify(jwt.decoded)}`);
+            context.log(`Token: ${jwt.token}`);
             throw new InvalidAccessTokenError();
         }
 

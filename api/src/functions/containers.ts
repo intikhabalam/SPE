@@ -23,11 +23,12 @@ export async function listContainers(request: HttpRequest, context: InvocationCo
         const containers = await graph.listContainers();
         return { jsonBody: containers };
     } catch (error) {
-        throw error; 
-        // if (error instanceof ApiError) {
-        //     return { status: error.status, body: error.message };
-        // }
-        // return { status: 500, body: `List containers failed: ${error}` };
+        context.log(`Error in listContainers: ${error}`);
+        if (error instanceof ApiError) {
+            context.log(`ApiError: ${error.status} - ${error.message}\n${error.stack}`);
+            return { status: error.status, body: error.message };
+        }
+        return { status: 500, body: `List containers failed: ${error}` };
     }
 }
 
@@ -107,7 +108,7 @@ export async function validate(request: HttpRequest, context: InvocationContext)
             decoded: appJwt!.decoded,
             tid: appJwt!.tid,
             valid: await appJwt!.verify(),
-            authorized: await appJwt!.authorize()       
+            authorized: await appJwt!.authorize()
         }
         const response = {
             userToken: userToken,

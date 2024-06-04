@@ -17,8 +17,8 @@ export async function listContainers(request: HttpRequest, context: InvocationCo
             throw new InvalidAccessTokenError();
         }
         const authProvider = new AppAuthProvider(jwt.tid);
-        // const token = await authProvider.getToken();
-        // console.log(token);
+        const token = await authProvider.getToken();
+        context.log(`Token: ${token}`);
         const graph = new GraphProvider(authProvider);
         const containers = await graph.listContainers();
         return { jsonBody: containers };

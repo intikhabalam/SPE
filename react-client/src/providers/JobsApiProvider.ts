@@ -5,7 +5,7 @@ import { Job } from '../model/Job';
 import { CustomAppApiAuthProvider } from './CustomAppApiAuthProvider';
 
 export class JobsApiProvider {
-    public readonly apiUrl: string = process.env.REACT_APP_SAMPLE_API_URL || 'http://localhost:7072/api';
+    public readonly apiUrl: string = process.env.REACT_APP_SAMPLE_API_URL || 'http://localhost:7071/api';
     public readonly apiScope: string = Scopes.SAMPLE_API_CONTAINER_MANAGE;
 
     public static readonly instance: JobsApiProvider = new JobsApiProvider();
@@ -16,11 +16,11 @@ export class JobsApiProvider {
     public set authProvider(value: { getToken: () => Promise<string> }) {
         this._authProvider = value;
     }
-    
+
     private constructor() {
         this._authProvider = CustomAppApiAuthProvider.instance;
     }
-    
+
     public async list(): Promise<Job[]> {
         const request: RequestInit = {
             method: 'GET',
@@ -119,6 +119,7 @@ export class JobsApiProvider {
     private _headers(token: string): HeadersInit {
         return {
             'Authorization': `Bearer ${token}`,
+            'x-token': `Bearer ${token}`,
             'Content-Type': 'application/json'
         };
     }

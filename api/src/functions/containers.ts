@@ -26,6 +26,7 @@ export async function listContainers(request: HttpRequest, context: InvocationCo
         if (error instanceof ApiError) {
             return { status: error.status, body: error.message };
         }
+        throw error; 
         return { status: 500, body: `List containers failed: ${error}` };
     }
 }

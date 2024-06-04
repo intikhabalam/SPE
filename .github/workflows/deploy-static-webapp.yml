@@ -14,74 +14,74 @@ permissions:
   contents: read
 
 jobs:
-  deploy_infrastructure:
-    runs-on: ubuntu-latest
+  # deploy_infrastructure:
+  #   runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+  #   steps:
+  #   - name: Checkout repository
+  #     uses: actions/checkout@v2
 
-    # deploy in pksandbox
-    # - name: Azure Login
-    #   uses: azure/login@v1
-    #   with:
-    #     client-id: ${{ secrets.AZURE_CLIENT_ID }}
-    #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    #     allow-no-subscriptions: true
+  #   # deploy in pksandbox
+  #   # - name: Azure Login
+  #   #   uses: azure/login@v1
+  #   #   with:
+  #   #     client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #   #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #   #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #   #     allow-no-subscriptions: true
 
 
-    # deploy in pksmicrosoftcorp
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        client-id: "1e01ff43-61a4-4c80-b865-e4dd62e0feee"
-        tenant-id: "80133990-1076-49d7-b8ee-1d5098569f89"
-        subscription-id: "2c87d256-12aa-44d7-b1e8-8c17d95ea37f"
-        allow-no-subscriptions: true
+  #   # deploy in pksmicrosoftcorp
+  #   - name: Azure Login
+  #     uses: azure/login@v1
+  #     with:
+  #       client-id: "1e01ff43-61a4-4c80-b865-e4dd62e0feee"
+  #       tenant-id: "80133990-1076-49d7-b8ee-1d5098569f89"
+  #       subscription-id: "2c87d256-12aa-44d7-b1e8-8c17d95ea37f"
+  #       allow-no-subscriptions: true
 
-    - name: Extracting variables from Parameters JSON file
-      id: extract_rg_location
-      run: |
-        RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
-        STATIC_WEB_APP_NAME=$(jq -r '.parameters.staticWebAppName.value' .github/workflows/parameters.json)
-        LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
-        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
-        echo "STATIC_WEB_APP_NAME=$STATIC_WEB_APP_NAME" >> $GITHUB_ENV
-        echo "LOCATION=$LOCATION" >> $GITHUB_ENV
+  #   - name: Extracting variables from Parameters JSON file
+  #     id: extract_rg_location
+  #     run: |
+  #       RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
+  #       STATIC_WEB_APP_NAME=$(jq -r '.parameters.staticWebAppName.value' .github/workflows/parameters.json)
+  #       LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
+  #       echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
+  #       echo "STATIC_WEB_APP_NAME=$STATIC_WEB_APP_NAME" >> $GITHUB_ENV
+  #       echo "LOCATION=$LOCATION" >> $GITHUB_ENV
 
-    - name: Check if Resource Group exists
-      id: check_resource_group
-      run: |
-        if az group show --name ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
-          echo "Resource Group ${{ env.RESOURCE_GROUP_NAME }} already exists"
-          echo "::set-output name=rg_exists::true"
-        else
-          az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location "${{ env.LOCATION }}"
-          echo "Resource Group created."
-        fi
+  #   - name: Check if Resource Group exists
+  #     id: check_resource_group
+  #     run: |
+  #       if az group show --name ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
+  #         echo "Resource Group ${{ env.RESOURCE_GROUP_NAME }} already exists"
+  #         echo "::set-output name=rg_exists::true"
+  #       else
+  #         az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location "${{ env.LOCATION }}"
+  #         echo "Resource Group created."
+  #       fi
 
-    - name: Check if Static Web App exists
-      id: check_static_webapp
-      run: |
-        if ! az staticwebapp show --name ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
-          echo "Static Web App does not exist."
-          echo "staticWebApp_exists=false" >> $GITHUB_ENV
-        else
-          echo "Static Web App exists."
-          echo "staticWebApp_exists=true" >> $GITHUB_ENV
-        fi
+  #   - name: Check if Static Web App exists
+  #     id: check_static_webapp
+  #     run: |
+  #       if ! az staticwebapp show --name ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
+  #         echo "Static Web App does not exist."
+  #         echo "staticWebApp_exists=false" >> $GITHUB_ENV
+  #       else
+  #         echo "Static Web App exists."
+  #         echo "staticWebApp_exists=true" >> $GITHUB_ENV
+  #       fi
 
-    - name: Deploy Azure Static Webapp
-      if: env.staticWebApp_exists == 'false'
-      run: |
-        az deployment group create \
-          --resource-group ${{ env.RESOURCE_GROUP_NAME }} \
-          --template-file .github/workflows/staticwebapp.bicep \
-          --parameters .github/workflows/parameters.json            
+  #   - name: Deploy Azure Static Webapp
+  #     if: env.staticWebApp_exists == 'false'
+  #     run: |
+  #       az deployment group create \
+  #         --resource-group ${{ env.RESOURCE_GROUP_NAME }} \
+  #         --template-file .github/workflows/staticwebapp.bicep \
+  #         --parameters .github/workflows/parameters.json            
 
   build_and_deploy_code:
-    needs: deploy_infrastructure
+    # needs: deploy_infrastructure
     runs-on: ubuntu-latest
 
     strategy:

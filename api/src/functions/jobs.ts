@@ -12,7 +12,7 @@ export async function jobs(request: HttpRequest, context: InvocationContext): Pr
 
 export async function list(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('x-token'));
         if (!jwt || !await jwt.authorize() || !jwt.tid) {
             throw new InvalidAccessTokenError();
         }
@@ -30,7 +30,7 @@ export async function list(request: HttpRequest, context: InvocationContext): Pr
 
 export async function create(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('x-token'));
         if (!jwt || !await jwt.authorize() || !jwt.tid) {
             throw new InvalidAccessTokenError();
         }
@@ -60,7 +60,7 @@ export async function job(request: HttpRequest, context: InvocationContext): Pro
 
 export async function update(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('x-token'));
         if (!jwt || !await jwt.authorize() || !jwt.tid) {
             throw new InvalidAccessTokenError();
         }
@@ -78,7 +78,7 @@ export async function update(request: HttpRequest, context: InvocationContext): 
 
 export async function get(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('x-token'));
         if (!jwt || !await jwt.authorize() || !jwt.tid) {
             throw new InvalidAccessTokenError();
         }
@@ -107,14 +107,14 @@ export async function get(request: HttpRequest, context: InvocationContext): Pro
 
 export async function deleteJob(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('x-token'));
         if (!jwt || !await jwt.authorize() || !jwt.tid) {
             throw new InvalidAccessTokenError();
         }
         const graph = new GraphProvider(new OboAuthProvider(jwt));
         const id = request.params.id;
         await graph.deleteContainer(id);
-        return { jsonBody: { } };
+        return { jsonBody: {} };
     } catch (error) {
         if (error instanceof ApiError) {
             return { status: error.status, body: error.message };
@@ -125,7 +125,7 @@ export async function deleteJob(request: HttpRequest, context: InvocationContext
 
 export async function posting(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('x-token'));
         if (!jwt || !await jwt.authorize() || !jwt.tid) {
             throw new InvalidAccessTokenError();
         }
@@ -149,7 +149,7 @@ function getPostingFileName(jobName: string): string {
 
 export async function createPosting(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('x-token'));
         if (!jwt || !await jwt.authorize() || !jwt.tid) {
             throw new InvalidAccessTokenError();
         }

@@ -26,7 +26,7 @@ export async function disableContainerProcessing(request: HttpRequest, context: 
         if (!containerId) {
             throw new MissingContainerIdError();
         }
-        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('x-token'));
         if (!jwt || !await jwt.authorize() || !jwt.tid) {
             throw new InvalidAccessTokenError();
         }
@@ -38,7 +38,7 @@ export async function disableContainerProcessing(request: HttpRequest, context: 
         }
 
         await graph.removeDriveSubscriptions(containerId);
-        
+
         const subscriptionPropertyId = 'docProcessingSubscriptionId';
         const subscriptionPropertyExpiry = 'docProcessingSubscriptionExpiry';
         let props = container.customProperties || {} as any;
@@ -47,7 +47,7 @@ export async function disableContainerProcessing(request: HttpRequest, context: 
         await graph.setContainerCustomProperties(containerId, props);
         delete props[subscriptionPropertyId];
         delete props[subscriptionPropertyExpiry];
-        container.customProperties =  props as IContainerCustomProperties;
+        container.customProperties = props as IContainerCustomProperties;
 
         return { jsonBody: container };
     } catch (error) {
@@ -64,7 +64,7 @@ export async function enableContainerProcessing(request: HttpRequest, context: I
         if (!containerId) {
             throw new MissingContainerIdError();
         }
-        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('x-token'));
         if (!jwt || !await jwt.authorize() || !jwt.tid) {
             throw new InvalidAccessTokenError();
         }
@@ -104,7 +104,7 @@ export async function enableContainerProcessing(request: HttpRequest, context: I
         const notificationUrl = `${hostname}/api/onDriveChanged?tid=${jwt.tid}driveId=${containerId}`;
         console.log(`Subscribing to drive changes at ${notificationUrl}`);
         const subscription = await graph.subscribeToDriveChanges(containerId, notificationUrl);
-        
+
         const subscriptionPropertyId = 'docProcessingSubscriptionId';
         const subscriptionPropertyExpiry = 'docProcessingSubscriptionExpiry';
         const props = container.customProperties || {} as IContainerCustomProperties;
@@ -129,7 +129,7 @@ export async function enableContainerProcessing(request: HttpRequest, context: I
 }
 
 export async function onDriveChanged(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    
+
     let validationToken = request.query.get('validationToken');
     if (!validationToken && request.method === 'POST') {
         const requestBody = await request.json() as IChangeNotificationRequestBody;
@@ -142,12 +142,12 @@ export async function onDriveChanged(request: HttpRequest, context: InvocationCo
         processDrive(graph, driveId).catch(console.error);
     }
     if (validationToken) {
-        return { 
+        return {
             headers: { 'Content-Type': 'text/plain' },
-            body: validationToken 
+            body: validationToken
         };
     }
-    return { };
+    return {};
 }
 
 async function processDrive(graph: GraphProvider, driveId: string): Promise<void> {
@@ -179,7 +179,7 @@ async function processItem(graph: GraphProvider, driveId: string, item: IDrivePr
         console.error(`Download URL not found for item ${item.id}`);
         return;
     }
-    
+
     const stream = await graph.getDriveItemStream(downloadUrl);
     const azureAi = new AzureDocAnalysisProvider();
     const fields = await azureAi.extractReceiptFields(stream) as IProcessedFileFields;

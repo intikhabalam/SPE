@@ -16,11 +16,11 @@ export class ContainersApiProvider {
     public set authProvider(value: { getToken: () => Promise<string> }) {
         this._authProvider = value;
     }
-    
+
     private constructor() {
         this._authProvider = CustomAppApiAuthProvider.instance;
     }
-    
+
     public async list(): Promise<IContainer[]> {
         const request: RequestInit = {
             method: 'GET',
@@ -99,6 +99,7 @@ export class ContainersApiProvider {
     private _headers(token: string): HeadersInit {
         return {
             'Authorization': `Bearer ${token}`,
+            'x-token': `Bearer ${token}`,
             'Content-Type': 'application/json'
         };
     }

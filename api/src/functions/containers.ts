@@ -12,7 +12,7 @@ export async function containers(request: HttpRequest, context: InvocationContex
 
 export async function listContainers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('x-token'));
         if (!jwt) {
             context.log('Invalid JWT');
             throw new InvalidAccessTokenError();
@@ -24,7 +24,6 @@ export async function listContainers(request: HttpRequest, context: InvocationCo
         }
 
         if (!jwt.tid) {
-
             context.log('Missing tenant ID');
             context.log(`Decoded: ${JSON.stringify(jwt.decoded)}`);
             context.log(`Token: ${jwt.token}`);
@@ -49,7 +48,7 @@ export async function listContainers(request: HttpRequest, context: InvocationCo
 
 export async function createContainer(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('x-token'));
         if (!jwt || !await jwt.authorize() || !jwt.tid) {
             throw new InvalidAccessTokenError();
         }
@@ -73,7 +72,7 @@ export async function container(request: HttpRequest, context: InvocationContext
 
 export async function updateContainer(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('x-token'));
         if (!jwt || !await jwt.authorize() || !jwt.tid) {
             throw new InvalidAccessTokenError();
         }
@@ -91,7 +90,7 @@ export async function updateContainer(request: HttpRequest, context: InvocationC
 
 export async function getContainer(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('x-token'));
         if (!jwt || !await jwt.authorize() || !jwt.tid) {
             throw new InvalidAccessTokenError();
         }
@@ -108,7 +107,7 @@ export async function getContainer(request: HttpRequest, context: InvocationCont
 
 export async function validate(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('x-token'));
         const userToken = {
             token: jwt!.token,
             decoded: jwt!.decoded,

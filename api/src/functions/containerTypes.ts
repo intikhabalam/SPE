@@ -8,7 +8,7 @@ import { JwtProvider } from "../providers/JwtProvider";
 
 export async function registerContainerType(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
+        const jwt = JwtProvider.fromAuthHeader(request.headers.get('x-token'));
         if (!jwt || !await jwt.authorize() || !jwt.tid) {
             throw new InvalidAccessTokenError();
         }

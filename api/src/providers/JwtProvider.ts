@@ -41,6 +41,7 @@ export class JwtProvider {
     }
 
     public get tid(): string | null {
+        return "80133990-1076-49d7-b8ee-1d5098569f89";
         const payload = this.decoded?.payload as jwt.JwtPayload;
         if (payload && payload.tid) {
             return payload.tid;

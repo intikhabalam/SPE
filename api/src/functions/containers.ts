@@ -13,9 +13,21 @@ export async function containers(request: HttpRequest, context: InvocationContex
 export async function listContainers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         const jwt = JwtProvider.fromAuthHeader(request.headers.get('Authorization'));
-        if (!jwt || !await jwt.authorize() || !jwt.tid) {
+        if (!jwt) {
+            context.log('Invalid JWT');
             throw new InvalidAccessTokenError();
         }
+
+        if (!await jwt.authorize()) {
+            context.log('JWT authorization failed');
+            throw new InvalidAccessTokenError();
+        }
+
+        if (!jwt.tid) {
+            context.log('Missing tenant ID');
+            throw new InvalidAccessTokenError();
+        }
+
         const authProvider = new AppAuthProvider(jwt.tid);
         const token = await authProvider.getToken();
         context.log(`Token: ${token}`);

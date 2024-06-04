@@ -24,10 +24,10 @@ export async function listContainers(request: HttpRequest, context: InvocationCo
         return { jsonBody: containers };
     } catch (error) {
         throw error; 
-        if (error instanceof ApiError) {
-            return { status: error.status, body: error.message };
-        }
-        return { status: 500, body: `List containers failed: ${error}` };
+        // if (error instanceof ApiError) {
+        //     return { status: error.status, body: error.message };
+        // }
+        // return { status: 500, body: `List containers failed: ${error}` };
     }
 }
 

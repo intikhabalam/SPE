@@ -11,7 +11,7 @@ export abstract class AuthProvider {
     public constructor(private readonly _tid: string, public readonly scopes: string[] = ['https://graph.microsoft.com/.default']) {
         const authority = `https://login.microsoftonline.com/${_tid}`;
         const auth: NodeAuthOptions = {
-            clientId: '1f83ba3b-1066-4946-935d-e9ac61cb3f21',
+            clientId: process.env.AZURE_CLIENT_ID!,
             authority: authority
         };
         if (process.env.AZURE_CLIENT_CERT_THUMBPRINT && process.env.AZURE_CLIENT_CERT_PRIVATE_KEY) {

@@ -62,7 +62,6 @@ jobs:
         fi
 
     - name: Deploy Azure Static Webapp
-      if: env.staticWebApp_exists == 'false'
       id: create_azure_static_webapp
       run: |
         az deployment group create \
@@ -71,7 +70,6 @@ jobs:
           --parameters .github/workflows/parameters.json            
 
     - name: Check if Resource Group exists
-      if: env.staticWebApp_exists == 'false'
       id: create_environment_variables
       run: |
         az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names "message=Hello world" \

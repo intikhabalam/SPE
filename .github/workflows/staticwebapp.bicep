@@ -46,3 +46,12 @@ resource staticSite 'Microsoft.Web/staticSites@2022-09-01' = {
     enterpriseGradeCdnStatus: 'Disabled'
   }
 }
+
+resource symbolicname 'Microsoft.Web/staticSites/config@2022-03-01' = {
+  name: 'appsettings'
+  kind: 'string'
+  parent: staticSite
+  properties: {
+    RedirectURL: 'test.com'
+  }
+}

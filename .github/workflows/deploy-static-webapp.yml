@@ -14,74 +14,73 @@ permissions:
   contents: read
 
 jobs:
-  # deploy_infrastructure:
-  #   runs-on: ubuntu-latest
+  deploy_infrastructure:
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #   - name: Checkout repository
-  #     uses: actions/checkout@v2
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-  #   # deploy in pksandbox
-  #   # - name: Azure Login
-  #   #   uses: azure/login@v1
-  #   #   with:
-  #   #     client-id: ${{ secrets.AZURE_CLIENT_ID }}
-  #   #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-  #   #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  #   #     allow-no-subscriptions: true
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        allow-no-subscriptions: true
 
 
-  #   # deploy in pksmicrosoftcorp
-  #   - name: Azure Login
-  #     uses: azure/login@v1
-  #     with:
-  #       client-id: "1e01ff43-61a4-4c80-b865-e4dd62e0feee"
-  #       tenant-id: "80133990-1076-49d7-b8ee-1d5098569f89"
-  #       subscription-id: "2c87d256-12aa-44d7-b1e8-8c17d95ea37f"
-  #       allow-no-subscriptions: true
+    # deploy in pksmicrosoftcorp
+    # - name: Azure Login
+    #   uses: azure/login@v1
+    #   with:
+    #     client-id: "1e01ff43-61a4-4c80-b865-e4dd62e0feee"
+    #     tenant-id: "80133990-1076-49d7-b8ee-1d5098569f89"
+    #     subscription-id: "2c87d256-12aa-44d7-b1e8-8c17d95ea37f"
+    #     allow-no-subscriptions: true
 
-  #   - name: Extracting variables from Parameters JSON file
-  #     id: extract_rg_location
-  #     run: |
-  #       RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
-  #       STATIC_WEB_APP_NAME=$(jq -r '.parameters.staticWebAppName.value' .github/workflows/parameters.json)
-  #       LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
-  #       echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
-  #       echo "STATIC_WEB_APP_NAME=$STATIC_WEB_APP_NAME" >> $GITHUB_ENV
-  #       echo "LOCATION=$LOCATION" >> $GITHUB_ENV
+    - name: Extracting variables from Parameters JSON file
+      id: extract_rg_location
+      run: |
+        RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
+        STATIC_WEB_APP_NAME=$(jq -r '.parameters.staticWebAppName.value' .github/workflows/parameters.json)
+        LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
+        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
+        echo "STATIC_WEB_APP_NAME=$STATIC_WEB_APP_NAME" >> $GITHUB_ENV
+        echo "LOCATION=$LOCATION" >> $GITHUB_ENV
 
-  #   - name: Check if Resource Group exists
-  #     id: check_resource_group
-  #     run: |
-  #       if az group show --name ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
-  #         echo "Resource Group ${{ env.RESOURCE_GROUP_NAME }} already exists"
-  #         echo "::set-output name=rg_exists::true"
-  #       else
-  #         az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location "${{ env.LOCATION }}"
-  #         echo "Resource Group created."
-  #       fi
+    - name: Check if Resource Group exists
+      id: check_resource_group
+      run: |
+        if az group show --name ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
+          echo "Resource Group ${{ env.RESOURCE_GROUP_NAME }} already exists"
+          echo "::set-output name=rg_exists::true"
+        else
+          az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location "${{ env.LOCATION }}"
+          echo "Resource Group created."
+        fi
 
-  #   - name: Check if Static Web App exists
-  #     id: check_static_webapp
-  #     run: |
-  #       if ! az staticwebapp show --name ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
-  #         echo "Static Web App does not exist."
-  #         echo "staticWebApp_exists=false" >> $GITHUB_ENV
-  #       else
-  #         echo "Static Web App exists."
-  #         echo "staticWebApp_exists=true" >> $GITHUB_ENV
-  #       fi
+    - name: Check if Static Web App exists
+      id: check_static_webapp
+      run: |
+        if ! az staticwebapp show --name ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
+          echo "Static Web App does not exist."
+          echo "staticWebApp_exists=false" >> $GITHUB_ENV
+        else
+          echo "Static Web App exists."
+          echo "staticWebApp_exists=true" >> $GITHUB_ENV
+        fi
 
-  #   - name: Deploy Azure Static Webapp
-  #     if: env.staticWebApp_exists == 'false'
-  #     run: |
-  #       az deployment group create \
-  #         --resource-group ${{ env.RESOURCE_GROUP_NAME }} \
-  #         --template-file .github/workflows/staticwebapp.bicep \
-  #         --parameters .github/workflows/parameters.json            
+    - name: Deploy Azure Static Webapp
+      if: env.staticWebApp_exists == 'false'
+      run: |
+        az deployment group create \
+          --resource-group ${{ env.RESOURCE_GROUP_NAME }} \
+          --template-file .github/workflows/staticwebapp.bicep \
+          --parameters .github/workflows/parameters.json            
 
   build_and_deploy_code:
-    # needs: deploy_infrastructure
+    needs: deploy_infrastructure
     runs-on: ubuntu-latest
 
     strategy:
@@ -118,23 +117,12 @@ jobs:
         STATIC_WEB_APP_NAME=$(jq -r '.parameters.staticWebAppName.value' .github/workflows/parameters.json)
         echo "STATIC_WEB_APP_NAME=$STATIC_WEB_APP_NAME" >> $GITHUB_ENV
 
-    # deploy in pksandbox
-    # - name: Azure Login
-    #   uses: azure/login@v1
-    #   with:
-    #     client-id: ${{ secrets.AZURE_CLIENT_ID }}
-    #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    #     allow-no-subscriptions: true
-
-
-    # deploy in pksmicrosoftcorp
     - name: Azure Login
       uses: azure/login@v1
       with:
-        client-id: "1e01ff43-61a4-4c80-b865-e4dd62e0feee"
-        tenant-id: "80133990-1076-49d7-b8ee-1d5098569f89"
-        subscription-id: "2c87d256-12aa-44d7-b1e8-8c17d95ea37f"
+        client-id: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         allow-no-subscriptions: true
 
     - name: Get Azure Static Webapp Site URL & Api Token
@@ -142,35 +130,25 @@ jobs:
       run: |
         STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "properties.apiKey" -o tsv)
         echo "STATIC_WEBAPP_TOKEN=$STATIC_WEBAPP_TOKEN" >> $GITHUB_ENV
+        STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
+        echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
 
     - name: Build frontend
       run: |
         cd react-client
         CI=false npm run build # Set CI=false to avoid treating warnings as errors
       env:
-        AZURE_CLIENT_ID: '1f83ba3b-1066-4946-935d-e9ac61cb3f21'
-        REACT_APP_AZURE_SERVER_APP_ID: '1f83ba3b-1066-4946-935d-e9ac61cb3f21'
-        REACT_APP_AZURE_APP_ID: '1f83ba3b-1066-4946-935d-e9ac61cb3f21'
-        REACT_APP_SPE_CONTAINER_TYPE_ID: '9f9083ab-0010-0091-2bb3-f4fcf99da0a8'
-        REACT_APP_SP_ROOT_SITE_URL: 'https://pksmicrosoftcorp.sharepoint.com/'
-        REACT_APP_SAMPLE_API_URL: 'https://lemon-smoke-0de0c8110.5.azurestaticapps.net/api'
-        AZURE_CLIENT_CERT_THUMBPRINT: 'a2108d67e84fa3c931f5b6cf06d341bfec0b0de9'
+        AZURE_CLIENT_ID: ${{ secrets.REACT_APP_AZURE_APP_ID }}
+        REACT_APP_AZURE_SERVER_APP_ID: ${{ secrets.REACT_APP_AZURE_APP_ID }}
+        REACT_APP_AZURE_APP_ID: ${{ secrets.REACT_APP_AZURE_APP_ID }}
+        REACT_APP_SPE_CONTAINER_TYPE_ID: ${{ secrets.CONTAINER_TYPE_ID }}
+        REACT_APP_SP_ROOT_SITE_URL: ${{ secrets.SP_ROOT_SITE_URL }}
+        REACT_APP_SAMPLE_API_URL: ${{env.STATIC_WEBAPP_URL}}
+        AZURE_CLIENT_CERT_THUMBPRINT: ${{secrets.REACT_APP_AZURE_APP_CLIENT_CERT_THUMBPRINT}}
         AZURE_CLIENT_CERT_PRIVATE_KEY:  ${{ secrets.AZURE_CLIENT_CERT_PRIVATE_KEY }}
-        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        SPE_CONTAINER_TYPE_ID: '9f9083ab-0010-0091-2bb3-f4fcf99da0a8'
-        AZURE_SPA_CLIENT_ID: 'de8bc8b5-d9f9-48b1-a8ad-b748da725064' 
-
-          # REACT_APP_AZURE_APP_ID: 'e3c5d971-4f7a-4bb4-b5cd-7bafd998b190'
-          # REACT_APP_AZURE_SERVER_APP_ID: 'e3c5d971-4f7a-4bb4-b5cd-7bafd998b190'
-          # REACT_APP_SP_ROOT_SITE_URL: 'https://pksmicrosoftcorp.sharepoint.com'
-          # SPE_CONTAINER_TYPE_ID: '9f9083ab-0010-0091-2bb3-f4fcf99da0a8'
-          # # AUTH_AUTHORITY: '914f7cf7-562f-4c60-8f7c-3dc6ae04ad50'
-
-          # REACT_APP_AZURE_APP_ID: '796769bd-846c-4208-ac79-43783ab31317'
-          # REACT_APP_AZURE_SERVER_APP_ID: '796769bd-846c-4208-ac79-43783ab31317'
-          # REACT_APP_SP_ROOT_SITE_URL: 'https://pkssandbox.sharepoint.com'
-          # SPE_CONTAINER_TYPE_ID: '6e54f52f-2f7b-0527-227a-c0fed2b8bbe1'
-          # AUTH_AUTHORITY: '914f7cf7-562f-4c60-8f7c-3dc6ae04ad50'          
+        AZURE_CLIENT_SECRET: ${{ secrets.REACT_APP_AZURE_SECRET }}
+        SPE_CONTAINER_TYPE_ID: ${{ secrets.CONTAINER_TYPE_ID }}
+        AZURE_SPA_CLIENT_ID: ${{ secrets.AZURE_SPA_CLIENT_ID }}
 
     - name: Install dependencies (backend)
       run: |
@@ -181,18 +159,6 @@ jobs:
       run: |
         cd api
         CI=false npm run build # Set CI=false to avoid treating warnings as errors
-
-    # - name: Verify Functions Configuration
-    #   run: |
-    #     cd api
-    #     if [ ! -f host.json ]; then
-    #       echo "host.json not found!"
-    #       exit 1
-    #     fi
-    #     if [ ! -d dist ]; then
-    #       echo "Build output directory 'dist' not found!"
-    #       exit 1
-    #     fi
 
     - name: Deploy to Azure Static Web Apps
       uses: Azure/static-web-apps-deploy@v1
@@ -206,4 +172,10 @@ jobs:
         # api_build_command: 'npm run build'
         # skip_app_build: true
         # skip_api_build: true
+        SPE_CONTAINER_TYPE_ID: ${{ secrets.CONTAINER_TYPE_ID }}
+        AZURE_CLIENT_SECRET: ${{ secrets.REACT_APP_AZURE_SECRET }}
+        AZURE_CLIENT_ID: ${{ secrets.REACT_APP_AZURE_APP_ID }}
+        AZURE_CLIENT_CERT_THUMBPRINT: ${{secrets.REACT_APP_AZURE_APP_CLIENT_CERT_THUMBPRINT}}
+        AZURE_CLIENT_CERT_PRIVATE_KEY: ${{ secrets.REACT_APP_AZURE_APP_CLIENT_CERT_PRIVATE_KEY }}         
 
+          

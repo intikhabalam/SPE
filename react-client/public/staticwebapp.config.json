@@ -3,7 +3,8 @@
     "navigationFallback": {
         "rewrite": "index.html",
         "exclude": [
-            "/assets/*"
+            "/assets/*",
+            "/api/*"
         ]
     },
     "mimeTypes": {

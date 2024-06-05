@@ -14,8 +14,8 @@ permissions:
   contents: read
 
 jobs:
-  deploy_infrastructure:
-    runs-on: ubuntu-latest
+  # deploy_infrastructure:
+  #   runs-on: ubuntu-latest
 
     # steps:
     # - name: Checkout repository

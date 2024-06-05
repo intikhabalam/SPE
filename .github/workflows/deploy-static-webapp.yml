@@ -151,7 +151,7 @@ jobs:
         # AZURE_SPA_CLIENT_ID: ${{ secrets.AZURE_SPA_CLIENT_ID }}
 
     - name: Print Static Web App URL
-      run: echo "Static Web App URL: 'https://${{env.STATIC_WEBAPP_URL}}/api'"
+      run: echo "Static Web App URL: https://${{env.STATIC_WEBAPP_URL}}/api"
 
     - name: Install dependencies (backend)
       run: |

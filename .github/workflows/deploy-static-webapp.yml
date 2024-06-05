@@ -79,6 +79,12 @@ jobs:
           --template-file .github/workflows/staticwebapp.bicep \
           --parameters .github/workflows/parameters.json            
 
+    - name: Check if Resource Group exists
+      id: create_environment_variables
+      run: |
+          az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names "message=Hello world"
+
+
   # build_and_deploy_code:
   #   # needs: deploy_infrastructure
   #   runs-on: ubuntu-latest

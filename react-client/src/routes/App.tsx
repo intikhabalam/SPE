@@ -1,29 +1,17 @@
-
-import './App.css';
-import React, {
-  useState, useEffect,
-  useCallback
-} from "react";
-import {
-  Providers,
-  ProviderState
-} from "@microsoft/mgt-element";
+import "./App.css";
+import React, { useState, useCallback } from "react";
 import { Login, SearchBox, SearchResults } from "@microsoft/mgt-react";
 import {
-  Divider,
   FluentProvider,
   Menu,
   MenuItem,
   MenuList,
   MenuPopover,
   MenuTrigger,
-  Tab,
-  TabList,
   Text,
   Toolbar,
   ToolbarButton,
-  webDarkTheme,
-  webLightTheme
+  webLightTheme,
 } from "@fluentui/react-components";
 import {
   Map20Regular,
@@ -32,130 +20,206 @@ import {
   Star20Regular,
   ChartMultiple20Regular,
   MoreVertical24Filled,
-} from '@fluentui/react-icons';
-import './App.css';
-import * as Constants from '../common/Constants';
-import { ContainerSelector } from '../components/ContainerSelector';
-import ContainerBrowser from '../components/ContainerBrowser';
-import { IContainer } from '../../../common/schemas/ContainerSchemas';
-import { CreateContainerButton } from '../components/CreateContainerButton';
-import { Outlet } from 'react-router-dom';
+} from "@fluentui/react-icons";
+import "./App.css";
+import * as Constants from "../common/Constants";
+import { Outlet } from "react-router-dom";
+import { INavLinkGroup, INavStyles, Nav, registerIcons } from "@fluentui/react";
 
+const navStyles: Partial<INavStyles> = {
+  root: {
+    color: "white",
+    backgroundColor: "#4854ee",
+    marginLeft: "-20px",
+    paddingTop: "40px",
+  },
+  navItem: { paddingTop: "10px" },
+  link: {
+    color: "white",
+    paddingLeft: "35px",
+    backgroundColor: "#4854ee",
+    selectors: {
+      "&:hover": {
+        fontWeight: "bold",
+        backgroundColor: "#4854ee",
+      },
+      "&:active": {
+        backgroundColor: "#4854ee",
+      },
+      "&.is-selected": {
+        backgroundColor: "#4854ee",
+      },
+    },
+  },
+  linkText: {
+    color: "white",
+  },
+  compositeLink: {
+    selectors: {
+      ":hover .ms-Nav-linkText": {
+        color: "#6DCCF4",
+        fontWeight: "bold",
+      },
+    },
+  },
+};
 
-const useIsSignedIn = () => {
-  const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
-
-  useEffect(() => {
-    const updateIsSignedIn = () => {
-      setIsSignedIn(Providers.globalProvider.state === ProviderState.SignedIn);
-    }
-    updateIsSignedIn();
-    Providers.globalProvider.onStateChanged(updateIsSignedIn);
-    return () => {
-      Providers.globalProvider.removeStateChangedHandler(updateIsSignedIn);
-    }
-  }, []);
-  return isSignedIn;
-}
-
-function App() {  
+function App() {
   const containerTypeId = Constants.SPE_CONTAINER_TYPE_ID;
   const baseSearchQuery = `ContainerTypeId:${containerTypeId} AND Title:'[Job Posting]*'`;
-  const [selectedContainer, setSelectedContainer] = useState<IContainer | undefined>(undefined);
-  const [searchQuery, setSearchQuery] = useState<string>(baseSearchQuery)
+  const [searchQuery, setSearchQuery] = useState<string>(baseSearchQuery);
   const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
-  const isSignedIn = useIsSignedIn();
-  const mainContentRef = React.useRef(null);
   const loginRef = React.useRef(null);
-  const onSearchTermChanged = useCallback((e: CustomEvent < string > ) => {
-    const term = e.detail;   
-    const termQuery = term ? `'${term}'` : '';
-    setSearchQuery(`${termQuery} ${baseSearchQuery}`);
-    console.log(`${termQuery} ${baseSearchQuery}`);
-  }, [baseSearchQuery]);
+  const onSearchTermChanged = useCallback(
+    (e: CustomEvent<string>) => {
+      const term = e.detail;
+      const termQuery = term ? `'${term}'` : "";
+      setSearchQuery(`${termQuery} ${baseSearchQuery}`);
+      console.log(`${termQuery} ${baseSearchQuery}`);
+    },
+    [baseSearchQuery]
+  );
+
+  registerIcons({
+    icons: {
+      Map20Regular: <Map20Regular />,
+      People20Regular: <People20Regular />,
+      Open20Regular: <Open20Regular />,
+      Star20Regular: <Star20Regular />,
+      ChartMultiple20Regular: <ChartMultiple20Regular />,
+      MoreVertical24Filled: <MoreVertical24Filled />,
+    },
+  });
+
+  const navLinkGroups: INavLinkGroup[] = [
+    {
+      links: [
+        {
+          name: "Overview",
+          url: "",
+          iconProps: {
+            iconName: "Map20Regular",
+            style: { color: "#6DCCF4", width: "20px" },
+          },
+          key: "key1",
+        },
+        {
+          name: "People",
+          url: "",
+          key: "key2",
+          iconProps: {
+            iconName: "People20Regular",
+            style: { color: "#6DCCF4", width: "20px" },
+          },
+        },
+        {
+          name: "Openings",
+          url: "",
+          key: "key3",
+          iconProps: {
+            iconName: "Open20Regular",
+            style: { color: "#6DCCF4", width: "20px" },
+          },
+        },
+        {
+          name: "Hiring",
+          url: "",
+          key: "key4",
+          iconProps: {
+            iconName: "Star20Regular",
+            style: { color: "#6DCCF4", width: "20px" },
+          },
+        },
+        {
+          name: "Reports",
+          url: "",
+          key: "key5",
+          iconProps: {
+            iconName: "ChartMultiple20Regular",
+            style: { color: "#6DCCF4", width: "20px" },
+          },
+        },
+      ],
+    },
+  ];
 
   return (
-    <FluentProvider theme={webLightTheme}>
+    <FluentProvider>
       <div className="App">
-        <div className="spe-app-header">
-          <div className="spe-app-header-title">
-            <Text size={600}>
-              Contoso
-              <Text size={700} weight='semibold'>H</Text>
-              <Text size={700} weight='semibold'>R</Text>
-            </Text>
-          </div>
-          <div className="spe-app-header-search">
-            <SearchBox 
-              searchTermChanged={onSearchTermChanged}
-              onFocus={() => setShowSearchResults(true)}
-              onBlur={() => setTimeout(setShowSearchResults.bind(null, false), 200)}
-            />
-            {showSearchResults && (
-            <div className="spe-app-search-results-background">
-            <SearchResults 
-              className="spe-app-search-results"
-              entityTypes={['driveItem']} 
-              fetchThumbnail={true} 
-              queryString={searchQuery} 
-            />
-            </div>
-            )}
-          </div>
-          <div className="spe-app-header-actions">
-            <Toolbar>
-              <Login ref={loginRef} loginView='avatar' showPresence={true} />
-              <Menu>
-                <MenuTrigger>
-                  <ToolbarButton aria-label="More" icon={<MoreVertical24Filled />} />
-                </MenuTrigger>
-
-                <MenuPopover>
-                  <MenuList>
-                    <MenuItem>Hi!</MenuItem>
-                  </MenuList>
-                </MenuPopover>
-              </Menu>
-            </Toolbar>
-          </div>
-        </div>
         <div className="spe-app-content">
-          <div className="spe-app-content-navigation"><FluentProvider theme={webDarkTheme}>
-            <div className="navigation-tabs">
-              <TabList vertical={true} size='large' selectedValue="hiring">
-                <Tab value="overview" icon={<Map20Regular />}>Overview</Tab>
-                <Tab value="people" icon={<People20Regular />}>People</Tab>
-                <Tab value="openings" icon={<Open20Regular />}>Openings</Tab>
-                <Tab value="hiring" icon={<Star20Regular />}>Hiring</Tab>
-                <Tab value="reports" icon={<ChartMultiple20Regular />}>Reports</Tab>
-              </TabList>
-            </div></FluentProvider>
-            <div className="navigation-divider">
-              <Divider />
+          <div className="spe-app-content-navigation">
+            <div className="spe-app-header-title">
+              <Text size={600} style={{ fontSize: "22px", color: "#fff" }}>
+                contoso
+              </Text>
+              <Text
+                size={700}
+                weight="semibold"
+                style={{ fontSize: "22px", color: "#60B1D4" }}
+              >
+                HR
+              </Text>
             </div>
-            <div className="navigation-containers">
-              {isSignedIn && (<>
-                <ContainerSelector onContainerSelected={setSelectedContainer} />
-                <CreateContainerButton />
-              </>)}
-            </div>
-          </div>
-          <div className="spe-app-content-main" ref={mainContentRef}>
-            <div className="main-content-header" />
-            {/*
-            <FluentProvider theme={webDarkTheme}>
-            <div className="main-content-header">
-              <TabList size='large' selectedValue="documents">
-                <Tab value="dashboard">Dashboard</Tab>
-                <Tab value="requests">Requests</Tab>
-                <Tab value="documents">Documents</Tab>
-                <Tab value="settings">Settings</Tab>
-              </TabList>
-            </div>
+
+            <FluentProvider theme={webLightTheme}>
+              <Nav
+                selectedKey="key4"
+                ariaLabel="Nav basic example"
+                groups={navLinkGroups}
+                styles={navStyles}
+              />
             </FluentProvider>
-            */}
-            <div className="main-content-body">
-              <Outlet />
+          </div>
+
+          <div className="spe-app-header-main-container">
+            <div className="spe-app-header">
+              <div className="spe-app-header-search">
+                <SearchBox
+                  searchTermChanged={onSearchTermChanged}
+                  onFocus={() => setShowSearchResults(true)}
+                  onBlur={() =>
+                    setTimeout(setShowSearchResults.bind(null, false), 200)
+                  }
+                />
+                {showSearchResults && (
+                  <div className="spe-app-search-results-background">
+                    <SearchResults
+                      className="spe-app-search-results"
+                      entityTypes={["driveItem"]}
+                      fetchThumbnail={true}
+                      queryString={searchQuery}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="spe-app-header-actions">
+                <Toolbar>
+                  <Login
+                    ref={loginRef}
+                    loginView="avatar"
+                    showPresence={true}
+                  />
+                  <Menu>
+                    <MenuTrigger>
+                      <ToolbarButton
+                        aria-label="More"
+                        icon={<MoreVertical24Filled />}
+                      />
+                    </MenuTrigger>
+
+                    <MenuPopover>
+                      <MenuList>
+                        <MenuItem>Hi!</MenuItem>
+                      </MenuList>
+                    </MenuPopover>
+                  </Menu>
+                </Toolbar>
+              </div>
+            </div>
+            <div className="spe-app-content-main">
+              <div className="main-content-body">
+                <Outlet />
+              </div>
             </div>
           </div>
         </div>

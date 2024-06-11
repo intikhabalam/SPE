@@ -29,6 +29,10 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         allow-no-subscriptions: true
 
+    - name: Install SharePoint Online Management Shell Module
+      run: |
+        pwsh -Command "Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber"
+
     - name: Extracting variables from Parameters JSON file
       id: extract_parameters
       run: |

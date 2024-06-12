@@ -45,6 +45,12 @@ jobs:
 
         Write-Output "Setting the subscription..."
         az account set --subscription "66d212d1-7764-4f08-9839-1a52bd537059"
+        
+        # Verify the role assignment of the current service principal
+        Write-Output "Checking role assignments for the current service principal..."
+        $currentSpId = az ad sp show --id $clientId --query objectId -o tsv
+        $roleAssignments = az role assignment list --assignee $currentSpId
+        Write-Output "Current role assignments: $roleAssignments"
 
         $randomIdentifier = (New-Guid).ToString().Substring(0,8)
         $servicePrincipalName="msdocs-sp-$randomIdentifier"

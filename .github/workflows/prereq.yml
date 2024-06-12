@@ -57,42 +57,30 @@ jobs:
         echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
         echo "OWNING_APPLICATION_ID=$OWNING_APPLICATION_ID" >> $GITHUB_ENV
 
-    - name: Run PowerShell Script to Manage SharePoint Online
+        - name: Install SharePoint Online Management Shell Module
+        run: |
+          pwsh -Command "Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber"
+  
+    - name: Run PowerShell Script to Create Container Type
       shell: pwsh
       run: |
 
-        Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber
-        Update-Module -Name Microsoft.Online.SharePoint.PowerShell
-
-        
-        # Define your variables
-        $adminUrl = "${{ env.ADMIN_URL }}"
-        $containerTypeName = "${{ env.CONTAINER_TYPE_NAME }}"
-        $owningApplicationId = "${{ env.OWNING_APPLICATION_ID }}"
-
-        # $username = "gitpipeline@pkssandbox.onmicrosoft.com"
-        # $password = "SPERelentless@1"
-        # $cred = New-Object -TypeName System.Management.Automation.PSCredential -argumentlist $userName, $(convertto-securestring $Password -asplaintext -force)
-        # Connect-SPOService -Url https://pkssandbox-admin.sharepoint.com -Credential $cred
-
-        # $username = "gitpipeline@pkssandbox.onmicrosoft.com"
-        # $password = ConvertTo-SecureString -String "SPERelentless@1" -AsPlainText -Force  
-        # $credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $userName, $password  
-        # Connect-SPOService -Url https://pkssandbox-admin.sharepoint.com -Credential $credential
-
-        $siteUrl= "https://pkssandbox-admin.sharepoint.com"
+        # Using usernames and passwords (NOT RECOMMENDED FOR PRODUCTION)
         $username = "gitpipeline@pkssandbox.onmicrosoft.com"
         $password = ConvertTo-SecureString -String "SPERelentless@1" -AsPlainText -Force
         $cred = New-Object System.Management.Automation.PSCredential -ArgumentList $username, $password
-        Connect-SPOService -Url $siteUrl -Credential $cred
+       
 
-        # Import your custom SharePoint Online module (if required)
-        # Import-Module CustomSharePointModule
+        Connect-SPOService -Url $env:ADMIN_URL -Credential $cred
 
-        # Create a new container type (assuming New-SPOContainerType is a custom cmdlet)
+        # Define variables from extracted parameters
+        $containerTypeName = "${{ env.CONTAINER_TYPE_NAME }}"
+        $owningApplicationId = "${{ env.OWNING_APPLICATION_ID }}"
+
+        # Create a new SharePoint embedded container type
         New-SPOContainerType -TrialContainerType -ContainerTypeName $containerTypeName -OwningApplicationId $owningApplicationId
 
       env:
-        AZURE_CLIENT_ID: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
-        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_SECRET }}
-        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        ADMIN_URL: ${{ env.ADMIN_URL }}
+        USERNAME: ${{ secrets.USERNAME }}
+        PASSWORD: ${{ secrets.PASSWORD }}

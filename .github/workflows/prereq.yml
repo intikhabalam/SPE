@@ -68,9 +68,16 @@ jobs:
 
         # Your PnP PowerShell commands
         Write-Host "Hello World"
+        
+        # Get container type information
+        $containerType = Get-PnPContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME
+
+        # Check if container type already exists
+        if (-not $containerType) {New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID}
+        else {Write-Host "Container type already exists."}
 
         # Get container type information
-        $containerType = New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID
+        #$containerType = New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID
 
         # Store each value in a separate variable
         $ContainerTypeId = $containerType.ContainerTypeId
@@ -88,9 +95,3 @@ jobs:
         Write-Host "AzureSubscriptionId: $AzureSubscriptionId"
         Write-Host "ResourceGroup: $ResourceGroup"
 
-        # Get container type information
-        $containerType = Get-PnPContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME
-
-        # Check if container type already exists
-        if (-not $containerType) {New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID}
-        else {Write-Host "Container type already exists."}

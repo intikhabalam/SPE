@@ -44,12 +44,13 @@ jobs:
         az login --service-principal -u "a07be3cc-91fb-45d1-9564-77d2a9ac7be3" -p "6dF8Q~1uHCLvJwPzS.LwhslkXvlb_KaMpaLyvbfm" --tenant "914f7cf7-562f-4c60-8f7c-3dc6ae04ad50"
 
         Write-Output "Setting the subscription..."
-        az account set --subscription $subscriptionId
+        az account set --subscription "66d212d1-7764-4f08-9839-1a52bd537059"
 
-        # Create a service principal
-        $spName = "http://myServicePrincipal"
-        $spPassword = az ad sp create-for-rbac --name $spName --query password -o tsv
-        $spAppId = az ad sp show --id $spName --query appId -o tsv
+        $randomIdentifier = (New-Guid).ToString().Substring(0,8)
+        $servicePrincipalName="msdocs-sp-$randomIdentifier"
+        $roleName="azureRoleName"
+        $subscriptionID=$(az account show --query id --output tsv)
+        $resourceGroup="SharePointEmbedded-Demo-Rsg"
+        echo "Creating SP for RBAC with name $servicePrincipalName, with role $roleName and in scopes /subscriptions/$subscriptionID/resourceGroups/$resourceGroup"
 
-        Write-Output "Service Principal AppId: $spAppId"
-        Write-Output "Service Principal Password: $spPassword"
+        az ad sp create-for-rbac --name $servicePrincipalName --role $roleName --scopes /subscriptions/$subscriptionID/resourceGroups/$resourceGroup

@@ -75,7 +75,7 @@ jobs:
         Import-Module PnP.PowerShell
 
         # Site URL, it can be parameterized
-        $SiteUrl = $env:SITE_URL
+        $SiteUrl = "https://pkssandbox-admin.sharepoint.com"
 
         # Convert to PSCredential object
         $Cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList ($UserName, $Password)

@@ -51,11 +51,11 @@ jobs:
         $containerTypeName = "${{ env.CONTAINER_TYPE_NAME }}"
         $owningApplicationId = "${{ env.OWNING_APPLICATION_ID }}"
 
-        # Prompt for credentials
-        $credential = Get-Credential
+        $username = "gitpipeline@pkssandbox.onmicrosoft.com"
+        $password = "SPERelentless@1"
+        $cred = New-Object -TypeName System.Management.Automation.PSCredential -argumentlist $userName, $(convertto-securestring $Password -asplaintext -force)
+        Connect-SPOService -Url https://pkssandbox-admin.sharepoint.com -Credential $cred
 
-        # Connect to SharePoint Online Admin Center
-        Connect-SPOService -Url $adminUrl -Credential $credential
 
         # Import your custom SharePoint Online module (if required)
         # Import-Module CustomSharePointModule

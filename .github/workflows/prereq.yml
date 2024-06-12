@@ -69,6 +69,25 @@ jobs:
         Write-Host "Hello World"
 
 
-        # Create container type
-        New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID
+        # Get container type information
+        $containerType = Get-PnPContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME
 
+        # Check if container type already exists
+        if (-not $containerType) {New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID}
+        else {Write-Host "Container type already exists."}
+
+        # Extract individual values
+        $ContainerTypeId = $containerType.ContainerTypeId
+        $ContainerTypeName = $containerType.ContainerTypeName
+        $OwningApplicationId = $containerType.OwningApplicationId
+        $Classification = $containerType.Classification
+        $AzureSubscriptionId = $containerType.AzureSubscriptionId
+        $ResourceGroup = $containerType.ResourceGroup
+
+        # Output individual values
+        Write-Host "Container Type Id: $ContainerTypeId"
+        Write-Host "Container Type Name: $ContainerTypeName"
+        Write-Host "Owning Application Id: $OwningApplicationId"
+        Write-Host "Classification: $Classification"
+        Write-Host "Azure Subscription Id: $AzureSubscriptionId"
+        Write-Host "Resource Group: $ResourceGroup"  

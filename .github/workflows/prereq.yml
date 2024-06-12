@@ -14,152 +14,41 @@ permissions:
   contents: read
 
 jobs:
-  deploy_sharepoint_container:
+  create-service-principal:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        allow-no-subscriptions: true
-
-    - name: Extracting variables from Parameters JSON file
-      id: extract_parameters2
-      run: |
-        ADMIN_URL=$(jq -r '.parameters.adminUrl.value' .github/workflows/parameters.json)
-        CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
-        OWNING_APPLICATION_ID=$(jq -r '.parameters.owningApplicationId.value' .github/workflows/parameters.json)
-        RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
-
-        echo "ADMIN_URL=$ADMIN_URL" >> $GITHUB_ENV
-        echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
-        echo "OWNING_APPLICATION_ID=$OWNING_APPLICATION_ID" >> $GITHUB_ENV
-        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
-
-    # - name: Create Service Principal
-    #   id: createSP
-    #   shell: pwsh
-    #   run: |
-    #     $sp = az ad sp create-for-rbac --name "sp-$(uuidgen)" --role "Contributor" --scopes "/subscriptions/$env:AZURE_SUBSCRIPTION_ID/resourceGroups/$env:RESOURCE_GROUP_NAME" --query "{appId: appId, password: password, tenant: tenant}" -o json
-    #     echo "##vso[task.setvariable variable=SP_CLIENT_ID]$($sp.appId)"
-    #     echo "##vso[task.setvariable variable=SP_CLIENT_SECRET]$($sp.password)"
-    #     echo "##vso[task.setvariable variable=SP_TENANT_ID]$($sp.tenant)"
-    #   env:
-    #     AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    #     RESOURCE_GROUP_NAME: ${{ env.RESOURCE_GROUP_NAME }}
-
-    # - name: Uninstall legacy PnP PowerShell module
-    #   run: |
-    #     if (Get-Module -ListAvailable -Name SharePointPnPPowerShellOnline) {
-    #       Uninstall-Module -Name SharePointPnPPowerShellOnline -AllVersions -Force
-    #     }
-    #   shell: pwsh
-  
-    # - name: Install new PnP PowerShell module
-    #   run: |
-    #     Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force
-    #     # Validate installation
-    #     Get-Module -Name PnP.PowerShell -ListAvailable
-    #   shell: pwsh            
-
-    # - name: Install SharePoint Online Management Shell Module
-    #   run: |
-    #     pwsh -Command "Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber"
-
-    # - name: Extracting variables from Parameters JSON file
-    #   id: extract_parameters
-    #   run: |
-    #     ADMIN_URL=$(jq -r '.parameters.adminUrl.value' .github/workflows/parameters.json)
-    #     CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
-    #     OWNING_APPLICATION_ID=$(jq -r '.parameters.owningApplicationId.value' .github/workflows/parameters.json)
-    #     echo "ADMIN_URL=$ADMIN_URL" >> $GITHUB_ENV
-    #     echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
-    #     echo "OWNING_APPLICATION_ID=$OWNING_APPLICATION_ID" >> $GITHUB_ENV
-
-    # - name: Install PnP PowerShell
-    #   shell: pwsh
-    #   run: |
-    #     Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force
-    #     Import-Module -Name PnP.PowerShell
-
-    # - name: Run PowerShell Script to Create Container Type
-    #   shell: pwsh
-    #   run: |
-
-    #     # Using usernames and passwords (NOT RECOMMENDED FOR PRODUCTION)
-    #     $username = "gitpipeline@pkssandbox.onmicrosoft.com"
-    #     $password = ConvertTo-SecureString -String "SPERelentless@1" -AsPlainText -Force
-    #     $cred = New-Object System.Management.Automation.PSCredential -ArgumentList $username, $password
-       
-    #     Import-Module PnP.PowerShell
-
-    #     # Site URL, it can be parameterized
-    #     $SiteUrl = "https://pkssandbox-admin.sharepoint.com"
-
-    #     # Convert to PSCredential object
-    #     $Cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList ($UserName, $Password)
-
-    #     Connect-PnPOnline -Url $SiteUrl -Interactive
-
-    #     # Connect to PnP Online
-    #     Connect-PnPOnline -Url $SiteUrl -Credentials $Cred
-
-    #     # Create container type
-    #     New-PnPContainerType -TrialContainerType -ContainerTypeName $containerTypeName -OwningApplicationId $owningApplicationId
-
-
- 
-    - name: Azure Login
-      uses: azure/login@v1
+    - name: Set up Azure CLI
+      uses: azure/setup-azure@v3
       with:
         client-id: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
         client-secret: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_SECRET }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        allow-no-subscriptions: true
 
-    - name: Install PnP PowerShell
+    - name: Create Service Principal
       shell: pwsh
       run: |
-        Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force
-        Import-Module -Name PnP.PowerShell
+        $ErrorActionPreference = "Stop"
 
-    - name: Run PowerShell Script to Create Container Type
-      shell: pwsh
-      env:
-        ADMIN_URL: ${{ env.ADMIN_URL }}
-        CONTAINER_TYPE_NAME: ${{ env.CONTAINER_TYPE_NAME }}
-        OWNING_APPLICATION_ID: ${{ env.OWNING_APPLICATION_ID }}
-      run: |
-        # Import PnP PowerShell module
-        Import-Module PnP.PowerShell
+        $subscriptionId = "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+        $tenantId = "${{ secrets.AZURE_TENANT_ID }}"
+        $clientId = "${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}"
+        $clientSecret = "${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_SECRET }}"
 
-        # Connect to SharePoint Online using service principal credentials
-        $AdminUrl = $env:ADMIN_URL
-        $cred = New-Object -TypeName PSCredential -ArgumentList $secrets:AZURE_SERVICEPRINCIPAL_CLIENT_ID, $secrets:AZURE_SERVICEPRINCIPAL_CLIENT_SECRET
-        Connect-PnPOnline -Url $AdminUrl -Credentials $cred
+        Write-Output "Logging into Azure..."
+        az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
 
-        # Create trial container type
-        New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID
+        Write-Output "Setting the subscription..."
+        az account set --subscription $subscriptionId
 
-    - name: Run PowerShell Script to Create Container Type
-      shell: pwsh
-      env:
-        ADMIN_URL: ${{ env.ADMIN_URL }}
-        CONTAINER_TYPE_NAME: ${{ env.CONTAINER_TYPE_NAME }}
-        OWNING_APPLICATION_ID: ${{ env.OWNING_APPLICATION_ID }}
-      run: |
-        # Import PnP PowerShell module
-        Import-Module PnP.PowerShell
+        # Create a service principal
+        $spName = "http://myServicePrincipal"
+        $spPassword = az ad sp create-for-rbac --name $spName --query password -o tsv
+        $spAppId = az ad sp show --id $spName --query appId -o tsv
 
-        # Connect to SharePoint Online
-        $AdminUrl = $env:ADMIN_URL
-        Connect-PnPOnline -Url $AdminUrl -UseWebLogin
-
-        # Create trial container type
-        New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID
+        Write-Output "Service Principal AppId: $spAppId"
+        Write-Output "Service Principal Password: $spPassword"

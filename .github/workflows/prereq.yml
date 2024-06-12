@@ -41,7 +41,7 @@ jobs:
         $cS = "6dF8Q~1uHCLvJwPzS.LwhslkXvlb_KaMpaLyvbfm"
 
         Write-Output "Logging into Azure..."
-        az login --service-principal -u $clientId -p $cS --tenant $tenantId
+        az login --service-principal -u "a07be3cc-91fb-45d1-9564-77d2a9ac7be3" -p "6dF8Q~1uHCLvJwPzS.LwhslkXvlb_KaMpaLyvbfm" --tenant "914f7cf7-562f-4c60-8f7c-3dc6ae04ad50"
 
         Write-Output "Setting the subscription..."
         az account set --subscription $subscriptionId

@@ -51,7 +51,7 @@ jobs:
   
     - name: Install new PnP PowerShell module
       run: |
-        Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force
+        Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force -AllowPrerelease -SkipPublisherCheck
         # Validate installation
         Get-Module -Name PnP.PowerShell -ListAvailable
       shell: pwsh            

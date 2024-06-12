@@ -18,52 +18,70 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Extracting variables from Parameters JSON file
-        id: extract_parameters2
-        run: |
-          ADMIN_URL=$(jq -r '.parameters.adminUrl.value' .github/workflows/parameters.json)
-          CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
-          OWNING_APPLICATION_ID=$(jq -r '.parameters.owningApplicationId.value' .github/workflows/parameters.json)
-          RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
+    - name: Extracting variables from Parameters JSON file
+      id: extract_parameters2
+      run: |
+        ADMIN_URL=$(jq -r '.parameters.adminUrl.value' .github/workflows/parameters.json)
+        CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
+        OWNING_APPLICATION_ID=$(jq -r '.parameters.owningApplicationId.value' .github/workflows/parameters.json)
+        RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
 
-          echo "ADMIN_URL=$ADMIN_URL" >> $GITHUB_ENV
-          echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
-          echo "OWNING_APPLICATION_ID=$OWNING_APPLICATION_ID" >> $GITHUB_ENV
-          echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
+        echo "ADMIN_URL=$ADMIN_URL" >> $GITHUB_ENV
+        echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
+        echo "OWNING_APPLICATION_ID=$OWNING_APPLICATION_ID" >> $GITHUB_ENV
+        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
 
-      - name: Install Azure CLI
-        uses: azure/setup-cli@v1
+    - name: Install Azure CLI
+      uses: azure/setup-cli@v1
 
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
-          client-secret: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_SECRET }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          allow-no-subscriptions: true
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
+        client-secret: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_SECRET }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        allow-no-subscriptions: true
 
-      - name: Install PnP PowerShell
-        shell: pwsh
-        run: |
-          Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force
-          Import-Module -Name PnP.PowerShell
+    - name: Install PnP PowerShell
+      shell: pwsh
+      run: |
+        Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force
+        Import-Module -Name PnP.PowerShell
 
-      - name: Run PowerShell Script to Create Container Type
-        shell: pwsh
-        env:
-          ADMIN_URL: ${{ env.ADMIN_URL }}
-          CONTAINER_TYPE_NAME: ${{ env.CONTAINER_TYPE_NAME }}
-          OWNING_APPLICATION_ID: ${{ env.OWNING_APPLICATION_ID }}
-        run: |
-          # Import PnP PowerShell module
-          Import-Module PnP.PowerShell
+    # - name: Run PowerShell Script to Create Container Type
+    #   shell: pwsh
+    #   env:
+    #     ADMIN_URL: ${{ env.ADMIN_URL }}
+    #     CONTAINER_TYPE_NAME: ${{ env.CONTAINER_TYPE_NAME }}
+    #     OWNING_APPLICATION_ID: ${{ env.OWNING_APPLICATION_ID }}
+    #   run: |
+    #     # Import PnP PowerShell module
+    #     Import-Module PnP.PowerShell
 
-          # Connect to SharePoint Online
-          $AdminUrl = $env:ADMIN_URL
-          Connect-PnPOnline -Url $AdminUrl -UseWebLogin
+    #     # Connect to SharePoint Online using service principal credentials
+    #     $AdminUrl = $env:ADMIN_URL
+    #     $cred = New-Object -TypeName PSCredential -ArgumentList $env:AZURE_SERVICEPRINCIPAL_CLIENT_ID, (ConvertTo-SecureString -String $env:AZURE_SERVICEPRINCIPAL_CLIENT_SECRET -AsPlainText -Force)
+    #     Connect-PnPOnline -Url $AdminUrl -Credentials $cred
 
-          # Create trial container type
-          New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID
+    #     # Create trial container type
+    #     New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID
+
+    - name: Run PowerShell Script to Create Container Type
+      shell: pwsh
+      env:
+        ADMIN_URL: ${{ env.ADMIN_URL }}
+        CONTAINER_TYPE_NAME: ${{ env.CONTAINER_TYPE_NAME }}
+        OWNING_APPLICATION_ID: ${{ env.OWNING_APPLICATION_ID }}
+      run: |
+        # Import PnP PowerShell module
+        Import-Module PnP.PowerShell
+
+        # Connect to SharePoint Online
+        $AdminUrl = $env:ADMIN_URL
+        Connect-PnPOnline -Url $AdminUrl -UseWebLogin
+
+        # Create trial container type
+        New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID

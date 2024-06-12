@@ -141,7 +141,7 @@ jobs:
 
         # Connect to SharePoint Online using service principal credentials
         $AdminUrl = $env:ADMIN_URL
-        $cred = New-Object -TypeName PSCredential -ArgumentList $env:AZURE_SERVICEPRINCIPAL_CLIENT_ID, $env:AZURE_SERVICEPRINCIPAL_CLIENT_SECRET
+        $cred = New-Object -TypeName PSCredential -ArgumentList $secrets:AZURE_SERVICEPRINCIPAL_CLIENT_ID, $secrets:AZURE_SERVICEPRINCIPAL_CLIENT_SECRET
         Connect-PnPOnline -Url $AdminUrl -Credentials $cred
 
         # Create trial container type

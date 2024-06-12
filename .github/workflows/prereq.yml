@@ -62,7 +62,7 @@ jobs:
       run: |
 
         Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber
-        Update-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber
+        Update-Module -Name Microsoft.Online.SharePoint.PowerShell
 
         
         # Define your variables
@@ -75,10 +75,16 @@ jobs:
         # $cred = New-Object -TypeName System.Management.Automation.PSCredential -argumentlist $userName, $(convertto-securestring $Password -asplaintext -force)
         # Connect-SPOService -Url https://pkssandbox-admin.sharepoint.com -Credential $cred
 
+        # $username = "gitpipeline@pkssandbox.onmicrosoft.com"
+        # $password = ConvertTo-SecureString -String "SPERelentless@1" -AsPlainText -Force  
+        # $credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $userName, $password  
+        # Connect-SPOService -Url https://pkssandbox-admin.sharepoint.com -Credential $credential
+
+        $siteUrl= "https://pkssandbox-admin.sharepoint.com"
         $username = "gitpipeline@pkssandbox.onmicrosoft.com"
-        $password = ConvertTo-SecureString -String "SPERelentless@1" -AsPlainText -Force  
-        $credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $userName, $password  
-        Connect-SPOService -Url https://pkssandbox-admin.sharepoint.com -Credential $credential
+        $password = ConvertTo-SecureString -String "SPERelentless@1" -AsPlainText -Force
+        $cred = New-Object System.Management.Automation.PSCredential -ArgumentList $username, $password
+        Connect-SPOService -Url $siteUrl -Credential $cred
 
         # Import your custom SharePoint Online module (if required)
         # Import-Module CustomSharePointModule

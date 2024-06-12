@@ -42,51 +42,51 @@ jobs:
         echo "OWNING_APPLICATION_ID=$OWNING_APPLICATION_ID" >> $GITHUB_ENV
         echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
 
-    - name: Create Service Principal
-      id: createSP
-      shell: pwsh
-      run: |
-        $sp = az ad sp create-for-rbac --name "sp-$(uuidgen)" --role "Contributor" --scopes "/subscriptions/$env:AZURE_SUBSCRIPTION_ID/resourceGroups/$env:RESOURCE_GROUP_NAME" --query "{appId: appId, password: password, tenant: tenant}" -o json
-        echo "##vso[task.setvariable variable=SP_CLIENT_ID]$($sp.appId)"
-        echo "##vso[task.setvariable variable=SP_CLIENT_SECRET]$($sp.password)"
-        echo "##vso[task.setvariable variable=SP_TENANT_ID]$($sp.tenant)"
-      env:
-        AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        RESOURCE_GROUP_NAME: ${{ env.RESOURCE_GROUP_NAME }}
+    # - name: Create Service Principal
+    #   id: createSP
+    #   shell: pwsh
+    #   run: |
+    #     $sp = az ad sp create-for-rbac --name "sp-$(uuidgen)" --role "Contributor" --scopes "/subscriptions/$env:AZURE_SUBSCRIPTION_ID/resourceGroups/$env:RESOURCE_GROUP_NAME" --query "{appId: appId, password: password, tenant: tenant}" -o json
+    #     echo "##vso[task.setvariable variable=SP_CLIENT_ID]$($sp.appId)"
+    #     echo "##vso[task.setvariable variable=SP_CLIENT_SECRET]$($sp.password)"
+    #     echo "##vso[task.setvariable variable=SP_TENANT_ID]$($sp.tenant)"
+    #   env:
+    #     AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    #     RESOURCE_GROUP_NAME: ${{ env.RESOURCE_GROUP_NAME }}
 
-    - name: Uninstall legacy PnP PowerShell module
-      run: |
-        if (Get-Module -ListAvailable -Name SharePointPnPPowerShellOnline) {
-          Uninstall-Module -Name SharePointPnPPowerShellOnline -AllVersions -Force
-        }
-      shell: pwsh
+    # - name: Uninstall legacy PnP PowerShell module
+    #   run: |
+    #     if (Get-Module -ListAvailable -Name SharePointPnPPowerShellOnline) {
+    #       Uninstall-Module -Name SharePointPnPPowerShellOnline -AllVersions -Force
+    #     }
+    #   shell: pwsh
   
-    - name: Install new PnP PowerShell module
-      run: |
-        Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force
-        # Validate installation
-        Get-Module -Name PnP.PowerShell -ListAvailable
-      shell: pwsh            
+    # - name: Install new PnP PowerShell module
+    #   run: |
+    #     Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force
+    #     # Validate installation
+    #     Get-Module -Name PnP.PowerShell -ListAvailable
+    #   shell: pwsh            
 
-    - name: Install SharePoint Online Management Shell Module
-      run: |
-        pwsh -Command "Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber"
+    # - name: Install SharePoint Online Management Shell Module
+    #   run: |
+    #     pwsh -Command "Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber"
 
-    - name: Extracting variables from Parameters JSON file
-      id: extract_parameters
-      run: |
-        ADMIN_URL=$(jq -r '.parameters.adminUrl.value' .github/workflows/parameters.json)
-        CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
-        OWNING_APPLICATION_ID=$(jq -r '.parameters.owningApplicationId.value' .github/workflows/parameters.json)
-        echo "ADMIN_URL=$ADMIN_URL" >> $GITHUB_ENV
-        echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
-        echo "OWNING_APPLICATION_ID=$OWNING_APPLICATION_ID" >> $GITHUB_ENV
+    # - name: Extracting variables from Parameters JSON file
+    #   id: extract_parameters
+    #   run: |
+    #     ADMIN_URL=$(jq -r '.parameters.adminUrl.value' .github/workflows/parameters.json)
+    #     CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
+    #     OWNING_APPLICATION_ID=$(jq -r '.parameters.owningApplicationId.value' .github/workflows/parameters.json)
+    #     echo "ADMIN_URL=$ADMIN_URL" >> $GITHUB_ENV
+    #     echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
+    #     echo "OWNING_APPLICATION_ID=$OWNING_APPLICATION_ID" >> $GITHUB_ENV
 
-    - name: Install PnP PowerShell
-      shell: pwsh
-      run: |
-        Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force
-        Import-Module -Name PnP.PowerShell
+    # - name: Install PnP PowerShell
+    #   shell: pwsh
+    #   run: |
+    #     Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force
+    #     Import-Module -Name PnP.PowerShell
 
     # - name: Run PowerShell Script to Create Container Type
     #   shell: pwsh

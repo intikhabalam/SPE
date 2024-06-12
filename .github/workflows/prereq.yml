@@ -14,12 +14,12 @@ permissions:
   contents: read
 
 jobs:
-  create-service-principal:
+  deploy_sharepoint_container:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v2
 
     - name: Set up Azure CLI
       uses: azure/setup-azure@v3

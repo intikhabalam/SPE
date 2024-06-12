@@ -57,10 +57,6 @@ jobs:
         echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
         echo "OWNING_APPLICATION_ID=$OWNING_APPLICATION_ID" >> $GITHUB_ENV
 
-        - name: Install SharePoint Online Management Shell Module
-        run: |
-          pwsh -Command "Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber"
-
     - name: Install PnP PowerShell
       shell: pwsh
       run: |

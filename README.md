@@ -1,4 +1,9 @@
-This article outlines the steps needed to deploy Microsoft embedded this article will can be followed by either a technical engineer deploying via scripts or an administrator of a tenant
+This article outlines the steps needed to deploy Microsoft embedded this article will walk through the steps for full deployment with minimal usage of scripts
+
+## Each Section will be in the format
+## Heading:
+## Blurb about what we are doing in this step
+## Actions that need to be completed
 
 Before you begin there are some Pre-Requsites that are required.
 
@@ -8,7 +13,7 @@ Before you begin there are some Pre-Requsites that are required.
 
 Step 1: Enable SharePoint Containers on your SharePoint Online tenant
 
-This is enabled by default on all tenants. You cannot see this unless you are the global admin of a tenant see: Pre-Requsites
+This is now enabled by default on all tenants. You cannot see this menu unless you are the global admin of a tenant see: Pre-Requsites
 
 Step 2: Create App Registration
 
@@ -23,5 +28,39 @@ Supported account types: Accounts in this organisational dectory only(Single Ten
 
 Copy down the Application (Client) ID & Directory (tenant) ID as you will need these later
 
-Configure Authentication
-This is the URL 
+Step 3: Configure Authentication
+This is the Public URL of the Embedded app
+
+Select Manage > Authentication from the left navigation menu
+{Image for authentication}
+
+on the Configure single-page application pane, set the Redirect URL to [URL of Embedded App]
+{Image for Menu}
+
+
+Step 4: COnfigure API Permissions
+
+This step you need to configure the API permissions for the app. What you are setting here is the the FileStorageContainer.Selected and Container.Selected permissions these are included on top of the existing User.Read Permissions 
+
+navigate to the Manage -> Manifest. The following will need to be added to the manifest
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

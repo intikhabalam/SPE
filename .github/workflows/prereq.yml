@@ -21,13 +21,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        allow-no-subscriptions: true
+    # - name: Azure Login
+    #   uses: azure/login@v1
+    #   with:
+    #     client-id: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
+    #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    #     allow-no-subscriptions: true
 
     - name: Extracting variables from Parameters JSON file
       id: extract_parameters2
@@ -42,12 +42,12 @@ jobs:
         echo "OWNING_APPLICATION_ID=$OWNING_APPLICATION_ID" >> $GITHUB_ENV
         echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
 
-    - name: Uninstall legacy PnP PowerShell module
-      run: |
-        if (Get-Module -ListAvailable -Name SharePointPnPPowerShellOnline) {
-          Uninstall-Module -Name SharePointPnPPowerShellOnline -AllVersions -Force
-        }
-      shell: pwsh
+    # - name: Uninstall legacy PnP PowerShell module
+    #   run: |
+    #     if (Get-Module -ListAvailable -Name SharePointPnPPowerShellOnline) {
+    #       Uninstall-Module -Name SharePointPnPPowerShellOnline -AllVersions -Force
+    #     }
+    #   shell: pwsh
   
     - name: Install new PnP PowerShell module
       run: |
@@ -61,7 +61,8 @@ jobs:
       shell: pwsh
       run: |
 
-  
+        Import-Module -Name PnP.PowerShell -Force
+
         # Connect to SharePoint Online
         Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
 
@@ -86,3 +87,10 @@ jobs:
         Write-Host "Classification: $Classification"
         Write-Host "AzureSubscriptionId: $AzureSubscriptionId"
         Write-Host "ResourceGroup: $ResourceGroup"
+
+        # Get container type information
+        $containerType = Get-PnPContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME
+
+        # Check if container type already exists
+        if (-not $containerType) {New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID}
+        else {Write-Host "Container type already exists."}

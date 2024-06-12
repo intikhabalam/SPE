@@ -61,7 +61,7 @@ jobs:
       shell: pwsh
       run: |
 
-        Import-Module -Name PnP.PowerShell -Force
+        Import-Module -Name PnP.PowerShell -AllowPrerelease -SkipPublisherCheck
 
         # Connect to SharePoint Online
         Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin

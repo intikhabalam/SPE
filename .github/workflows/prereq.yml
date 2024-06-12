@@ -61,9 +61,10 @@ jobs:
       shell: pwsh
       run: |
 
-        Install-Module -Name Microsoft.Online.SharePoint.PowerShell
-        Update-Module -Name Microsoft.Online.SharePoint.PowerShell
+        Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber
+        Update-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber
 
+        
         # Define your variables
         $adminUrl = "${{ env.ADMIN_URL }}"
         $containerTypeName = "${{ env.CONTAINER_TYPE_NAME }}"

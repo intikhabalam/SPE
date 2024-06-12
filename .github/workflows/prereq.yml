@@ -60,7 +60,13 @@ jobs:
         - name: Install SharePoint Online Management Shell Module
         run: |
           pwsh -Command "Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber"
-  
+
+    - name: Install PnP PowerShell
+      shell: pwsh
+      run: |
+        Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force
+        Import-Module -Name PnP.PowerShell
+
     - name: Run PowerShell Script to Create Container Type
       shell: pwsh
       run: |
@@ -70,17 +76,16 @@ jobs:
         $password = ConvertTo-SecureString -String "SPERelentless@1" -AsPlainText -Force
         $cred = New-Object System.Management.Automation.PSCredential -ArgumentList $username, $password
        
+        Import-Module PnP.PowerShell
 
-        Connect-SPOService -Url $env:ADMIN_URL -Credential $cred
+        # Site URL, it can be parameterized
+        $SiteUrl = $env:SITE_URL
 
-        # Define variables from extracted parameters
-        $containerTypeName = "${{ env.CONTAINER_TYPE_NAME }}"
-        $owningApplicationId = "${{ env.OWNING_APPLICATION_ID }}"
+        # Convert to PSCredential object
+        $Cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList ($UserName, $Password)
 
-        # Create a new SharePoint embedded container type
-        New-SPOContainerType -TrialContainerType -ContainerTypeName $containerTypeName -OwningApplicationId $owningApplicationId
+        # Connect to PnP Online
+        Connect-PnPOnline -Url $SiteUrl -Credentials $Cred
 
-      env:
-        ADMIN_URL: ${{ env.ADMIN_URL }}
-        USERNAME: ${{ secrets.USERNAME }}
-        PASSWORD: ${{ secrets.PASSWORD }}
+        # Create container type
+        New-PnPContainerType -TrialContainerType -ContainerTypeName $containerTypeName -OwningApplicationId $owningApplicationId

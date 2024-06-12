@@ -80,6 +80,8 @@ jobs:
         # Convert to PSCredential object
         $Cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList ($UserName, $Password)
 
+        Connect-PnPOnline -Url $SiteUrl -Interactive
+
         # Connect to PnP Online
         Connect-PnPOnline -Url $SiteUrl -Credentials $Cred
 

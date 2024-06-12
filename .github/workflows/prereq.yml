@@ -29,6 +29,20 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         allow-no-subscriptions: true
 
+    - name: Uninstall legacy PnP PowerShell module
+      run: |
+        if (Get-Module -ListAvailable -Name SharePointPnPPowerShellOnline) {
+          Uninstall-Module -Name SharePointPnPPowerShellOnline -AllVersions -Force
+        }
+      shell: pwsh
+  
+    - name: Install new PnP PowerShell module
+      run: |
+        Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force
+        # Validate installation
+        Get-Module -Name PnP.PowerShell -ListAvailable
+      shell: pwsh            
+
     - name: Install SharePoint Online Management Shell Module
       run: |
         pwsh -Command "Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber"
@@ -46,16 +60,24 @@ jobs:
     - name: Run PowerShell Script to Manage SharePoint Online
       shell: pwsh
       run: |
+
+        Install-Module -Name Microsoft.Online.SharePoint.PowerShell
+        Update-Module -Name Microsoft.Online.SharePoint.PowerShell
+
         # Define your variables
         $adminUrl = "${{ env.ADMIN_URL }}"
         $containerTypeName = "${{ env.CONTAINER_TYPE_NAME }}"
         $owningApplicationId = "${{ env.OWNING_APPLICATION_ID }}"
 
-        $username = "gitpipeline@pkssandbox.onmicrosoft.com"
-        $password = "SPERelentless@1"
-        $cred = New-Object -TypeName System.Management.Automation.PSCredential -argumentlist $userName, $(convertto-securestring $Password -asplaintext -force)
-        Connect-SPOService -Url https://pkssandbox-admin.sharepoint.com -Credential $cred
+        # $username = "gitpipeline@pkssandbox.onmicrosoft.com"
+        # $password = "SPERelentless@1"
+        # $cred = New-Object -TypeName System.Management.Automation.PSCredential -argumentlist $userName, $(convertto-securestring $Password -asplaintext -force)
+        # Connect-SPOService -Url https://pkssandbox-admin.sharepoint.com -Credential $cred
 
+        $username = "gitpipeline@pkssandbox.onmicrosoft.com"
+        $password = ConvertTo-SecureString -String "SPERelentless@1" -AsPlainText -Force  
+        $credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $userName, $password  
+        Connect-SPOService -Url https://pkssandbox-admin.sharepoint.com -Credential $credential
 
         # Import your custom SharePoint Online module (if required)
         # Import-Module CustomSharePointModule

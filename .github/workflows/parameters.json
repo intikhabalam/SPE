@@ -29,7 +29,7 @@
     "project": {
       "value": "SharePointEmbedded"
     },
-    "adminUrl": {
+    "sharepointAdminSiteUrl": {
       "value": "https://pkssandbox-admin.sharepoint.com"
     },
     "containerTypeName": {

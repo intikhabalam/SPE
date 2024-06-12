@@ -62,6 +62,7 @@ jobs:
         fi
 
     - name: Deploy Azure Static Webapp
+      if: env.staticWebApp_exists == 'false'
       id: create_azure_static_webapp
       run: |
         az deployment group create \
@@ -69,7 +70,8 @@ jobs:
           --template-file .github/workflows/staticwebapp.bicep \
           --parameters .github/workflows/parameters.json            
 
-    - name: Check if Resource Group exists
+    - name: Update the Azure Static Webapp Settings
+      if: env.staticWebApp_exists == 'false'
       id: create_environment_variables
       run: |
         az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names \

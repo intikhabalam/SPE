@@ -21,49 +21,77 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        allow-no-subscriptions: true
-
-    - name: Install SharePoint Online Management Shell Module
-      run: |
-        pwsh -Command "Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber"
+    # - name: Azure Login
+    #   uses: azure/login@v1
+    #   with:
+    #     client-id: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
+    #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    #     allow-no-subscriptions: true
 
     - name: Extracting variables from Parameters JSON file
-      id: extract_parameters
+      id: extract_parameters2
       run: |
-        ADMIN_URL=$(jq -r '.parameters.adminUrl.value' .github/workflows/parameters.json)
+        SHAREPOINT_ADMIN_SITE_URL=$(jq -r '.parameters.sharepointAdminSiteUrl.value' .github/workflows/parameters.json)
         CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
         OWNING_APPLICATION_ID=$(jq -r '.parameters.owningApplicationId.value' .github/workflows/parameters.json)
-        echo "ADMIN_URL=$ADMIN_URL" >> $GITHUB_ENV
+        RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
+
+        echo "SHAREPOINT_ADMIN_SITE_URL=$SHAREPOINT_ADMIN_SITE_URL" >> $GITHUB_ENV
         echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
         echo "OWNING_APPLICATION_ID=$OWNING_APPLICATION_ID" >> $GITHUB_ENV
+        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
 
-    - name: Run PowerShell Script to Manage SharePoint Online
+    # - name: Uninstall legacy PnP PowerShell module
+    #   run: |
+    #     if (Get-Module -ListAvailable -Name SharePointPnPPowerShellOnline) {
+    #       Uninstall-Module -Name SharePointPnPPowerShellOnline -AllVersions -Force
+    #     }
+    #   shell: pwsh
+  
+    - name: Install new PnP PowerShell module
+      run: |
+        Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force -AllowPrerelease -SkipPublisherCheck
+        # Validate installation
+        Get-Module -Name PnP.PowerShell -ListAvailable
+      shell: pwsh            
+
+
+    - name: Run PowerShell Script to Create Container Type
       shell: pwsh
       run: |
-        # Define your variables
-        $adminUrl = "${{ env.ADMIN_URL }}"
-        $containerTypeName = "${{ env.CONTAINER_TYPE_NAME }}"
-        $owningApplicationId = "${{ env.OWNING_APPLICATION_ID }}"
 
-        # Prompt for credentials
-        $credential = Get-Credential
+        #Import-Module -Name PnP.PowerShell -AllowPrerelease -SkipPublisherCheck
 
-        # Connect to SharePoint Online Admin Center
-        Connect-SPOService -Url $adminUrl -Credential $credential
+        # Connect to SharePoint Online
+        Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
 
-        # Import your custom SharePoint Online module (if required)
-        # Import-Module CustomSharePointModule
+        # Your PnP PowerShell commands
+        Write-Host "Hello World"
+        
+        # Get container type information
+        $containerType = Get-PnPContainerType
 
-        # Create a new container type (assuming New-SPOContainerType is a custom cmdlet)
-        New-SPOContainerType -TrialContainerType -ContainerTypeName $containerTypeName -OwningApplicationId $owningApplicationId
+        # Check if container type already exists
+        if (-not $containerType) {New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID}
+        else {Write-Host "Container type already exists."}
 
-      env:
-        AZURE_CLIENT_ID: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
-        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_SECRET }}
-        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        # Get container type information
+        #$containerType = New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID
+
+        # Store each value in a separate variable
+        $ContainerTypeId = $containerType.ContainerTypeId
+        $ContainerTypeName = $containerType.ContainerTypeName
+        $OwningApplicationId = $containerType.OwningApplicationId
+        $Classification = $containerType.Classification
+        $AzureSubscriptionId = $containerType.AzureSubscriptionId
+        $ResourceGroup = $containerType.ResourceGroup
+
+        # Output each value
+        Write-Host "ContainerTypeId: $ContainerTypeId"
+        Write-Host "ContainerTypeName: $ContainerTypeName"
+        Write-Host "OwningApplicationId: $OwningApplicationId"
+        Write-Host "Classification: $Classification"
+        Write-Host "AzureSubscriptionId: $AzureSubscriptionId"
+        Write-Host "ResourceGroup: $ResourceGroup"
+

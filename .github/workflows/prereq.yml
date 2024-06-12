@@ -21,13 +21,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Azure CLI
-      uses: azure/setup-azure@v3
+    - name: Login to Azure
+      uses: azure/login@v1
       with:
         client-id: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
         client-secret: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_SECRET }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
 
     - name: Create Service Principal
       shell: pwsh

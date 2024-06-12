@@ -29,6 +29,19 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         allow-no-subscriptions: true
 
+    - name: Extracting variables from Parameters JSON file
+      id: extract_parameters2
+      run: |
+        SHAREPOINT_ADMIN_SITE_URL=$(jq -r '.parameters.sharepointAdminSiteUrl.value' .github/workflows/parameters.json)
+        CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
+        OWNING_APPLICATION_ID=$(jq -r '.parameters.owningApplicationId.value' .github/workflows/parameters.json)
+        RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
+
+        echo "SHAREPOINT_ADMIN_SITE_URL=$SHAREPOINT_ADMIN_SITE_URL" >> $GITHUB_ENV
+        echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
+        echo "OWNING_APPLICATION_ID=$OWNING_APPLICATION_ID" >> $GITHUB_ENV
+        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
+
     - name: Uninstall legacy PnP PowerShell module
       run: |
         if (Get-Module -ListAvailable -Name SharePointPnPPowerShellOnline) {
@@ -48,15 +61,14 @@ jobs:
       shell: pwsh
       run: |
 
-        $siteUrl = 'https://pkssandbox-admin.sharepoint.com'
   
         # Connect to SharePoint Online
-        Connect-PnPOnline -Url $siteUrl -DeviceLogin
+        Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
 
         # Your PnP PowerShell commands
         Write-Host "Hello World"
 
 
         # Create container type
-        New-PnPContainerType -TrialContainerType -ContainerTypeName $containerTypeName -OwningApplicationId $owningApplicationId
+        New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID
 

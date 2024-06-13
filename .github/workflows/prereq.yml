@@ -48,10 +48,13 @@ jobs:
         Write-Host "AppId: $($app.appId)"
         Write-Host "DisplayName: $($app.displayName)"
 
-        # Get the appId of the newly created app
         $appId = $app.appId
+        $objectId = $app.objectId
 
-        # API permissions to be added
+        Write-Host "AppId: $appId"
+        Write-Host "ObjectId: $objectId"
+
+        # Define API permissions to be added
         $permissions = @(
           @{
             resourceAppId = "00000003-0000-0000-c000-000000000000";
@@ -72,14 +75,12 @@ jobs:
               @{id = "640ddd16-e5b7-4d71-9690-3f4022699ee7"; type = "Scope"}
             )
           }
-        )
+        ) | ConvertTo-Json -Compress
 
         # Update the app registration with the required API permissions
-        az ad app update --id $appId --required-resource-accesses "$($permissions | ConvertTo-Json -Compress)"
+        az ad app update --id $objectId --required-resource-accesses "$permissions"
 
-        # Output the details of the created application
-        Write-Host "AppId: $($appId)"
-        Write-Host "DisplayName: $($app.displayName)"
+        Write-Host "API permissions have been added to the app registration"
 
     - name: Extracting variables from Parameters JSON file
       id: extract_parameters2

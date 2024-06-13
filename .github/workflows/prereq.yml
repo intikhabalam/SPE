@@ -29,6 +29,30 @@ jobs:
     #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     #     allow-no-subscriptions: true
 
+    - name: Install AzureAD module
+      run: |
+        Install-Module -Name AzureAD -Scope CurrentUser -Force
+        Get-Module -Name AzureAD -ListAvailable
+      shell: pwsh
+
+    - name: Run PowerShell Script to Create App Registration
+      shell: pwsh
+      run: |
+        # Install AzureAD module if not already installed
+        if (-not (Get-Module -ListAvailable -Name AzureAD)) {
+          Install-Module -Name AzureAD -Scope CurrentUser -Force
+        }
+
+        # Connect to Azure AD with device login
+        Connect-AzureAD -UseDeviceAuthentication
+
+        # Create a new Azure AD application
+        $app = New-AzureADApplication -DisplayName "ThursdayAppRegistration"
+
+        # Output the details of the created application
+        Write-Host "AppId: $($app.AppId)"
+        Write-Host "DisplayName: $($app.DisplayName)"
+        
     - name: Extracting variables from Parameters JSON file
       id: extract_parameters2
       run: |

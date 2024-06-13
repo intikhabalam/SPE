@@ -41,10 +41,34 @@ jobs:
         # Connect to Azure using device login
         az login --use-device-code
 
-        # Define API permissions JSON
-        $permissionsJson = @'
-        [
-          {
+        # # Define API permissions JSON
+        # $permissionsJson = @'
+        # [
+        #   {
+        #     "resourceAppId": "00000003-0000-0000-c000-000000000000",
+        #     "resourceAccess": [
+        #       {"id": "37f7f235-527c-4136-accd-4a02d197296e", "type": "Scope"},
+        #       {"id": "14dad69e-099b-42c9-810b-d002981feec1", "type": "Scope"},
+        #       {"id": "7427e0e9-2fba-42fe-b0c0-848c9e6a8182", "type": "Scope"},
+        #       {"id": "085ca537-6565-41c2-aca7-db852babc212", "type": "Scope"},
+        #       {"id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d", "type": "Scope"},
+        #       {"id": "40dc41bc-0f7e-42ff-89bd-d9516947e474", "type": "Role"}
+        #     ]
+        #   },
+        #   {
+        #     "resourceAppId": "00000003-0000-0ff1-ce00-000000000000",
+        #     "resourceAccess": [
+        #       {"id": "4d114b1a-3649-4764-9dfb-be1e236ff371", "type": "Scope"},
+        #       {"id": "19766c1b-905b-43af-8756-06526ab42875", "type": "Role"},
+        #       {"id": "640ddd16-e5b7-4d71-9690-3f4022699ee7", "type": "Scope"}
+        #     ]
+        #   }
+        # ]
+        # '@
+
+        az ad app create --display-name my-public --is-fallback-public-client --required-resource-accesses @manifest.json
+        ("manifest.json" contains the following content)
+        [{
             "resourceAppId": "00000003-0000-0000-c000-000000000000",
             "resourceAccess": [
               {"id": "37f7f235-527c-4136-accd-4a02d197296e", "type": "Scope"},
@@ -54,17 +78,16 @@ jobs:
               {"id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d", "type": "Scope"},
               {"id": "40dc41bc-0f7e-42ff-89bd-d9516947e474", "type": "Role"}
             ]
-          },
-          {
+        },
+        {
             "resourceAppId": "00000003-0000-0ff1-ce00-000000000000",
             "resourceAccess": [
               {"id": "4d114b1a-3649-4764-9dfb-be1e236ff371", "type": "Scope"},
               {"id": "19766c1b-905b-43af-8756-06526ab42875", "type": "Role"},
               {"id": "640ddd16-e5b7-4d71-9690-3f4022699ee7", "type": "Scope"}
             ]
-          }
-        ]
-        '@
+        }
+            ]
 
         # Create a new Azure AD application
         $app = az ad app create --display-name "ThursdayAppRegistration" --required-resource-accesses "$permissions"

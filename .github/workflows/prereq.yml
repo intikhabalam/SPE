@@ -61,11 +61,11 @@ jobs:
 
         echo "API permissions manifest file created"
 
-        - name: Print manifest.json file and path
-        run: |
-          echo "Contents of manifest.json:"
-          cat manifest.json
-          echo "Path to manifest.json: $(pwd)/manifest.json"
+    - name: Print manifest.json file and path
+      run: |
+        echo "Contents of manifest.json:"
+        cat manifest.json
+        echo "Path to manifest.json: $(pwd)/manifest.json"
       
     - name: Run PowerShell Script to Create App Registration and Set Permissions
       shell: pwsh

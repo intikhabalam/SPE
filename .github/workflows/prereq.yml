@@ -41,19 +41,6 @@ jobs:
         # Connect to Azure using device login
         az login --use-device-code
 
-        # Create a new Azure AD application
-        $app = az ad app create --display-name "ThursdayAppRegistration"
-
-        # Output the details of the created application
-        Write-Host "AppId: $($app.appId)"
-        Write-Host "DisplayName: $($app.displayName)"
-
-        $appId = $app.appId
-        $objectId = $app.objectId
-
-        Write-Host "AppId: $appId"
-        Write-Host "ObjectId: $objectId"
-
         # Define API permissions to be added
         $permissions = @(
           @{
@@ -77,8 +64,18 @@ jobs:
           }
         ) | ConvertTo-Json -Compress
 
-        # Update the app registration with the required API permissions
-        az ad app update --id $objectId --required-resource-accesses "$permissions"
+        # Create a new Azure AD application
+        $app = az ad app create --display-name "ThursdayAppRegistration" --required-resource-accesses "$permissions"
+
+        # Output the details of the created application
+        Write-Host "AppId: $($app.appId)"
+        Write-Host "DisplayName: $($app.displayName)"
+
+        $appId = $app.appId
+        $objectId = $app.objectId
+
+        Write-Host "AppId: $appId"
+        Write-Host "ObjectId: $objectId"
 
         Write-Host "API permissions have been added to the app registration"
 

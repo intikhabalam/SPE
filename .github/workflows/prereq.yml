@@ -77,7 +77,7 @@ jobs:
         $manifestPath = "$(pwd)/manifest.json"
 
         # Create a new Azure AD application with required resource accesses from manifest
-        $app = az ad app create --display-name "ThursdayAppRegistration" --required-resource-accesses $manifestPath --query "{appId: appId, objectId: objectId}" --output json | ConvertFrom-Json
+        $app = az ad app create --display-name "ThursdayAppRegistration" --required-resource-accesses $manifestPath --identifier-uris "http://localhost/redirect" --query "{appId: appId, objectId: objectId}" --output json | ConvertFrom-Json
 
         echo "App registration created"
         echo $app

@@ -95,11 +95,11 @@ jobs:
         echo $app.objectId
 
         # Update the app registration with SPA and web redirect URIs
-        az ad app update --id $app.objectId --identifier-uris "http://localhost/redirect"
-        #az ad app update --id $app.objectId --identifier-uris "http://localhost/redirect" "https://oauth.pstmn.io/v1/browser-callback" "https://oauth.pstmn.io/v1/callback" "https://localhost/signin-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signout-oidc"
+        az ad app update --id $app.appId --identifier-uris "http://localhost/redirect"
+        #az ad app update --id $app.appId --identifier-uris "http://localhost/redirect" "https://oauth.pstmn.io/v1/browser-callback" "https://oauth.pstmn.io/v1/callback" "https://localhost/signin-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signout-oidc"
 
         Write-Host "Configured SPA and web platform settings for the app registration"
-        az ad app update --id $app.objectId --web-home-page-url spa.redirectUris
+        az ad app update --id $app.objectId --web-home-page-url "https://white-meadow-08161a110.5.azurestaticapps.net"
 
 
         if (-not $app) {

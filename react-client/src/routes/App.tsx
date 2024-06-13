@@ -1,7 +1,9 @@
 import "./App.css";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
+import { Providers, ProviderState } from "@microsoft/mgt-element";
 import { Login, SearchBox, SearchResults } from "@microsoft/mgt-react";
 import {
+  Divider,
   FluentProvider,
   Menu,
   MenuItem,
@@ -20,11 +22,23 @@ import {
   Star20Regular,
   ChartMultiple20Regular,
   MoreVertical24Filled,
+  Settings24Regular,
+  Library20Regular,
 } from "@fluentui/react-icons";
-import "./App.css";
+import {
+  ILabelStyles,
+  INavLinkGroup,
+  INavStyles,
+  IStyleSet,
+  Nav,
+  Pivot,
+  PivotItem,
+  registerIcons,
+  Label,
+} from "@fluentui/react";
+
 import * as Constants from "../common/Constants";
 import { Outlet } from "react-router-dom";
-import { INavLinkGroup, INavStyles, Nav, registerIcons } from "@fluentui/react";
 
 const navStyles: Partial<INavStyles> = {
   root: {
@@ -64,6 +78,26 @@ const navStyles: Partial<INavStyles> = {
   },
 };
 
+const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
+  root: { marginTop: 10 },
+};
+
+const useIsSignedIn = () => {
+  const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
+
+  useEffect(() => {
+    const updateIsSignedIn = () => {
+      setIsSignedIn(Providers.globalProvider.state === ProviderState.SignedIn);
+    };
+    updateIsSignedIn();
+    Providers.globalProvider.onStateChanged(updateIsSignedIn);
+    return () => {
+      Providers.globalProvider.removeStateChangedHandler(updateIsSignedIn);
+    };
+  }, []);
+  return isSignedIn;
+};
+
 function App() {
   const containerTypeId = Constants.SPE_CONTAINER_TYPE_ID;
   const baseSearchQuery = `ContainerTypeId:${containerTypeId} AND Title:'[Job Posting]*'`;
@@ -79,6 +113,8 @@ function App() {
     },
     [baseSearchQuery]
   );
+  const isSignedIn = useIsSignedIn();
+  const [isPanelOpen, setPanelOpen] = useState(false);
 
   registerIcons({
     icons: {
@@ -170,7 +206,6 @@ function App() {
               />
             </FluentProvider>
           </div>
-
           <div className="spe-app-header-main-container">
             <div className="spe-app-header">
               <div className="spe-app-header-search">
@@ -180,6 +215,7 @@ function App() {
                   onBlur={() =>
                     setTimeout(setShowSearchResults.bind(null, false), 200)
                   }
+                  className="spe-app-search-box"
                 />
                 {showSearchResults && (
                   <div className="spe-app-search-results-background">
@@ -194,10 +230,17 @@ function App() {
               </div>
               <div className="spe-app-header-actions">
                 <Toolbar>
+                  {isSignedIn && (
+                    <Settings24Regular
+                      style={{ marginRight: "10px" }}
+                      onClick={() => setPanelOpen(!isPanelOpen)}
+                    />
+                  )}
                   <Login
                     ref={loginRef}
                     loginView="avatar"
                     showPresence={true}
+                    className="login"
                   />
                   <Menu>
                     <MenuTrigger>
@@ -220,6 +263,79 @@ function App() {
               <div className="main-content-body">
                 <Outlet />
               </div>
+            </div>
+          </div>
+          <div className="spe-app-content-dev">
+            <div
+              className={`spe-app-side-panel ${
+                isPanelOpen ? "open" : "closed"
+              }`}
+            >
+              {isPanelOpen ? (
+                <div>
+                  <h2
+                    style={{ display: "flex", alignItems: "center" }}
+                    onClick={() => setPanelOpen(!isPanelOpen)}
+                  >
+                    <Library20Regular
+                      style={{
+                        backgroundColor: "#E92424",
+                        color: "white",
+                        borderRadius: "50px",
+                        width: "28px",
+                        height: "28px",
+                        padding: "4px",
+                        marginRight: "5px",
+                      }}
+                    />
+                    Explore Resources
+                  </h2>
+                  <Pivot aria-label="Basic Pivot Example">
+                    <PivotItem
+                      headerText="APIs"
+                      headerButtonProps={{
+                        "data-order": 1,
+                      }}
+                    >
+                      <div className="navigation-divider"></div>
+                      <Label styles={labelStyles}>Pivot #1</Label>
+                    </PivotItem>
+                    <PivotItem headerText="SharepointEmbedded Knowledge">
+                      <div className="navigation-divider"></div>
+                      <Label styles={labelStyles}>Pivot #2</Label>
+                    </PivotItem>
+                  </Pivot>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                  onClick={() => setPanelOpen(!isPanelOpen)}
+                >
+                  <Library20Regular
+                    style={{
+                      backgroundColor: "#E92424",
+                      color: "white",
+                      borderRadius: "50%",
+                      width: "28px",
+                      height: "28px",
+                      padding: "4px",
+                      marginBottom: "75px",
+                    }}
+                  />
+                  <div
+                    style={{
+                      transform: "rotate(90deg)",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    <h2>Explore Resources</h2>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

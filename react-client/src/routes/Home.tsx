@@ -65,7 +65,7 @@ export const Home: React.FunctionComponent = () => {
               disabled={registering}
               onClick={() => onRegisterContainerType()}
               style={{
-                backgroundColor: "#4854ee",
+                backgroundColor: "#393EB3",
                 color: "white",
                 padding: "5px",
                 borderRadius: "5px",

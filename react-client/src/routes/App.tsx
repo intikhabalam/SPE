@@ -3,7 +3,6 @@ import React, { useState, useCallback, useEffect } from "react";
 import { Providers, ProviderState } from "@microsoft/mgt-element";
 import { Login, SearchBox, SearchResults } from "@microsoft/mgt-react";
 import {
-  Divider,
   FluentProvider,
   Menu,
   MenuItem,
@@ -22,8 +21,9 @@ import {
   Star20Regular,
   ChartMultiple20Regular,
   MoreVertical24Filled,
-  Settings24Regular,
   Library20Regular,
+  ChevronLeft20Regular,
+  ChevronRight20Regular,
 } from "@fluentui/react-icons";
 import {
   ILabelStyles,
@@ -43,7 +43,7 @@ import { Outlet } from "react-router-dom";
 const navStyles: Partial<INavStyles> = {
   root: {
     color: "white",
-    backgroundColor: "#4854ee",
+    backgroundColor: "#393EB3",
     marginLeft: "-20px",
     paddingTop: "40px",
   },
@@ -51,17 +51,17 @@ const navStyles: Partial<INavStyles> = {
   link: {
     color: "white",
     paddingLeft: "35px",
-    backgroundColor: "#4854ee",
+    backgroundColor: "#393EB3",
     selectors: {
       "&:hover": {
         fontWeight: "bold",
-        backgroundColor: "#4854ee",
+        backgroundColor: "#393EB3",
       },
       "&:active": {
-        backgroundColor: "#4854ee",
+        backgroundColor: "#393EB3",
       },
       "&.is-selected": {
-        backgroundColor: "#4854ee",
+        backgroundColor: "#393EB3",
       },
     },
   },
@@ -69,11 +69,16 @@ const navStyles: Partial<INavStyles> = {
     color: "white",
   },
   compositeLink: {
+    ":hover .ms-Nav-compositeLink": { backgroundColor: "#393EB3" },
     selectors: {
       ":hover .ms-Nav-linkText": {
-        color: "#6DCCF4",
         fontWeight: "bold",
+        backgroundColor: "#393EB3",
       },
+      ":hover .ms-Nav-link": { backgroundColor: "#393EB3" },
+      ":hover .ms-Button--action": { backgroundColor: "#393EB3" },
+      ":hover .ms-Button--command": { backgroundColor: "#393EB3" },
+      ":hover .ms-Button": { backgroundColor: "#393EB3" },
     },
   },
 };
@@ -215,7 +220,7 @@ function App() {
                   onBlur={() =>
                     setTimeout(setShowSearchResults.bind(null, false), 200)
                   }
-                  className="spe-app-search-box"
+                  style={{ backgroundColor: "green !important" }}
                 />
                 {showSearchResults && (
                   <div className="spe-app-search-results-background">
@@ -230,12 +235,6 @@ function App() {
               </div>
               <div className="spe-app-header-actions">
                 <Toolbar>
-                  {isSignedIn && (
-                    <Settings24Regular
-                      style={{ marginRight: "10px" }}
-                      onClick={() => setPanelOpen(!isPanelOpen)}
-                    />
-                  )}
                   <Login
                     ref={loginRef}
                     loginView="avatar"
@@ -273,23 +272,26 @@ function App() {
             >
               {isPanelOpen ? (
                 <div>
-                  <h2
-                    style={{ display: "flex", alignItems: "center" }}
-                    onClick={() => setPanelOpen(!isPanelOpen)}
+                  <div
+                    style={{
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      display: "flex",
+                      flexDirection: "row",
+                    }}
                   >
-                    <Library20Regular
-                      style={{
-                        backgroundColor: "#E92424",
-                        color: "white",
-                        borderRadius: "50px",
-                        width: "28px",
-                        height: "28px",
-                        padding: "4px",
-                        marginRight: "5px",
-                      }}
+                    <ChevronRight20Regular
+                      onClick={() => setPanelOpen(!isPanelOpen)}
                     />
-                    Explore Resources
-                  </h2>
+                    <h2 style={{ display: "flex", alignItems: "center" }}>
+                      <Library20Regular
+                        className="spe-app-side-panel-icon"
+                        style={{ marginRight: "px" }}
+                      />
+                      Explore Resources
+                    </h2>
+                    <div style={{ flex: 0.5 }} />
+                  </div>
                   <Pivot aria-label="Basic Pivot Example">
                     <PivotItem
                       headerText="APIs"
@@ -315,15 +317,12 @@ function App() {
                   }}
                   onClick={() => setPanelOpen(!isPanelOpen)}
                 >
+                  <ChevronLeft20Regular style={{ marginTop: "20px" }} />
                   <Library20Regular
+                    className="spe-app-side-panel-icon"
                     style={{
-                      backgroundColor: "#E92424",
-                      color: "white",
-                      borderRadius: "50%",
-                      width: "28px",
-                      height: "28px",
-                      padding: "4px",
-                      marginBottom: "75px",
+                      marginTop: "20px",
+                      marginBottom: "85px",
                     }}
                   />
                   <div

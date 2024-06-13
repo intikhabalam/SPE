@@ -59,14 +59,25 @@ jobs:
           }
         ]' > manifest.json
 
+        echo "API permissions manifest file created"
+
+        - name: Print manifest.json file and path
+        run: |
+          echo "Contents of manifest.json:"
+          cat manifest.json
+          echo "Path to manifest.json: $(pwd)/manifest.json"
+      
     - name: Run PowerShell Script to Create App Registration and Set Permissions
       shell: pwsh
       run: |
         # Connect to Azure using device login
         az login --use-device-code
 
+        # Path to the manifest file
+        $manifestPath = "$(pwd)/manifest.json"
+
         # Create a new Azure AD application with required resource accesses from manifest
-        $app = az ad app create --display-name "ThursdayAppRegistration" --required-resource-accesses @manifest.json --query "{appId: appId, objectId: objectId}" --output json | ConvertFrom-Json
+        $app = az ad app create --display-name "ThursdayAppRegistration" --required-resource-accesses $manifestPath --query "{appId: appId, objectId: objectId}" --output json | ConvertFrom-Json
 
         if (-not $app) {
           Write-Host "Failed to create app registration"
@@ -80,7 +91,7 @@ jobs:
         Write-Host "ObjectId: $objectId"
 
         Write-Host "API permissions have been added to the app registration"
-
+        
     - name: Extracting variables from Parameters JSON file
       id: extract_parameters2
       run: |

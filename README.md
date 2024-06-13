@@ -105,7 +105,7 @@ Update-Module "Microsoft.Online.SharePoint.PowerShell"
 When this has been installed / updated you then need to run the following to create the container type.
 
 - {SPO_ADMIN_URL} = This is the sharepoint admin url.
-- {CONTAINER_TYPE_NAME} = This is the name of the new container eg "MyFirstSpeContainerType"
+- {CONTAINER_TYPE_NAME} = This is the name of the new container. this can be anything you like
 - {AZURE_ENTRA_APP_ID} = This is the Client ID of the app created in Step 2
 
 ```
@@ -129,6 +129,55 @@ ResourceGroup       :
 Region              :
 ```
 Note down the container type ID as this will be required later
+
+# Step 7: Create a Self signed Certificate
+This step you will need to create a self signed certificate. this certificate is what is used for the app to connect with SharePoint and will be 
+
+- {CERT NAME} = the name of the certificate. This can be anything you like
+- {CERT_PATH} = The fully qualified path to the location of the *.cer file, such as c:\mycert.cer.
+
+```
+$cert = New-SelfSignedCertificate -Subject "CN={{CERT_NAME}}" -CertStoreLocation "Cert:\CurrentUser\My" -KeyExportPolicy Exportable -KeySpec Signature -KeyLength 2048 -KeyAlgorithm RSA -HashAlgorithm SHA256
+Export-Certificate -Cert $cert -FilePath "{{CERT_PATH}}" -Force
+
+# Private key to Base64
+$privateKey = [System.Security.Cryptography.X509Certificates.RSACertificateExtensions]::GetRSAPrivateKey($cert)
+$privateKeyBytes = $privateKey.Key.Export([System.Security.Cryptography.CngKeyBlobFormat]::Pkcs8PrivateBlob)
+$privateKeyBase64 = [System.Convert]::ToBase64String($privateKeyBytes, [System.Base64FormattingOptions]::InsertLineBreaks)
+$privateKeyString = @"
+-----BEGIN PRIVATE KEY-----
+$privateKeyBase64
+-----END PRIVATE KEY-----
+"@
+
+# Print private key to output
+Write-Host $privateKeyString
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

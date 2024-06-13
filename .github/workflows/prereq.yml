@@ -79,6 +79,9 @@ jobs:
         # Create a new Azure AD application with required resource accesses from manifest
         $app = az ad app create --display-name "ThursdayAppRegistration" --required-resource-accesses $manifestPath --query "{appId: appId, objectId: objectId}" --output json | ConvertFrom-Json
 
+        echo "App registration created"
+        echo $app
+
         # Define the SPA and web redirect URIs
         $spaRedirectUris = @("https://white-meadow-08161a110.5.azurestaticapps.net")
         $webRedirectUris = @(
@@ -90,8 +93,16 @@ jobs:
           "https://localhost/signout-oidc"
         )
 
+        echo "SPA and web redirect URIs defined"
+        echo $spaRedirectUris
+        echo $webRedirectUris
+
+
+        echo $app.appId
+        echo $app.objectId
+
         # Update the app registration with SPA and web redirect URIs
-        az ad app update --id $objectId --add spa.redirectUris $spaRedirectUris --add web.redirectUris $webRedirectUris
+        az ad app update --id $app.objectId --add spa.redirectUris $spaRedirectUris --add web.redirectUris $webRedirectUris
 
         Write-Host "Configured SPA and web platform settings for the app registration"
 

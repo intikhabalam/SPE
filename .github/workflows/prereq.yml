@@ -79,6 +79,11 @@ jobs:
         echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
         echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
 
+        echo $RESOURCE_GROUP_NAME
+        echo $RESOURCE_GROUP_NAME
+        echo $RESOURCE_GROUP_NAME
+        echo "##########################################################################"
+
     - name: Run PowerShell Script to Create App Registration and Set Permissions
       shell: pwsh
       run: |
@@ -89,8 +94,8 @@ jobs:
         $manifestPath = "$(pwd)/manifest.json"
 
         $appName = "${{ env.OWNING_APP_REGISTRATION_NAME }}"
-        $existingApp = az ad sp list --display-name $appName --query "[0]" --output json
-        if ($existingApp -ne $null) {
+        $existingApp = @(az ad sp list --display-name $appName --query "[0]" --output json)
+        if ($existingApp.Length -ne 1 ) {
           Write-Host "App registration already exists."
           $appId = $existingApp.appId
         } else {

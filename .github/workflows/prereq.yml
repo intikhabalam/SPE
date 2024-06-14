@@ -110,7 +110,8 @@ jobs:
           $objectId = $newApp.objectId
           echo "OWNING_APP_REGISTRATION_ID=$appId" >> $GITHUB_ENV
 
-          $secret = az ad sp credential reset --id $appId --query "password" -o tsv
+          $secret = az ad sp credential reset --name "${{ env.OWNING_APP_REGISTRATION_NAME }}" --query "password" -o tsv
+          #$secret = az ad sp credential reset --id $appId --query "password" -o tsv
 
           # Export the secret as a GitHub Actions environment variable
           echo "OWNING_APP_REGISTRATION_SECRET=$secret" >> $GITHUB_ENV

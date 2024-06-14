@@ -77,8 +77,8 @@ jobs:
         $manifestPath = "$(pwd)/manifest.json"
 
         # Create a new Azure AD application with required resource accesses from manifest
-        $app = az ad app create --display-name "ThursdayAppRegistration" --required-resource-accesses $manifestPath --identifier-uris https://white-meadow-08161a110.5.azurestaticapps.net --query "{appId: appId, objectId: objectId}" --output json | ConvertFrom-Json
-
+        $app = az ad app create --display-name "ThursdayAppRegistration" --required-resource-accesses $manifestPath --identifier-uris @{add="https://white-meadow-08161a110.5.azurestaticapps.net"} --query "{appId: appId, objectId: objectId}" --output json | ConvertFrom-Json
+                                                                                                                    
 
 
         echo "App registration created"
@@ -86,7 +86,7 @@ jobs:
         echo "#########################################################################################"
 
         # Define the SPA and web redirect URIs
-        $spaRedirectUris = @("https://white-meadow-08161a110.5.azurestaticapps.net")
+        #$spaRedirectUris = @("https://white-meadow-08161a110.5.azurestaticapps.net")
         # $webRedirectUris = @("http://localhost/redirect" "https://oauth.pstmn.io/v1/browser-callback" "https://oauth.pstmn.io/v1/callback" "https://localhost/signin-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signout-oidc")
 
         echo "SPA and web redirect URIs defined"
@@ -99,7 +99,7 @@ jobs:
 
         # Update the app registration with SPA and web redirect URIs
         az ad app update --id $app.appId --identifier-uris "http://localhost/redirect"
-        #az ad app update --id $app.appId --identifier-uris "http://localhost/redirect" "https://oauth.pstmn.io/v1/browser-callback" "https://oauth.pstmn.io/v1/callback" "https://localhost/signin-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signout-oidc"
+        #az ad app update --id $app.appId --ReplyUrls "https://oauth.pstmn.io/v1/browser-callback" "https://oauth.pstmn.io/v1/callback" "https://localhost/signin-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signout-oidc"
 
         Write-Host "Configured SPA and web platform settings for the app registration"
         az ad app update --id $app.objectId --web-home-page-url "https://white-meadow-08161a110.5.azurestaticapps.net"

@@ -105,8 +105,9 @@ jobs:
         # } else {
         #   Write-Host "Creating new app registration."
 
-          $newApp = az ad app create --display-name $appName --required-resource-accesses @$manifestPath --display-name IntikhabSPE --query '[appId, id, displayName]' -o json
-          
+          $newApp = az ad app create --display-name $appName --display-name IntikhabSPE --query '[appId, id, displayName]' -o json
+          #$newApp = az ad app create --display-name $appName --required-resource-accesses @$manifestPath --display-name IntikhabSPE --query '[appId, id, displayName]' -o json
+
           #for query
           #$newApp = az ad app create --display-name $appName --required-resource-accesses @$manifestPath --query '[].{appId: appId, id: id, displayName: displayName}' -o json
 

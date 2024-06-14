@@ -104,18 +104,21 @@ jobs:
         #   $appId = $existingApp.appId
         # } else {
         #   Write-Host "Creating new app registration."
-          $newApp = az ad app create --display-name $appName --required-resource-accesses @$manifestPath --query '[].{appId: appId, id: id, objectId: objectId}' -o json
 
-          # $newApp = az ad app create --display-name $appName --required-resource-accesses @manifest.json --query "{appId: appId, objectId: objectId}" --output json
+          $newApp = az ad app create --display-name $appName --required-resource-accesses @$manifestPath --display-name IntikhabSPE --query '[appId, id, displayName]' -o json
+          
+          #for query
+          #$newApp = az ad app create --display-name $appName --required-resource-accesses @$manifestPath --query '[].{appId: appId, id: id, displayName: displayName}' -o json
+
           $appId = $newApp.appId
-          $objectId = $newApp.objectId
+          $displayName = $newApp.displayName
           $Id = $newApp.Id
           echo "OWNING_APP_REGISTRATION_ID=$appId" >> $GITHUB_ENV
 
           echo "appId"
           echo $appId
-          echo "objectId"
-          echo $objectId
+          echo "displayName"
+          echo $displayName
           echo "Id"
           echo $Id
           echo "##########################################################################"

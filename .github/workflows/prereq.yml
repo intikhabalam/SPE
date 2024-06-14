@@ -83,13 +83,16 @@ jobs:
 
         echo "App registration created"
         echo $app
+        az ad app update --id $app.appId --ReplyUrls "http://localhost/redirect"
+        
         echo "#########################################################################################"
+        
         az ad app update --id $app.appId --ReplyUrls "https://oauth.pstmn.io/v1/browser-callback"
         az ad app update --id $app.appId --ReplyUrls "https://oauth.pstmn.io/v1/callback"
         az ad app update --id $app.appId --ReplyUrls "https://localhost/signin-oidc"
         az ad app update --id $app.appId --ReplyUrls "https://localhost/Onboarding/ProcessCode"
         az ad app update --id $app.appId --ReplyUrls "https://localhost/signout-oidc"
-        
+
         # Define the SPA and web redirect URIs
         #$spaRedirectUris = @("https://white-meadow-08161a110.5.azurestaticapps.net")
         # $webRedirectUris = @("http://localhost/redirect" "https://oauth.pstmn.io/v1/browser-callback" "https://oauth.pstmn.io/v1/callback" "https://localhost/signin-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signout-oidc")

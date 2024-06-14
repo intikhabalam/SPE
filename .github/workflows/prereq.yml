@@ -83,15 +83,16 @@ jobs:
 
         echo "App registration created"
         echo $app
-        az ad app update --id $app.appId --web-redirect-uris  "http://localhost/redirect"
+        az ad app update --id $app.appId --spa-redirect-uris "https://white-meadow-08161a110.5.azurestaticapps.net"
+        az ad app update --id $app.appId --web-redirect-uris "http://localhost/redirect"
         
         echo "#########################################################################################"
         
-        az ad app update --id $app.appId --web-redirect-uris  "https://oauth.pstmn.io/v1/browser-callback"
-        az ad app update --id $app.appId --web-redirect-uris  "https://oauth.pstmn.io/v1/callback"
-        az ad app update --id $app.appId --web-redirect-uris  "https://localhost/signin-oidc"
-        az ad app update --id $app.appId --web-redirect-uris  "https://localhost/Onboarding/ProcessCode"
-        az ad app update --id $app.appId --web-redirect-uris  "https://localhost/signout-oidc"
+        az ad app update --id $app.appId --web-redirect-uris "https://oauth.pstmn.io/v1/browser-callback"
+        az ad app update --id $app.appId --web-redirect-uris "https://oauth.pstmn.io/v1/callback"
+        az ad app update --id $app.appId --web-redirect-uris "https://localhost/signin-oidc"
+        az ad app update --id $app.appId --web-redirect-uris "https://localhost/Onboarding/ProcessCode"
+        az ad app update --id $app.appId --web-redirect-uris "https://localhost/signout-oidc"
 
         # Define the SPA and web redirect URIs
         #$spaRedirectUris = @("https://white-meadow-08161a110.5.azurestaticapps.net")

@@ -79,30 +79,26 @@ jobs:
         # Create a new Azure AD application with required resource accesses from manifest
         $app = az ad app create --display-name "ThursdayAppRegistration" --required-resource-accesses $manifestPath --identifier-uris @{add="https://white-meadow-08161a110.5.azurestaticapps.net"} --query "{appId: appId, objectId: objectId}" --output json | ConvertFrom-Json
                                                                                                                     
+        $secret = az ad sp credential reset --id $appId --query "password" -o tsv
 
+        # Export the secret as a GitHub Actions environment variable
+        echo "SP_SECRET=$secret" >> $GITHUB_ENV
+
+        Write-Host "Client Secret has been stored as an environment variable."
 
         echo "App registration created"
         echo $app
-        # $spaRedirectUris = '["https://white-meadow-08161a110.5.azurestaticapps.net"]'
-        # $webRedirectUris = '[
-        #   "http://localhost/redirect",
-        #   "https://oauth.pstmn.io/v1/browser-callback",
-        #   "https://oauth.pstmn.io/v1/callback",
-        #   "https://localhost/signin-oidc",
-        #   "https://localhost/Onboarding/ProcessCode",
-        #   "https://localhost/signout-oidc"
-        # ]'
+        echo $app.appId
 
-        # az ad app update --id $app.appId --set spa.redirectUris=$spaRedirectUris
-        # az ad app update --id $app.appId --set web.redirectUris=$webRedirectUris
-
-        Write-Host "Configured SPA and web platform settings for the app registration"
+        if (-not $app) {
+          Write-Host "Failed to create app registration"
+          exit 1
+        }
 
         $appId = $app.appId
-        $sp = az ad sp create --id $appId
-        $secret = az ad sp credential reset --name $appId --query "password" -o tsv
+        Write-Host "AppId: $appId"
 
-        Write-Host "Client Secret: $secret"
+
         
     - name: Extracting variables from Parameters JSON file
       id: extract_parameters2

@@ -75,12 +75,14 @@ jobs:
         CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
         RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
 
+        echo "OWNING_APP_REGISTRATION_NAME=$OWNING_APP_REGISTRATION_NAME" >> $GITHUB_ENV
         echo "SHAREPOINT_ADMIN_SITE_URL=$SHAREPOINT_ADMIN_SITE_URL" >> $GITHUB_ENV
         echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
         echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
 
-        echo $RESOURCE_GROUP_NAME
-        echo $RESOURCE_GROUP_NAME
+        echo $OWNING_APP_REGISTRATION_NAME
+        echo $SHAREPOINT_ADMIN_SITE_URL
+        echo $CONTAINER_TYPE_NAME
         echo $RESOURCE_GROUP_NAME
         echo "##########################################################################"
 

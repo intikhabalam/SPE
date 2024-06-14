@@ -95,7 +95,8 @@ jobs:
           $appId = $existingApp.appId
         } else {
           Write-Host "Creating new app registration."
-          $newApp = az ad app create --display-name $appName --required-resource-accesses @manifest.json --query "{appId: appId, objectId: objectId}" --output json
+          $newApp = az ad app create --display-name $appName --required-resource-accesses @$manifestPath --query "{appId: appId, objectId: objectId}" --output json
+          # $newApp = az ad app create --display-name $appName --required-resource-accesses @manifest.json --query "{appId: appId, objectId: objectId}" --output json
           $appId = $newApp.appId
           $objectId = $newApp.objectId
         }

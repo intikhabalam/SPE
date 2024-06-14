@@ -67,6 +67,25 @@ jobs:
         cat manifest.json
         echo "Path to manifest.json: $(pwd)/manifest.json"
       
+    - name: Extracting variables from Parameters JSON file
+      id: extract_parameters2
+      run: |
+        OWNING_APP_REGISTRATION_NAME=$(jq -r '.parameters.owningAppRegName.value' .github/workflows/parameters.json)
+        SHAREPOINT_ADMIN_SITE_URL=$(jq -r '.parameters.sharepointAdminSiteUrl.value' .github/workflows/parameters.json)
+        CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
+        RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
+
+        echo "OWNING_APP_REGISTRATION_NAME=$OWNING_APP_REGISTRATION_NAME" >> $GITHUB_ENV
+        echo "SHAREPOINT_ADMIN_SITE_URL=$SHAREPOINT_ADMIN_SITE_URL" >> $GITHUB_ENV
+        echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
+        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
+
+        echo $OWNING_APP_REGISTRATION_NAME
+        echo $SHAREPOINT_ADMIN_SITE_URL
+        echo $CONTAINER_TYPE_NAME
+        echo $RESOURCE_GROUP_NAME
+        echo "##########################################################################"
+
     - name: Run PowerShell Script to Create App Registration and Set Permissions
       shell: pwsh
       run: |
@@ -76,57 +95,50 @@ jobs:
         # Path to the manifest file
         $manifestPath = "$(pwd)/manifest.json"
 
-        # Create a new Azure AD application with required resource accesses from manifest
-        $app = az ad app create --display-name "ThursdayAppRegistration" --required-resource-accesses $manifestPath --identifier-uris "http://localhost/redirect" --query "{appId: appId, objectId: objectId}" --output json | ConvertFrom-Json
+        $appName = "${{ env.OWNING_APP_REGISTRATION_NAME }}"
+        $existingApp = @(az ad sp list --display-name $appName)
+        echo $existingApp
+        echo "##########################################################################"
+        # if ($existingApp.Length -ne 1 ) {
+        #   Write-Host "App registration already exists."
+        #   $appId = $existingApp.appId
+        # } else {
+        #   Write-Host "Creating new app registration."
 
-        echo "App registration created"
-        echo $app
+          $newApp = az ad app create --display-name $appName --required-resource-accesses @$manifestPath --display-name IntikhabSPE --query '[appId, id, displayName]' -o json
 
-        # Define the SPA and web redirect URIs
-        $spaRedirectUris = @("https://white-meadow-08161a110.5.azurestaticapps.net")
-        # $webRedirectUris = @("http://localhost/redirect" "https://oauth.pstmn.io/v1/browser-callback" "https://oauth.pstmn.io/v1/callback" "https://localhost/signin-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signout-oidc")
+          #for query
+          #$newApp = az ad app create --display-name $appName --required-resource-accesses @$manifestPath --query '[].{appId: appId, id: id, displayName: displayName}' -o json
 
-        echo "SPA and web redirect URIs defined"
-        echo $spaRedirectUris
-        echo $webRedirectUris
+          $appId = $newApp[1]
+          $displayName = $newApp[2]
+          $Id = $newApp[3]
+          echo "OWNING_APP_REGISTRATION_ID=$appId" >> $GITHUB_ENV
 
+          
+          echo "newApp"
+          echo $newApp
+          echo "appId"
+          echo $appId
+          echo "displayName"
+          echo $displayName
+          echo "Id"
+          echo $Id
+          echo "##########################################################################"
 
-        echo $app.appId
-        echo $app.objectId
+          $secret = az ad sp credential reset --id $appId --query "password" -o tsv
 
-        # Update the app registration with SPA and web redirect URIs
-        az ad app update --id $app.appId --identifier-uris "http://localhost/redirect"
-        #az ad app update --id $app.appId --identifier-uris "http://localhost/redirect" "https://oauth.pstmn.io/v1/browser-callback" "https://oauth.pstmn.io/v1/callback" "https://localhost/signin-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signout-oidc"
+          # Export the secret as a GitHub Actions environment variable
+          echo "OWNING_APP_REGISTRATION_SECRET=$secret" >> $GITHUB_ENV
 
-        Write-Host "Configured SPA and web platform settings for the app registration"
-        az ad app update --id $app.objectId --web-home-page-url "https://white-meadow-08161a110.5.azurestaticapps.net"
-
-
-        if (-not $app) {
-          Write-Host "Failed to create app registration"
-          exit 1
-        }
-
-        $appId = $app.appId
-        $objectId = $app.objectId
-
-        Write-Host "AppId: $appId"
-        Write-Host "ObjectId: $objectId"
-
-        Write-Host "API permissions have been added to the app registration"
+          Write-Host "Client Secret has been stored as an environment variable."
         
-    - name: Extracting variables from Parameters JSON file
-      id: extract_parameters2
-      run: |
-        SHAREPOINT_ADMIN_SITE_URL=$(jq -r '.parameters.sharepointAdminSiteUrl.value' .github/workflows/parameters.json)
-        CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
-        OWNING_APPLICATION_ID=$(jq -r '.parameters.owningApplicationId.value' .github/workflows/parameters.json)
-        RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
+        # }
 
-        echo "SHAREPOINT_ADMIN_SITE_URL=$SHAREPOINT_ADMIN_SITE_URL" >> $GITHUB_ENV
-        echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
-        echo "OWNING_APPLICATION_ID=$OWNING_APPLICATION_ID" >> $GITHUB_ENV
-        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
+
+
+
+        
 
     # - name: Uninstall legacy PnP PowerShell module
     #   run: |
@@ -159,11 +171,11 @@ jobs:
         $containerType = Get-PnPContainerType
 
         # Check if container type already exists
-        if (-not $containerType) {New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID}
+        if (-not $containerType) {New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APP_REGISTRATION_ID}
         else {Write-Host "Container type already exists."}
 
         # Get container type information
-        #$containerType = New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID
+        #$containerType = New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APP_REGISTRATION_ID
 
         # Store each value in a separate variable
         $ContainerTypeId = $containerType.ContainerTypeId

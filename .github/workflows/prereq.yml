@@ -99,25 +99,24 @@ jobs:
         $existingApp = @(az ad sp list --display-name $appName)
         echo $existingApp
         echo "##########################################################################"
-        if ($existingApp.Length -ne 1 ) {
-          Write-Host "App registration already exists."
-          $appId = $existingApp.appId
-        } else {
-          Write-Host "Creating new app registration."
+        # if ($existingApp.Length -ne 1 ) {
+        #   Write-Host "App registration already exists."
+        #   $appId = $existingApp.appId
+        # } else {
+        #   Write-Host "Creating new app registration."
           $newApp = az ad app create --display-name $appName --required-resource-accesses @$manifestPath --query "{appId: appId, objectId: objectId}" --output json
           # $newApp = az ad app create --display-name $appName --required-resource-accesses @manifest.json --query "{appId: appId, objectId: objectId}" --output json
           $appId = $newApp.appId
           $objectId = $newApp.objectId
           echo "OWNING_APP_REGISTRATION_ID=$appId" >> $GITHUB_ENV
 
-          $secret = az ad sp credential reset --name "${{ env.OWNING_APP_REGISTRATION_NAME }}" --query "password" -o tsv
-          #$secret = az ad sp credential reset --id $appId --query "password" -o tsv
+          $secret = az ad sp credential reset --id $appId --query "password" -o tsv
 
           # Export the secret as a GitHub Actions environment variable
           echo "OWNING_APP_REGISTRATION_SECRET=$secret" >> $GITHUB_ENV
 
           Write-Host "Client Secret has been stored as an environment variable."
-        }
+        # }
 
 
 

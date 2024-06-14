@@ -96,7 +96,7 @@ jobs:
         $manifestPath = "$(pwd)/manifest.json"
 
         $appName = "${{ env.OWNING_APP_REGISTRATION_NAME }}"
-        $existingApp = @(az ad sp list --display-name $appName --query "[0]" --output json)
+        $existingApp = @(az ad sp list --display-name $appName)
         echo $existingApp
         echo "##########################################################################"
         if ($existingApp.Length -ne 1 ) {

@@ -67,6 +67,41 @@ jobs:
         cat manifest.json
         echo "Path to manifest.json: $(pwd)/manifest.json"
       
+    - name: Extracting variables from Parameters JSON file
+      id: extract_parameters2
+      run: |
+        OWNING_APP_REGISTRATION_NAME=$(jq -r '.parameters.owningAppRegName.value' .github/workflows/parameters.json)
+        SHAREPOINT_ADMIN_SITE_URL=$(jq -r '.parameters.sharepointAdminSiteUrl.value' .github/workflows/parameters.json)
+        CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
+        RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
+
+        echo "SHAREPOINT_ADMIN_SITE_URL=$SHAREPOINT_ADMIN_SITE_URL" >> $GITHUB_ENV
+        echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
+        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
+
+    - name: Check if Azure AD App Registration Exists
+      id: check_ad_app
+      run: |
+        $appName = "${{ env.OWNING_APP_REGISTRATION_NAME }}"
+        $existingApp = az ad sp list --display-name $appName --query "[0]" --output json
+        if ($existingApp -ne $null) {
+          Write-Host "App registration already exists."
+          $appId = $existingApp.appId
+        } else {
+          Write-Host "Creating new app registration."
+          $newApp = az ad app create --display-name $appName --required-resource-accesses @manifest.json --query "{appId: appId, objectId: objectId}" --output json
+          $appId = $newApp.appId
+          $objectId = $newApp.objectId
+        }
+        echo "OWNING_APP_REGISTRATION_ID=$appId" >> $GITHUB_ENV
+
+        $secret = az ad sp credential reset --id $appId --query "password" -o tsv
+
+        # Export the secret as a GitHub Actions environment variable
+        echo "OWNING_APP_REGISTRATION_SECRET=$secret" >> $GITHUB_ENV
+
+        Write-Host "Client Secret has been stored as an environment variable."
+
     - name: Run PowerShell Script to Create App Registration and Set Permissions
       shell: pwsh
       run: |
@@ -100,18 +135,6 @@ jobs:
 
 
         
-    - name: Extracting variables from Parameters JSON file
-      id: extract_parameters2
-      run: |
-        SHAREPOINT_ADMIN_SITE_URL=$(jq -r '.parameters.sharepointAdminSiteUrl.value' .github/workflows/parameters.json)
-        CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
-        OWNING_APPLICATION_ID=$(jq -r '.parameters.owningApplicationId.value' .github/workflows/parameters.json)
-        RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
-
-        echo "SHAREPOINT_ADMIN_SITE_URL=$SHAREPOINT_ADMIN_SITE_URL" >> $GITHUB_ENV
-        echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
-        echo "OWNING_APPLICATION_ID=$OWNING_APPLICATION_ID" >> $GITHUB_ENV
-        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
 
     # - name: Uninstall legacy PnP PowerShell module
     #   run: |
@@ -144,11 +167,11 @@ jobs:
         $containerType = Get-PnPContainerType
 
         # Check if container type already exists
-        if (-not $containerType) {New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID}
+        if (-not $containerType) {New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APP_REGISTRATION_ID}
         else {Write-Host "Container type already exists."}
 
         # Get container type information
-        #$containerType = New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APPLICATION_ID
+        #$containerType = New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APP_REGISTRATION_ID
 
         # Store each value in a separate variable
         $ContainerTypeId = $containerType.ContainerTypeId

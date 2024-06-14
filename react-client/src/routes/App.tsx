@@ -40,7 +40,7 @@ import {
 } from "@fluentui/react";
 
 import * as Constants from "../common/Constants";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
 const navStyles: Partial<INavStyles> = {
   root: {
@@ -57,13 +57,13 @@ const navStyles: Partial<INavStyles> = {
     selectors: {
       "&:hover": {
         fontWeight: "bold",
-        backgroundColor: "#393EB3",
+        backgroundColor: "#393EB3 ",
       },
       "&:active": {
-        backgroundColor: "#393EB3",
+        backgroundColor: "#393EB3 ",
       },
       "&.is-selected": {
-        backgroundColor: "#393EB3",
+        backgroundColor: "#393EB3 ",
       },
     },
   },
@@ -71,16 +71,11 @@ const navStyles: Partial<INavStyles> = {
     color: "white",
   },
   compositeLink: {
-    ":hover .ms-Nav-compositeLink": { backgroundColor: "#393EB3" },
     selectors: {
       ":hover .ms-Nav-linkText": {
         fontWeight: "bold",
-        backgroundColor: "#393EB3",
       },
-      ":hover .ms-Nav-link": { backgroundColor: "#393EB3" },
-      ":hover .ms-Button--action": { backgroundColor: "#393EB3" },
-      ":hover .ms-Button--command": { backgroundColor: "#393EB3" },
-      ":hover .ms-Button": { backgroundColor: "#393EB3" },
+      ":hover .ms-Button--action": { backgroundColor: "#393EB3 !important" },
     },
   },
 };
@@ -100,22 +95,6 @@ const searchBoxStyles: Partial<IStyleSet<ISearchBoxStyles>> = {
   },
 };
 
-const useIsSignedIn = () => {
-  const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
-
-  useEffect(() => {
-    const updateIsSignedIn = () => {
-      setIsSignedIn(Providers.globalProvider.state === ProviderState.SignedIn);
-    };
-    updateIsSignedIn();
-    Providers.globalProvider.onStateChanged(updateIsSignedIn);
-    return () => {
-      Providers.globalProvider.removeStateChangedHandler(updateIsSignedIn);
-    };
-  }, []);
-  return isSignedIn;
-};
-
 function App() {
   const containerTypeId = Constants.SPE_CONTAINER_TYPE_ID;
   const baseSearchQuery = `ContainerTypeId:${containerTypeId} AND Title:'[Job Posting]*'`;
@@ -131,9 +110,8 @@ function App() {
     },
     [baseSearchQuery]
   );
-  const isSignedIn = useIsSignedIn();
+
   const [isPanelOpen, setPanelOpen] = useState(false);
-  const navigate = useNavigate();
 
   registerIcons({
     icons: {
@@ -203,12 +181,6 @@ function App() {
       ],
     },
   ];
-
-  // useEffect(() => {
-  //   if (!isSignedIn) {
-  //     navigate("/login");
-  //   }
-  // }, [isSignedIn, navigate]);
 
   return (
     <FluentProvider>
@@ -310,21 +282,11 @@ function App() {
                     </h2>
                     <div style={{ flex: 0.5 }} />
                   </div>
-                  <Pivot aria-label="Basic Pivot Example">
-                    <PivotItem
-                      headerText="APIs"
-                      headerButtonProps={{
-                        "data-order": 1,
-                      }}
-                    >
-                      <div className="navigation-divider"></div>
-                      <Label styles={labelStyles}>Pivot #1</Label>
-                    </PivotItem>
-                    <PivotItem headerText="SharepointEmbedded Knowledge">
-                      <div className="navigation-divider"></div>
-                      <Label styles={labelStyles}>Pivot #2</Label>
-                    </PivotItem>
-                  </Pivot>
+                  <div className="spe-app-navigation-content">
+                    <Label styles={labelStyles}>APIs</Label>
+                    <div className="navigation-divider" />
+                    <Text>Content Goes here</Text>
+                  </div>
                 </div>
               ) : (
                 <div

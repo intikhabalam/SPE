@@ -43,8 +43,8 @@ export const Home: React.FunctionComponent = () => {
 
   return (
     <div>
-      <h1>Getting started with the ContosoHR demo app</h1>
-      <p>Follow the steps below to get your tenant setup for this demo app</p>
+      <h1>Getting started with the SharePoint Embedded demo app</h1>
+      <p>Follow the steps below to get your tenant setup</p>
       <ol className="setup-steps">
         {!isSignedIn && (
           <li>

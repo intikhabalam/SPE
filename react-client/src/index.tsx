@@ -1,27 +1,28 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './routes/App';
-import reportWebVitals from './reportWebVitals';
-import {
-  createBrowserRouter,
-  redirect,
-  RouterProvider
-} from "react-router-dom";
-import { CacheService, LoginType, Providers, ProviderState } from "@microsoft/mgt-element";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import App from "./routes/App";
+import reportWebVitals from "./reportWebVitals";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { LoginType, Providers, ProviderState } from "@microsoft/mgt-element";
 import { Msal2Provider, PromptType } from "@microsoft/mgt-msal2-provider";
-import * as Constants from './common/Constants';
-import * as Scopes from './common/Scopes';
-import { initializeFileTypeIcons } from '@fluentui/react-file-type-icons';
-import ErrorPage from './ErrorPage';
-import { ContainerBrowser, loader as containerLoader } from './components/ContainerBrowser';
-import { ContainersApiProvider } from './providers/ContainersApiProvider';
-import { CustomAppApiAuthProvider } from './providers/CustomAppApiAuthProvider';
-import { JobsApiProvider } from './providers/JobsApiProvider';
-import { Jobs, loader as jobsLoader, action as createJobAction } from './routes/Jobs';
-import { ViewJob, loader as jobLoader, action as updateJobAction } from './routes/ViewJob';
-import { ViewJobPosting, loader as jobPostingLoader } from './routes/ViewJobPosting';
-import { Home } from './routes/Home';
+import * as Constants from "./common/Constants";
+import * as Scopes from "./common/Scopes";
+import { initializeFileTypeIcons } from "@fluentui/react-file-type-icons";
+import ErrorPage from "./ErrorPage";
+import { CustomAppApiAuthProvider } from "./providers/CustomAppApiAuthProvider";
+import {
+  Jobs,
+  loader as jobsLoader,
+  action as createJobAction,
+} from "./routes/Jobs";
+import {
+  ViewJob,
+  loader as jobLoader,
+  action as updateJobAction,
+} from "./routes/ViewJob";
+import { Home } from "./routes/Home";
+import { LoginPage } from "./routes/Login";
 
 // Register icons and pull the fonts from the default Microsoft Fluent CDN:
 initializeFileTypeIcons();
@@ -43,6 +44,7 @@ provider.onStateChanged(() => {
 });
 
 const router = createBrowserRouter([
+  { path: "/login", element: <LoginPage /> },
   {
     path: "/",
     element: <App />,
@@ -50,7 +52,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Home />
+        element: <Home />,
       },
       {
         path: "/jobs",
@@ -64,12 +66,12 @@ const router = createBrowserRouter([
         loader: jobLoader,
         action: updateJobAction,
       },
-    ]
+    ],
   },
 ]);
 
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+  document.getElementById("root") as HTMLElement
 );
 root.render(
   <React.StrictMode>

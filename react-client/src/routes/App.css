@@ -72,6 +72,16 @@ body {
   margin-top: 30px;
 }
 
+.spe-app-header-subtitle{
+  margin-top: 10px;
+  font-size: 16px;
+   color: #fff;
+}
+
+.spe-app-header-subtitle-button{
+  margin-top: 30px;
+}
+
 .spe-app-content {
   flex: 1;
   display: flex;

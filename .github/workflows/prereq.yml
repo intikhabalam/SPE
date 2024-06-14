@@ -111,9 +111,9 @@ jobs:
           #for query
           #$newApp = az ad app create --display-name $appName --required-resource-accesses @$manifestPath --query '[].{appId: appId, id: id, displayName: displayName}' -o json
 
-          $appId = $newApp[0]
-          $displayName = $newApp[1]
-          $Id = $newApp[2]
+          $appId = $newApp[1]
+          $displayName = $newApp[2]
+          $Id = $newApp[3]
           echo "OWNING_APP_REGISTRATION_ID=$appId" >> $GITHUB_ENV
 
           

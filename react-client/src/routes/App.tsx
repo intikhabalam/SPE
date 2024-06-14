@@ -1,7 +1,8 @@
 import "./App.css";
 import React, { useState, useCallback, useEffect } from "react";
 import { Providers, ProviderState } from "@microsoft/mgt-element";
-import { Login, SearchBox, SearchResults } from "@microsoft/mgt-react";
+import { Login } from "@microsoft/mgt-react";
+import { ISearchBoxStyles, SearchBox } from "@fluentui/react/lib/SearchBox";
 import {
   FluentProvider,
   Menu,
@@ -24,6 +25,7 @@ import {
   Library20Regular,
   ChevronLeft20Regular,
   ChevronRight20Regular,
+  Search12Regular,
 } from "@fluentui/react-icons";
 import {
   ILabelStyles,
@@ -38,7 +40,7 @@ import {
 } from "@fluentui/react";
 
 import * as Constants from "../common/Constants";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 const navStyles: Partial<INavStyles> = {
   root: {
@@ -87,6 +89,17 @@ const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
   root: { marginTop: 10 },
 };
 
+const searchBoxStyles: Partial<IStyleSet<ISearchBoxStyles>> = {
+  root: {
+    width: "344px",
+    height: "38px",
+    border: "none",
+    backgroundColor: "#f4f7fa",
+    borderRadius: "4px",
+    marginLeft: "44px",
+  },
+};
+
 const useIsSignedIn = () => {
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
 
@@ -120,6 +133,7 @@ function App() {
   );
   const isSignedIn = useIsSignedIn();
   const [isPanelOpen, setPanelOpen] = useState(false);
+  const navigate = useNavigate();
 
   registerIcons({
     icons: {
@@ -129,8 +143,14 @@ function App() {
       Star20Regular: <Star20Regular />,
       ChartMultiple20Regular: <ChartMultiple20Regular />,
       MoreVertical24Filled: <MoreVertical24Filled />,
+      Search12Regular: <Search12Regular />,
     },
   });
+
+  const searchIcon = {
+    iconName: "Search12Regular",
+    style: { color: "#616161" },
+  };
 
   const navLinkGroups: INavLinkGroup[] = [
     {
@@ -184,6 +204,12 @@ function App() {
     },
   ];
 
+  // useEffect(() => {
+  //   if (!isSignedIn) {
+  //     navigate("/login");
+  //   }
+  // }, [isSignedIn, navigate]);
+
   return (
     <FluentProvider>
       <div className="App">
@@ -215,23 +241,15 @@ function App() {
             <div className="spe-app-header">
               <div className="spe-app-header-search">
                 <SearchBox
-                  searchTermChanged={onSearchTermChanged}
+                  placeholder="Search"
+                  onSearch={onSearchTermChanged}
                   onFocus={() => setShowSearchResults(true)}
                   onBlur={() =>
                     setTimeout(setShowSearchResults.bind(null, false), 200)
                   }
-                  style={{ backgroundColor: "green !important" }}
+                  iconProps={searchIcon}
+                  styles={searchBoxStyles}
                 />
-                {showSearchResults && (
-                  <div className="spe-app-search-results-background">
-                    <SearchResults
-                      className="spe-app-search-results"
-                      entityTypes={["driveItem"]}
-                      fetchThumbnail={true}
-                      queryString={searchQuery}
-                    />
-                  </div>
-                )}
               </div>
               <div className="spe-app-header-actions">
                 <Toolbar>

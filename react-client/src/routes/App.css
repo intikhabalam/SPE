@@ -43,11 +43,8 @@ body {
   max-width: 344px;
   height: 38px;
 }
-.SearchBox {
-  --search-box-background-color: green;
-}
 
-.spe-app-search-results {
+/* .spe-app-search-results {
   position: absolute;
   background-color: white;
   opacity: 1;
@@ -60,11 +57,11 @@ body {
   width: 500px;
   max-height: 400px;
   overflow: auto;
-}
+} */
 
-.spe-app-search-results-background {
+/* .spe-app-search-results-background {
   background-color: white;
-}
+} */
 
 .login {
   --login-person-avatar-size: 50px;
@@ -319,4 +316,13 @@ body {
   border-radius: 4px;
   width: 250px;
   display: block;
+}
+
+.Login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #393eb3;
 }

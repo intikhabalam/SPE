@@ -104,7 +104,8 @@ jobs:
         #   $appId = $existingApp.appId
         # } else {
         #   Write-Host "Creating new app registration."
-          $newApp = az ad app create --display-name $appName --required-resource-accesses @$manifestPath --query "{appId: appId, objectId: objectId, Id: Id }" --output json
+          $newApp = az ad app create --display-name $appName --required-resource-accesses @$manifestPath --query '[].{appId: appId, id: id, objectId: objectId}' -o json
+
           # $newApp = az ad app create --display-name $appName --required-resource-accesses @manifest.json --query "{appId: appId, objectId: objectId}" --output json
           $appId = $newApp.appId
           $objectId = $newApp.objectId
@@ -119,7 +120,7 @@ jobs:
           echo $Id
           echo "##########################################################################"
 
-          #$secret = az ad sp credential reset --id $appId --query "password" -o tsv
+          $secret = az ad sp credential reset --id $appId --query "password" -o tsv
 
           # Export the secret as a GitHub Actions environment variable
           echo "OWNING_APP_REGISTRATION_SECRET=$secret" >> $GITHUB_ENV

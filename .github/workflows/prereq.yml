@@ -97,6 +97,8 @@ jobs:
 
         $appName = "${{ env.OWNING_APP_REGISTRATION_NAME }}"
         $existingApp = @(az ad sp list --display-name $appName --query "[0]" --output json)
+        echo $existingApp
+        echo "##########################################################################"
         if ($existingApp.Length -ne 1 ) {
           Write-Host "App registration already exists."
           $appId = $existingApp.appId

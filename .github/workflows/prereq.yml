@@ -79,9 +79,12 @@ jobs:
         echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
         echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
 
-    - name: Check if Azure AD App Registration Exists
-      id: check_ad_app
+    - name: Run PowerShell Script to Create App Registration and Set Permissions
+      shell: pwsh
       run: |
+        # Connect to Azure using device login
+        az login --use-device-code
+
         $appName = "${{ env.OWNING_APP_REGISTRATION_NAME }}"
         $existingApp = az ad sp list --display-name $appName --query "[0]" --output json
         if ($existingApp -ne $null) {
@@ -101,12 +104,6 @@ jobs:
         echo "OWNING_APP_REGISTRATION_SECRET=$secret" >> $GITHUB_ENV
 
         Write-Host "Client Secret has been stored as an environment variable."
-
-    - name: Run PowerShell Script to Create App Registration and Set Permissions
-      shell: pwsh
-      run: |
-        # Connect to Azure using device login
-        az login --use-device-code
 
         # Path to the manifest file
         $manifestPath = "$(pwd)/manifest.json"

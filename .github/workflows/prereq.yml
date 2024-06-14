@@ -111,8 +111,11 @@ jobs:
           $Id = $newApp.Id
           echo "OWNING_APP_REGISTRATION_ID=$appId" >> $GITHUB_ENV
 
+          echo "appId"
           echo $appId
+          echo "objectId"
           echo $objectId
+          echo "Id"
           echo $Id
           echo "##########################################################################"
 

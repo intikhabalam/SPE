@@ -116,12 +116,13 @@ jobs:
           echo $Id
           echo "##########################################################################"
 
-          $secret = az ad sp credential reset --id $appId --query "password" -o tsv
+          #$secret = az ad sp credential reset --id $appId --query "password" -o tsv
 
           # Export the secret as a GitHub Actions environment variable
           echo "OWNING_APP_REGISTRATION_SECRET=$secret" >> $GITHUB_ENV
 
           Write-Host "Client Secret has been stored as an environment variable."
+        
         # }
 
 

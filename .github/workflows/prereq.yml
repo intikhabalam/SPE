@@ -155,14 +155,14 @@ jobs:
 
         # Your PnP PowerShell commands
         Write-Host "Hello World"
-        Write-Host "$env:APP_ID"
+        Write-Host "${{ env.APP_ID }}"
 
         # Get container type information
         $containerType = Get-PnPContainerType
 
         # Check if container type already exists
         if (-not $containerType) {
-          New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:APP_ID
+          New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId ${{ env.APP_ID }}
         } else {
           Write-Host "Container type already exists."
         }

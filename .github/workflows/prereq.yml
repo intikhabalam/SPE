@@ -85,6 +85,13 @@ jobs:
         cat manifest.json
         echo "Path to manifest.json: $(pwd)/manifest.json"
 
+    - name: Install new PnP PowerShell module
+      run: |
+        Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force -AllowPrerelease -SkipPublisherCheck
+        # Validate installation
+        Get-Module -Name PnP.PowerShell -ListAvailable
+      shell: pwsh
+
     - name: Create Service Principal and Get Credentials
       shell: pwsh
       run: |
@@ -140,29 +147,20 @@ jobs:
         # Update the app with required resources
         az ad app update --id $appId --required-resource-accesses @$manifestPath
 
-    - name: Install new PnP PowerShell module
-      run: |
-        Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force -AllowPrerelease -SkipPublisherCheck
-        # Validate installation
-        Get-Module -Name PnP.PowerShell -ListAvailable
-      shell: pwsh
 
-    - name: Run PowerShell Script to Create Container Type
-      shell: pwsh
-      run: |
         # Connect to SharePoint Online
         Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
 
         # Your PnP PowerShell commands
         Write-Host "Hello World"
-        Write-Host "${{ env.APP_ID }}"
+        Write-Host "$appId"
 
         # Get container type information
         $containerType = Get-PnPContainerType
 
         # Check if container type already exists
         if (-not $containerType) {
-          New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId ${{ env.APP_ID }}
+          New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $appId
         } else {
           Write-Host "Container type already exists."
         }

@@ -53,36 +53,6 @@ jobs:
         echo $RESOURCE_GROUP_NAME
         echo "##########################################################################"
 
-    - name: Create Service Principal and Get Credentials
-      shell: pwsh
-      run: |
-        # Connect to Azure using device login
-        az login --use-device-code
-        
-        # Create Service Principal
-        $spId = az ad sp create-for-rbac --role reader --scopes /subscriptions/66d212d1-7764-4f08-9839-1a52bd537059 -n ${{ env.OWNING_APP_REGISTRATION_NAME }}
-
-        # Convert the JSON output to a PowerShell object
-        $spObject = $spId | ConvertFrom-Json
-
-        # Extract the required values
-        $appId = $spObject.appId
-        $displayName = $spObject.displayName
-        $password = $spObject.password
-        $tenant = $spObject.tenant
-
-        # Print the values
-        Write-Host "App ID: $appId"
-        Write-Host "Display Name: $displayName"
-        Write-Host "Password: $password"
-        Write-Host "Tenant: $tenant"
-
-        # Store values in environment variables
-        echo "APP_ID=$appId" >> $GITHUB_ENV
-        echo "DISPLAY_NAME=$displayName" >> $GITHUB_ENV
-        echo "PASSWORD=$password" >> $GITHUB_ENV
-        echo "TENANT=$tenant" >> $GITHUB_ENV
-
     - name: Create API permissions manifest file
       run: |
         echo '[
@@ -115,14 +85,44 @@ jobs:
         cat manifest.json
         echo "Path to manifest.json: $(pwd)/manifest.json"
 
-    - name: Update Service Principal with Required Resource Accesses
+    - name: Create Service Principal and Get Credentials
       shell: pwsh
       run: |
+        # Connect to Azure using device login
+        az login --use-device-code
+        
+        # Create Service Principal
+        $spId = az ad sp create-for-rbac --role contributor --scopes /subscriptions/66d212d1-7764-4f08-9839-1a52bd537059 -n ${{ env.OWNING_APP_REGISTRATION_NAME }}
+
+        # Convert the JSON output to a PowerShell object
+        $spObject = $spId | ConvertFrom-Json
+
+        # Extract the required values
+        $appId = $spObject.appId
+        $displayName = $spObject.displayName
+        $password = $spObject.password
+        $tenant = $spObject.tenant
+
+        # Print the values
+        Write-Host "App ID: $appId"
+        Write-Host "Display Name: $displayName"
+        Write-Host "Password: $password"
+        Write-Host "Tenant: $tenant"
+
+        # Store values in environment variables
+        echo "APP_ID=$appId" >> $GITHUB_ENV
+        echo "DISPLAY_NAME=$displayName" >> $GITHUB_ENV
+        echo "PASSWORD=$password" >> $GITHUB_ENV
+        echo "TENANT=$tenant" >> $GITHUB_ENV
+
         # Path to the manifest file
         $manifestPath = "$(pwd)/manifest.json"
+        
+        echo "app id environment variable: $appId"
+        echo ${{ env.APP_ID }}
 
         # Update the app with required resources
-        az ad app update --id ${{ env.APP_ID }} --required-resource-accesses @$manifestPath
+        az ad app update --id $appId --required-resource-accesses @$manifestPath
 
     - name: Create Certificate for the Service Principal
       shell: pwsh

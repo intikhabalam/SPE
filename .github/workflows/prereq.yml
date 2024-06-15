@@ -112,10 +112,7 @@ jobs:
 
           # Store the thumbprint in an environment variable
           echo "THUMBPRINT=$thumbprint" >> $GITHUB_ENV
-        } else {
-          Write-Host "Certificate path is null or empty"
-        }
-          
+
         # Read the certificate content and extract only the private key
         $certContent = Get-Content $certPath -Raw
         # $privateKey = ($certContent -split "\n" | Select-String -Pattern "-----BEGIN PRIVATE KEY-----.*-----END PRIVATE KEY-----").ToString()

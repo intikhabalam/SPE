@@ -105,6 +105,17 @@ jobs:
         $certObject = $certOutput | ConvertFrom-Json
         $certPath = $certObject.fileWithCertAndPrivateKey
 
+        # Extract the thumbprint
+          $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::CreateFromCertFile($certPath)
+          $thumbprint = $cert.Thumbprint
+          Write-Host "Certificate Thumbprint: $thumbprint"
+
+          # Store the thumbprint in an environment variable
+          echo "THUMBPRINT=$thumbprint" >> $GITHUB_ENV
+        } else {
+          Write-Host "Certificate path is null or empty"
+        }
+          
         # Read the certificate content and extract only the private key
         $certContent = Get-Content $certPath -Raw
         # $privateKey = ($certContent -split "\n" | Select-String -Pattern "-----BEGIN PRIVATE KEY-----.*-----END PRIVATE KEY-----").ToString()

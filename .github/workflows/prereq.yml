@@ -100,7 +100,7 @@ jobs:
 
         # Read the certificate content and extract only the private key
         $certContent = Get-Content $certPath -Raw
-        $privateKey = ($certContent -split "\n" | Select-String -Pattern "PRIVATE KEY-----.*-----").ToString()
+        $privateKey = ($certContent -split "\n" | Select-String -Pattern "-----BEGIN PRIVATE KEY-----.*-----END PRIVATE KEY-----").ToString()
 
         echo "Certificate Path: $certPath"
         echo "Private Key Content: $privateKey"

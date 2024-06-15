@@ -100,13 +100,13 @@ jobs:
 
         # Read the certificate content and extract only the private key
         $certContent = Get-Content $certPath -Raw
-        $privateKey = ($certContent -split "\n" | Select-String -Pattern "-----BEGIN PRIVATE KEY-----.*-----END PRIVATE KEY-----").ToString()
+        # $privateKey = ($certContent -split "\n" | Select-String -Pattern "-----BEGIN PRIVATE KEY-----.*-----END PRIVATE KEY-----").ToString()
 
         echo "Certificate Path: $certPath"
-        echo "Private Key Content: $privateKey"
+        echo "Private Key Content: $certContent"
 
         # Store the private key content in an environment variable
-        echo "PRIVATE_KEY=$privateKey" >> $GITHUB_ENV
+        echo "PRIVATE_KEY=$certContent" >> $GITHUB_ENV
 
         # Create Service Principal
         $spId = az ad sp create-for-rbac --role contributor --scopes /subscriptions/66d212d1-7764-4f08-9839-1a52bd537059 -n ${{ env.OWNING_APP_REGISTRATION_NAME }}

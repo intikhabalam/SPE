@@ -159,7 +159,7 @@ jobs:
 
         # Your PnP PowerShell commands
         Write-Host "Hello World"
-        echo "$env:APP_ID"
+        Write-Host "$env:APP_ID"
         
         # Get container type information
         $containerType = Get-PnPContainerType

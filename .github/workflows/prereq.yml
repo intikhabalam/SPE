@@ -21,19 +21,67 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    # - name: Azure Login
-    #   uses: azure/login@v1
-    #   with:
-    #     client-id: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
-    #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    #     allow-no-subscriptions: true
+    - name: Install jq
+      run: sudo apt-get install jq
+
+    - name: Install Azure CLI
+      run: |
+        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
     - name: Install Az module
       run: |
         Install-Module -Name Az -Scope CurrentUser -Force
         Get-Module -Name Az -ListAvailable
       shell: pwsh
+
+    - name: Extract variables from Parameters JSON file
+      id: extract_parameters2
+      run: |
+        OWNING_APP_REGISTRATION_NAME=$(jq -r '.parameters.owningAppRegName.value' .github/workflows/parameters.json)
+        SHAREPOINT_ADMIN_SITE_URL=$(jq -r '.parameters.sharepointAdminSiteUrl.value' .github/workflows/parameters.json)
+        CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
+        RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
+
+        echo "OWNING_APP_REGISTRATION_NAME=$OWNING_APP_REGISTRATION_NAME" >> $GITHUB_ENV
+        echo "SHAREPOINT_ADMIN_SITE_URL=$SHAREPOINT_ADMIN_SITE_URL" >> $GITHUB_ENV
+        echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
+        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
+
+        echo $OWNING_APP_REGISTRATION_NAME
+        echo $SHAREPOINT_ADMIN_SITE_URL
+        echo $CONTAINER_TYPE_NAME
+        echo $RESOURCE_GROUP_NAME
+        echo "##########################################################################"
+
+    - name: Create Service Principal and Get Credentials
+      shell: pwsh
+      run: |
+        # Connect to Azure using device login
+        az login --use-device-code
+        
+        # Create Service Principal
+        $spId = az ad sp create-for-rbac --role reader --scopes /subscriptions/66d212d1-7764-4f08-9839-1a52bd537059 -n ${{ env.OWNING_APP_REGISTRATION_NAME }}
+
+        # Convert the JSON output to a PowerShell object
+        $spObject = $spId | ConvertFrom-Json
+
+        # Extract the required values
+        $appId = $spObject.appId
+        $displayName = $spObject.displayName
+        $password = $spObject.password
+        $tenant = $spObject.tenant
+
+        # Print the values
+        Write-Host "App ID: $appId"
+        Write-Host "Display Name: $displayName"
+        Write-Host "Password: $password"
+        Write-Host "Tenant: $tenant"
+
+        # Store values in environment variables
+        echo "APP_ID=$appId" >> $GITHUB_ENV
+        echo "DISPLAY_NAME=$displayName" >> $GITHUB_ENV
+        echo "PASSWORD=$password" >> $GITHUB_ENV
+        echo "TENANT=$tenant" >> $GITHUB_ENV
 
     - name: Create API permissions manifest file
       run: |
@@ -66,75 +114,39 @@ jobs:
         echo "Contents of manifest.json:"
         cat manifest.json
         echo "Path to manifest.json: $(pwd)/manifest.json"
-      
-    - name: Extracting variables from Parameters JSON file
-      id: extract_parameters2
-      run: |
-        OWNING_APP_REGISTRATION_NAME=$(jq -r '.parameters.owningAppRegName.value' .github/workflows/parameters.json)
-        SHAREPOINT_ADMIN_SITE_URL=$(jq -r '.parameters.sharepointAdminSiteUrl.value' .github/workflows/parameters.json)
-        CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
-        RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
 
-        echo "OWNING_APP_REGISTRATION_NAME=$OWNING_APP_REGISTRATION_NAME" >> $GITHUB_ENV
-        echo "SHAREPOINT_ADMIN_SITE_URL=$SHAREPOINT_ADMIN_SITE_URL" >> $GITHUB_ENV
-        echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
-        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
-
-        echo $OWNING_APP_REGISTRATION_NAME
-        echo $SHAREPOINT_ADMIN_SITE_URL
-        echo $CONTAINER_TYPE_NAME
-        echo $RESOURCE_GROUP_NAME
-        echo "##########################################################################"
-
-    - name: Run PowerShell Script to Create App Registration and Set Permissions
+    - name: Update Service Principal with Required Resource Accesses
       shell: pwsh
       run: |
-        # Connect to Azure using device login
-        az login --use-device-code
-
         # Path to the manifest file
         $manifestPath = "$(pwd)/manifest.json"
 
-        $appName = "${{ env.OWNING_APP_REGISTRATION_NAME }}"
-        $existingApp = @(az ad sp list --display-name $appName)
-        echo $existingApp
-        echo "##########################################################################"
-        # if ($existingApp.Length -ne 1 ) {
-        #   Write-Host "App registration already exists."
-        #   $appId = $existingApp.appId
-        # } else {
-        #   Write-Host "Creating new app registration."
+        # Update the app with required resources
+        az ad app update --id ${{ env.APP_ID }} --required-resource-accesses @$manifestPath
 
-          $newApp = az ad app create --display-name $appName --required-resource-accesses @$manifestPath --display-name IntikhabSPE --query '[appId, id, displayName]' -o json
+    - name: Create Certificate for the Service Principal
+      shell: pwsh
+      run: |
+        # Create a certificate for the Service Principal
+        $certOutput = az ad sp create-for-rbac -n ${{ env.OWNING_APP_REGISTRATION_NAME }} --create-cert
 
-          #for query
-          #$newApp = az ad app create --display-name $appName --required-resource-accesses @$manifestPath --query '[].{appId: appId, id: id, displayName: displayName}' -o json
+        # Extract the certificate file path
+        $certObject = $certOutput | ConvertFrom-Json
+        $certPath = $certObject.fileWithCertAndPrivateKey
 
-          $appId = $newApp[1]
-          $displayName = $newApp[2]
-          $Id = $newApp[3]
-          echo "OWNING_APP_REGISTRATION_ID=$appId" >> $GITHUB_ENV
+        # Read the certificate content
+        $certContent = Get-Content $certPath -Raw
 
-          
-          echo "newApp"
-          echo $newApp
-          echo "appId"
-          echo $appId
-          echo "displayName"
-          echo $displayName
-          echo "Id"
-          echo $Id
-          echo "##########################################################################"
+        # Store the certificate content in an environment variable
+        echo "CERT_CONTENT=$certContent" >> $GITHUB_ENV
 
-          $secret = az ad sp credential reset --id $appId --query "password" -o tsv
-
-          # Export the secret as a GitHub Actions environment variable
-          echo "OWNING_APP_REGISTRATION_SECRET=$secret" >> $GITHUB_ENV
-
-          Write-Host "Client Secret has been stored as an environment variable."
-        
-        # }
-
+    - name: Print all environment variables
+      run: |
+        echo "App ID: ${{ env.APP_ID }}"
+        echo "Display Name: ${{ env.DISPLAY_NAME }}"
+        echo "Password: ${{ env.PASSWORD }}"
+        echo "Tenant: ${{ env.TENANT }}"
+        echo "Certificate Content: ${{ env.CERT_CONTENT }}"
 
 
 

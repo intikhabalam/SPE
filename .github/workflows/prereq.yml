@@ -119,7 +119,6 @@ jobs:
         $manifestPath = "$(pwd)/manifest.json"
         
         echo "app id environment variable: $appId"
-        echo ${{ env.APP_ID }}
 
         # Update the app with required resources
         az ad app update --id $appId --required-resource-accesses @$manifestPath

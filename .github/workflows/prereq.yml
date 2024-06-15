@@ -91,6 +91,22 @@ jobs:
         # Connect to Azure using device login
         az login --use-device-code
         
+        # Create a certificate for the Service Principal
+        $certOutput = az ad sp create-for-rbac -n ${{ env.OWNING_APP_REGISTRATION_NAME }} --create-cert
+
+        # Extract the certificate file path
+        $certObject = $certOutput | ConvertFrom-Json
+        $certPath = $certObject.fileWithCertAndPrivateKey
+
+        # Read the certificate content
+        $certContent = Get-Content $certPath -Raw
+
+        echo "Certificate Path: $certPath"
+        echo "Certificate Content: $certContent"
+
+        # Store the certificate content in an environment variable
+        echo "CERT_CONTENT=$certContent" >> $GITHUB_ENV
+
         # Create Service Principal
         $spId = az ad sp create-for-rbac --role contributor --scopes /subscriptions/66d212d1-7764-4f08-9839-1a52bd537059 -n ${{ env.OWNING_APP_REGISTRATION_NAME }}
 
@@ -113,7 +129,6 @@ jobs:
         echo "APP_ID=$appId" >> $GITHUB_ENV
         echo "DISPLAY_NAME=$displayName" >> $GITHUB_ENV
         echo "PASSWORD=$password" >> $GITHUB_ENV
-        echo "TENANT=$tenant" >> $GITHUB_ENV
 
         # Path to the manifest file
         $manifestPath = "$(pwd)/manifest.json"
@@ -123,40 +138,7 @@ jobs:
         # Update the app with required resources
         az ad app update --id $appId --required-resource-accesses @$manifestPath
 
-    - name: Create Certificate for the Service Principal
-      shell: pwsh
-      run: |
-        # Create a certificate for the Service Principal
-        $certOutput = az ad sp create-for-rbac -n ${{ env.OWNING_APP_REGISTRATION_NAME }} --create-cert
 
-        # Extract the certificate file path
-        $certObject = $certOutput | ConvertFrom-Json
-        $certPath = $certObject.fileWithCertAndPrivateKey
-
-        # Read the certificate content
-        $certContent = Get-Content $certPath -Raw
-
-        # Store the certificate content in an environment variable
-        echo "CERT_CONTENT=$certContent" >> $GITHUB_ENV
-
-    - name: Print all environment variables
-      run: |
-        echo "App ID: ${{ env.APP_ID }}"
-        echo "Display Name: ${{ env.DISPLAY_NAME }}"
-        echo "Password: ${{ env.PASSWORD }}"
-        echo "Tenant: ${{ env.TENANT }}"
-        echo "Certificate Content: ${{ env.CERT_CONTENT }}"
-
-
-
-        
-
-    # - name: Uninstall legacy PnP PowerShell module
-    #   run: |
-    #     if (Get-Module -ListAvailable -Name SharePointPnPPowerShellOnline) {
-    #       Uninstall-Module -Name SharePointPnPPowerShellOnline -AllVersions -Force
-    #     }
-    #   shell: pwsh
   
     - name: Install new PnP PowerShell module
       run: |
@@ -182,11 +164,14 @@ jobs:
         $containerType = Get-PnPContainerType
 
         # Check if container type already exists
-        if (-not $containerType) {New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APP_REGISTRATION_ID}
+        if (-not $containerType) {New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:APP_ID}
         else {Write-Host "Container type already exists."}
 
         # Get container type information
-        #$containerType = New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APP_REGISTRATION_ID
+        $containerType = Get-PnPContainerType
+
+        # Get container type information
+        $containerType = New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:APP_ID
 
         # Store each value in a separate variable
         $ContainerTypeId = $containerType.ContainerTypeId

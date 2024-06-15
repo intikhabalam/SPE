@@ -98,14 +98,15 @@ jobs:
         $certObject = $certOutput | ConvertFrom-Json
         $certPath = $certObject.fileWithCertAndPrivateKey
 
-        # Read the certificate content
+        # Read the certificate content and extract only the private key
         $certContent = Get-Content $certPath -Raw
+        $privateKey = ($certContent -split "\n" | Select-String -Pattern "PRIVATE KEY-----.*-----").ToString()
 
         echo "Certificate Path: $certPath"
-        echo "Certificate Content: $certContent"
+        echo "Private Key Content: $privateKey"
 
-        # Store the certificate content in an environment variable
-        echo "CERT_CONTENT=$certContent" >> $GITHUB_ENV
+        # Store the private key content in an environment variable
+        echo "PRIVATE_KEY=$privateKey" >> $GITHUB_ENV
 
         # Create Service Principal
         $spId = az ad sp create-for-rbac --role contributor --scopes /subscriptions/66d212d1-7764-4f08-9839-1a52bd537059 -n ${{ env.OWNING_APP_REGISTRATION_NAME }}
@@ -129,6 +130,7 @@ jobs:
         echo "APP_ID=$appId" >> $GITHUB_ENV
         echo "DISPLAY_NAME=$displayName" >> $GITHUB_ENV
         echo "PASSWORD=$password" >> $GITHUB_ENV
+        echo "TENANT=$tenant" >> $GITHUB_ENV
 
         # Path to the manifest file
         $manifestPath = "$(pwd)/manifest.json"
@@ -138,41 +140,35 @@ jobs:
         # Update the app with required resources
         az ad app update --id $appId --required-resource-accesses @$manifestPath
 
-
-  
     - name: Install new PnP PowerShell module
       run: |
         Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force -AllowPrerelease -SkipPublisherCheck
         # Validate installation
         Get-Module -Name PnP.PowerShell -ListAvailable
-      shell: pwsh            
-
+      shell: pwsh
 
     - name: Run PowerShell Script to Create Container Type
       shell: pwsh
       run: |
-
-        #Import-Module -Name PnP.PowerShell -AllowPrerelease -SkipPublisherCheck
-
         # Connect to SharePoint Online
         Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
 
         # Your PnP PowerShell commands
         Write-Host "Hello World"
         Write-Host "$env:APP_ID"
-        
+
         # Get container type information
         $containerType = Get-PnPContainerType
 
         # Check if container type already exists
-        if (-not $containerType) {New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:APP_ID}
-        else {Write-Host "Container type already exists."}
+        if (-not $containerType) {
+          New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:APP_ID
+        } else {
+          Write-Host "Container type already exists."
+        }
 
         # Get container type information
         $containerType = Get-PnPContainerType
-
-        # Get container type information
-        $containerType = New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:APP_ID
 
         # Store each value in a separate variable
         $ContainerTypeId = $containerType.ContainerTypeId
@@ -189,4 +185,3 @@ jobs:
         Write-Host "Classification: $Classification"
         Write-Host "AzureSubscriptionId: $AzureSubscriptionId"
         Write-Host "ResourceGroup: $ResourceGroup"
-

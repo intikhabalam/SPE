@@ -211,6 +211,8 @@ jobs:
 
         # Update the app with required resources
         az ad app update --id $appId --required-resource-accesses @$manifestPath
+        
+        Install-Module -Name AzureAD
 
         $objectId = az ad app show --id $appId --query id -o tsv
         $CustomKeyIdentifier = (Get-AzureADApplicationKeyCredential -ObjectId $objectId).CustomKeyIdentifier

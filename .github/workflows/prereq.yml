@@ -151,11 +151,6 @@ jobs:
         Get-Module -Name PnP.PowerShell -ListAvailable
       shell: pwsh
 
-    - name: Install new PnP PowerShell module
-      run: |
-        Install-Module -Name AzureAD -Force -AllowPrerelease
-      shell: pwsh
-
     - name: Create Service Principal and Get Credentials
       shell: pwsh
       run: |
@@ -217,9 +212,34 @@ jobs:
         # Update the app with required resources
         az ad app update --id $appId --required-resource-accesses @$manifestPath
         
-
         $objectId = az ad app show --id $appId --query id -o tsv
-        $CustomKeyIdentifier = (Get-AzureADApplicationKeyCredential -ObjectId $objectId).CustomKeyIdentifier
+        Write-Output "The Object ID is: $objectId"
+
+        # Perform Azure REST API call to retrieve key credentials
+        $response = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials"
+
+        # Parse JSON response
+        $keyCredentials = ConvertFrom-Json $response
+
+        # Store properties of each key credential in variables
+        foreach ($credential in $keyCredentials.value) {
+            $customKeyIdentifier = $credential.customKeyIdentifier
+            $displayName = $credential.displayName
+            $endDateTime = $credential.endDateTime
+            $keyId = $credential.keyId
+            $startDateTime = $credential.startDateTime
+            $type = $credential.type
+            $usage = $credential.usage
+
+            # Print out the values (you can modify this part as needed)
+            Write-Output "Custom Key Identifier: $customKeyIdentifier"
+            Write-Output "Display Name: $displayName"
+            Write-Output "End Date Time: $endDateTime"
+            Write-Output "Key ID: $keyId"
+            Write-Output "Start Date Time: $startDateTime"
+            Write-Output "Type: $type"
+            Write-Output "Usage: $usage"
+        }
 
         # Convert the CustomKeyIdentifier to Base64 to get the Thumbprint
         $Thumbprint = [System.Convert]::ToBase64String($CustomKeyIdentifier)

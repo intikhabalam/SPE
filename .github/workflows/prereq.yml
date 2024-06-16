@@ -223,16 +223,6 @@ jobs:
 
         # Store each value in a separate variable
         $ContainerTypeId = $containerType.ContainerTypeId
-        $ContainerTypeName = $containerType.ContainerTypeName
-        $OwningApplicationId = $containerType.OwningApplicationId
-        $Classification = $containerType.Classification
-        $AzureSubscriptionId = $containerType.AzureSubscriptionId
-        $ResourceGroup = $containerType.ResourceGroup
 
         # Output each value
         Write-Host "ContainerTypeId: $ContainerTypeId"
-        # Write-Host "ContainerTypeName: $ContainerTypeName"
-        # Write-Host "OwningApplicationId: $OwningApplicationId"
-        # Write-Host "Classification: $Classification"
-        # Write-Host "AzureSubscriptionId: $AzureSubscriptionId"
-        # Write-Host "ResourceGroup: $ResourceGroup"

@@ -214,6 +214,7 @@ jobs:
 
         # Perform Azure REST API call to retrieve key credentials
         $response = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials"
+        Write-Output "The response ID is: $response"
 
         # Parse JSON response
         $keyCredentials = ConvertFrom-Json $response

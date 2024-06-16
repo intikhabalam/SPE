@@ -191,11 +191,11 @@ jobs:
         $objectId = az ad app show --id $appId --query id -o tsv
         Write-Output "The Object ID is: $objectId"
 
-        # Perform Azure REST API call to retrieve key credentials
+        # Perform Azure REST API call to retrieve key credentials - Just extra, not required as $certificateThumbPrint line is working fine.
         $response = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials"
         Write-Output "The response ID is: $response"
 
-        $certificateThumbPrint = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/${{ secrets.AZURE_TENANT_ID }}/keyCredentials" | Select-String -Pattern '"customKeyIdentifier": "([^"]+)"' | ForEach-Object { $_.Matches.Groups[1].Value }
+        $certificateThumbPrint = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials" | Select-String -Pattern '"customKeyIdentifier": "([^"]+)"' | ForEach-Object { $_.Matches.Groups[1].Value }
 
         
         # Print the Thumbprint to verify
@@ -223,6 +223,16 @@ jobs:
 
         # Store each value in a separate variable
         $ContainerTypeId = $containerType.ContainerTypeId
+        $ContainerTypeName = $containerType.ContainerTypeName
+        $OwningApplicationId = $containerType.OwningApplicationId
+        $Classification = $containerType.Classification
+        $AzureSubscriptionId = $containerType.AzureSubscriptionId
+        $ResourceGroup = $containerType.ResourceGroup
 
         # Output each value
         Write-Host "ContainerTypeId: $ContainerTypeId"
+        # Write-Host "ContainerTypeName: $ContainerTypeName"
+        # Write-Host "OwningApplicationId: $OwningApplicationId"
+        # Write-Host "Classification: $Classification"
+        # Write-Host "AzureSubscriptionId: $AzureSubscriptionId"
+        # Write-Host "ResourceGroup: $ResourceGroup"

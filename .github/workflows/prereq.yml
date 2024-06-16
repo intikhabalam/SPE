@@ -165,9 +165,6 @@ jobs:
         $certObject = $certOutput | ConvertFrom-Json
         $certPath = $certObject.fileWithCertAndPrivateKey
 
-        $CustomKeyIdentifier = (Get-AzureADApplicationKeyCredential -ObjectId "e855dc04-1374-4e44-8927-45b38ecc66a6").CustomKeyIdentifier
-        $Thumbprint = [System.Convert]::ToBase64String($CustomKeyIdentifier)
-
         # Read the certificate content and extract only the private key
         $certContent = Get-Content $certPath -Raw
         # $privateKey = ($certContent -split "\n" | Select-String -Pattern "-----BEGIN PRIVATE KEY-----.*-----END PRIVATE KEY-----").ToString()

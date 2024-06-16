@@ -107,34 +107,10 @@ jobs:
                 "url": "https://lemon-smoke-0de0c8110.5.azurestaticapps.net/",
                 "type": "Spa"
             },
-            {
-                "url": "https://localhost/signout-oidc",
-                "type": "Web"
-            },
-            {
-                "url": "https://localhost/Onboarding/ProcessCode",
-                "type": "Web"
-            },
-            {
-                "url": "https://localhost/signin-oidc",
-                "type": "Web"
-            },
-            {
-                "url": "https://oauth.pstmn.io/v1/callback",
-                "type": "Web"
-            },
-            {
-                "url": "https://oauth.pstmn.io/v1/browser-callback",
-                "type": "Web"
-            },
-            {
-                "url": "http://localhost/redirect",
-                "type": "Web"
-            },
-            {
-                "url": "http://localhost/",
-                "type": "Spa"
-            }
+        {
+            "url": "http://localhost/",
+            "type": "Spa"
+        }
         ]
         EOF
 
@@ -189,7 +165,8 @@ jobs:
         $password = $spObject.password
         $tenant = $spObject.tenant
 
-        az ad app update --id $appId --set replyUrlsWithType=@replyUrlsWithType.json
+        # az ad app update --id $appId --set replyUrlsWithType=@replyUrlsWithType.json
+        az ad app update --id $appId --web-redirect-uris  "https://localhost/signout-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signin-oidc" "https://oauth.pstmn.io/v1/callback" "https://oauth.pstmn.io/v1/browser-callback" "http://localhost/redirect"
 
         # Print the values
         Write-Host "App ID: $appId"
@@ -208,9 +185,9 @@ jobs:
         
         echo "app id environment variable: $appId"
 
-        # Update the app with required resources
         az ad app update --id $appId --required-resource-accesses @$manifestPath
-        
+        az ad app permission admin-consent --id $appId
+
         $objectId = az ad app show --id $appId --query id -o tsv
         Write-Output "The Object ID is: $objectId"
 
@@ -218,7 +195,7 @@ jobs:
         $response = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials"
         Write-Output "The response ID is: $response"
 
-        $certificateThumbPrint = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/e855dc04-1374-4e44-8927-45b38ecc66a6/keyCredentials" | Select-String -Pattern '"customKeyIdentifier": "([^"]+)"' | ForEach-Object { $_.Matches.Groups[1].Value }
+        $certificateThumbPrint = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/${{ secrets.AZURE_TENANT_ID }}/keyCredentials" | Select-String -Pattern '"customKeyIdentifier": "([^"]+)"' | ForEach-Object { $_.Matches.Groups[1].Value }
 
         
         # Print the Thumbprint to verify

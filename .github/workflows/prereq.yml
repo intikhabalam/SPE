@@ -216,34 +216,11 @@ jobs:
         $response = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials"
         Write-Output "The response ID is: $response"
 
-        # Parse JSON response
-        $keyCredentials = ConvertFrom-Json $response
+        $certificateThumbPrint = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/e855dc04-1374-4e44-8927-45b38ecc66a6/keyCredentials" | Select-String -Pattern '"customKeyIdentifier": "([^"]+)"' | ForEach-Object { $_.Matches.Groups[1].Value }
 
-        # Store properties of each key credential in variables
-        foreach ($credential in $keyCredentials.value) {
-            $customKeyIdentifier = $credential.customKeyIdentifier
-            $displayName = $credential.displayName
-            $endDateTime = $credential.endDateTime
-            $keyId = $credential.keyId
-            $startDateTime = $credential.startDateTime
-            $type = $credential.type
-            $usage = $credential.usage
-
-            # Print out the values (you can modify this part as needed)
-            Write-Output "Custom Key Identifier: $customKeyIdentifier"
-            Write-Output "Display Name: $displayName"
-            Write-Output "End Date Time: $endDateTime"
-            Write-Output "Key ID: $keyId"
-            Write-Output "Start Date Time: $startDateTime"
-            Write-Output "Type: $type"
-            Write-Output "Usage: $usage"
-        }
-
-        # Convert the CustomKeyIdentifier to Base64 to get the Thumbprint
-        $Thumbprint = [System.Convert]::ToBase64String($CustomKeyIdentifier)
-
+        
         # Print the Thumbprint to verify
-        Write-Output "The Thumbprint is: $Thumbprint"
+        Write-Output "The certificate ThumbPrint is: $certificateThumbPrint"
 
         # Connect to SharePoint Online
         Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin

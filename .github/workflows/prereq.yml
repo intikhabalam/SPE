@@ -153,7 +153,7 @@ jobs:
 
     - name: Install new PnP PowerShell module
       run: |
-        Install-Module -Name AzureAD
+        Install-Module -Name AzureAD -Force -AllowPrerelease
       shell: pwsh
 
     - name: Create Service Principal and Get Credentials

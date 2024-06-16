@@ -79,6 +79,65 @@ jobs:
 
         echo "API permissions manifest file created"
 
+    - name: Create JSON file for reply URLs with types
+      run: |
+        cat <<EOF > replyUrlsWithType.json
+        [
+            {
+                "url": "http://localhost:7071/",
+                "type": "Spa"
+            },
+            {
+                "url": "http://localhost:3000/",
+                "type": "Spa"
+            },
+            {
+                "url": "https://agreeable-cliff-051b8dd10.5.azurestaticapps.net/",
+                "type": "Spa"
+            },
+            {
+                "url": "https://proud-bay-08ee10810.5.azurestaticapps.net/",
+                "type": "Spa"
+            },
+            {
+                "url": "https://ashy-bay-0a679a810.5.azurestaticapps.net/",
+                "type": "Spa"
+            },
+            {
+                "url": "https://lemon-smoke-0de0c8110.5.azurestaticapps.net/",
+                "type": "Spa"
+            },
+            {
+                "url": "https://localhost/signout-oidc",
+                "type": "Web"
+            },
+            {
+                "url": "https://localhost/Onboarding/ProcessCode",
+                "type": "Web"
+            },
+            {
+                "url": "https://localhost/signin-oidc",
+                "type": "Web"
+            },
+            {
+                "url": "https://oauth.pstmn.io/v1/callback",
+                "type": "Web"
+            },
+            {
+                "url": "https://oauth.pstmn.io/v1/browser-callback",
+                "type": "Web"
+            },
+            {
+                "url": "http://localhost/redirect",
+                "type": "Web"
+            },
+            {
+                "url": "http://localhost/",
+                "type": "Spa"
+            }
+        ]
+        EOF
+
     - name: Print manifest.json file and path
       run: |
         echo "Contents of manifest.json:"
@@ -98,6 +157,7 @@ jobs:
         # Connect to Azure using device login
         az login --use-device-code
         
+
         # Create a certificate for the Service Principal
         $certOutput = az ad sp create-for-rbac -n ${{ env.OWNING_APP_REGISTRATION_NAME }} --create-cert
 
@@ -134,6 +194,8 @@ jobs:
         $displayName = $spObject.displayName
         $password = $spObject.password
         $tenant = $spObject.tenant
+
+        az ad app update --id $appId --set replyUrlsWithType=@replyUrlsWithType.json
 
         # Print the values
         Write-Host "App ID: $appId"

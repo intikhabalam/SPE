@@ -21,19 +21,37 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    # - name: Azure Login
-    #   uses: azure/login@v1
-    #   with:
-    #     client-id: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
-    #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    #     allow-no-subscriptions: true
+    - name: Install jq
+      run: sudo apt-get install jq
+
+    - name: Install Azure CLI
+      run: |
+        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
     - name: Install Az module
       run: |
         Install-Module -Name Az -Scope CurrentUser -Force
         Get-Module -Name Az -ListAvailable
       shell: pwsh
+
+    - name: Extract variables from Parameters JSON file
+      id: extract_parameters2
+      run: |
+        OWNING_APP_REGISTRATION_NAME=$(jq -r '.parameters.owningAppRegName.value' .github/workflows/parameters.json)
+        SHAREPOINT_ADMIN_SITE_URL=$(jq -r '.parameters.sharepointAdminSiteUrl.value' .github/workflows/parameters.json)
+        CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
+        RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
+
+        echo "OWNING_APP_REGISTRATION_NAME=$OWNING_APP_REGISTRATION_NAME" >> $GITHUB_ENV
+        echo "SHAREPOINT_ADMIN_SITE_URL=$SHAREPOINT_ADMIN_SITE_URL" >> $GITHUB_ENV
+        echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
+        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
+
+        echo $OWNING_APP_REGISTRATION_NAME
+        echo $SHAREPOINT_ADMIN_SITE_URL
+        echo $CONTAINER_TYPE_NAME
+        echo $RESOURCE_GROUP_NAME
+        echo "##########################################################################"
 
     - name: Create API permissions manifest file
       run: |
@@ -61,121 +79,147 @@ jobs:
 
         echo "API permissions manifest file created"
 
+    - name: Create JSON file for reply URLs with types
+      run: |
+        cat <<EOF > replyUrlsWithType.json
+        [
+            {
+                "url": "http://localhost:7071/",
+                "type": "Spa"
+            },
+            {
+                "url": "http://localhost:3000/",
+                "type": "Spa"
+            },
+            {
+                "url": "https://agreeable-cliff-051b8dd10.5.azurestaticapps.net/",
+                "type": "Spa"
+            },
+            {
+                "url": "https://proud-bay-08ee10810.5.azurestaticapps.net/",
+                "type": "Spa"
+            },
+            {
+                "url": "https://ashy-bay-0a679a810.5.azurestaticapps.net/",
+                "type": "Spa"
+            },
+            {
+                "url": "https://lemon-smoke-0de0c8110.5.azurestaticapps.net/",
+                "type": "Spa"
+            },
+        {
+            "url": "http://localhost/",
+            "type": "Spa"
+        }
+        ]
+        EOF
+
     - name: Print manifest.json file and path
       run: |
         echo "Contents of manifest.json:"
         cat manifest.json
         echo "Path to manifest.json: $(pwd)/manifest.json"
-      
-    - name: Extracting variables from Parameters JSON file
-      id: extract_parameters2
-      run: |
-        OWNING_APP_REGISTRATION_NAME=$(jq -r '.parameters.owningAppRegName.value' .github/workflows/parameters.json)
-        SHAREPOINT_ADMIN_SITE_URL=$(jq -r '.parameters.sharepointAdminSiteUrl.value' .github/workflows/parameters.json)
-        CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
-        RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
 
-        echo "OWNING_APP_REGISTRATION_NAME=$OWNING_APP_REGISTRATION_NAME" >> $GITHUB_ENV
-        echo "SHAREPOINT_ADMIN_SITE_URL=$SHAREPOINT_ADMIN_SITE_URL" >> $GITHUB_ENV
-        echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
-        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
-
-        echo $OWNING_APP_REGISTRATION_NAME
-        echo $SHAREPOINT_ADMIN_SITE_URL
-        echo $CONTAINER_TYPE_NAME
-        echo $RESOURCE_GROUP_NAME
-        echo "##########################################################################"
-
-    - name: Run PowerShell Script to Create App Registration and Set Permissions
-      shell: pwsh
-      run: |
-        # Connect to Azure using device login
-        az login --use-device-code
-
-        # Path to the manifest file
-        $manifestPath = "$(pwd)/manifest.json"
-
-        $appName = "${{ env.OWNING_APP_REGISTRATION_NAME }}"
-        $existingApp = @(az ad sp list --display-name $appName)
-        echo $existingApp
-        echo "##########################################################################"
-        # if ($existingApp.Length -ne 1 ) {
-        #   Write-Host "App registration already exists."
-        #   $appId = $existingApp.appId
-        # } else {
-        #   Write-Host "Creating new app registration."
-
-          $newApp = az ad app create --display-name $appName --required-resource-accesses @$manifestPath --display-name IntikhabSPE --query '[appId, id, displayName]' -o json
-
-          #for query
-          #$newApp = az ad app create --display-name $appName --required-resource-accesses @$manifestPath --query '[].{appId: appId, id: id, displayName: displayName}' -o json
-
-          $appId = $newApp[1]
-          $displayName = $newApp[2]
-          $Id = $newApp[3]
-          echo "OWNING_APP_REGISTRATION_ID=$appId" >> $GITHUB_ENV
-
-          
-          echo "newApp"
-          echo $newApp
-          echo "appId"
-          echo $appId
-          echo "displayName"
-          echo $displayName
-          echo "Id"
-          echo $Id
-          echo "##########################################################################"
-
-          $secret = az ad sp credential reset --id $appId --query "password" -o tsv
-
-          # Export the secret as a GitHub Actions environment variable
-          echo "OWNING_APP_REGISTRATION_SECRET=$secret" >> $GITHUB_ENV
-
-          Write-Host "Client Secret has been stored as an environment variable."
-        
-        # }
-
-
-
-
-        
-
-    # - name: Uninstall legacy PnP PowerShell module
-    #   run: |
-    #     if (Get-Module -ListAvailable -Name SharePointPnPPowerShellOnline) {
-    #       Uninstall-Module -Name SharePointPnPPowerShellOnline -AllVersions -Force
-    #     }
-    #   shell: pwsh
-  
     - name: Install new PnP PowerShell module
       run: |
         Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force -AllowPrerelease -SkipPublisherCheck
         # Validate installation
         Get-Module -Name PnP.PowerShell -ListAvailable
-      shell: pwsh            
+      shell: pwsh
 
-
-    - name: Run PowerShell Script to Create Container Type
+    - name: Create Service Principal and Get Credentials
       shell: pwsh
       run: |
+        # Connect to Azure using device login
+        az login --use-device-code
+        
 
-        #Import-Module -Name PnP.PowerShell -AllowPrerelease -SkipPublisherCheck
+        # Create a certificate for the Service Principal
+        $certOutput = az ad sp create-for-rbac -n ${{ env.OWNING_APP_REGISTRATION_NAME }} --create-cert
+
+        # Extract the certificate file path
+        $certObject = $certOutput | ConvertFrom-Json
+        $certPath = $certObject.fileWithCertAndPrivateKey
+
+        # Read the certificate content and extract only the private key
+        $certContent = Get-Content $certPath -Raw
+        $certContent = $certContent -replace '(?s)^.*?(-----BEGIN PRIVATE KEY-----.*?-----END PRIVATE KEY-----).*$', '$1'
+
+        echo "Certificate Path: $certPath"
+        echo "Private Key Content: $certContent"
+
+        # Store the private key content in an environment variable
+        echo "PRIVATE_KEY=$certContent" >> $GITHUB_ENV
+
+
+
+        # Create Service Principal
+        $spId = az ad sp create-for-rbac --role contributor --scopes /subscriptions/66d212d1-7764-4f08-9839-1a52bd537059 -n ${{ env.OWNING_APP_REGISTRATION_NAME }}
+
+        # Convert the JSON output to a PowerShell object
+        $spObject = $spId | ConvertFrom-Json
+
+        # Extract the required values
+        $appId = $spObject.appId
+        $displayName = $spObject.displayName
+        $password = $spObject.password
+        $tenant = $spObject.tenant
+
+        # az ad app update --id $appId --set replyUrlsWithType=@replyUrlsWithType.json
+        az ad app update --id $appId --web-redirect-uris  "https://localhost/signout-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signin-oidc" "https://oauth.pstmn.io/v1/callback" "https://oauth.pstmn.io/v1/browser-callback" "http://localhost/redirect"
+
+        # Print the values
+        Write-Host "App ID: $appId"
+        Write-Host "Display Name: $displayName"
+        Write-Host "Password: $password"
+        Write-Host "Tenant: $tenant"
+
+        # Store values in environment variables
+        echo "APP_ID=$appId" >> $GITHUB_ENV
+        echo "DISPLAY_NAME=$displayName" >> $GITHUB_ENV
+        echo "PASSWORD=$password" >> $GITHUB_ENV
+        echo "TENANT=$tenant" >> $GITHUB_ENV
+
+        # Path to the manifest file
+        $manifestPath = "$(pwd)/manifest.json"
+        
+        echo "app id environment variable: $appId"
+
+        az ad app update --id $appId --required-resource-accesses @$manifestPath
+        az ad app permission admin-consent --id $appId
+
+        $objectId = az ad app show --id $appId --query id -o tsv
+        Write-Output "The Object ID is: $objectId"
+
+        # Perform Azure REST API call to retrieve key credentials - Just extra, not required as $certificateThumbPrint line is working fine.
+        $response = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials"
+        Write-Output "The response ID is: $response"
+
+        $certificateThumbPrint = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials" | Select-String -Pattern '"customKeyIdentifier": "([^"]+)"' | ForEach-Object { $_.Matches.Groups[1].Value }
+
+        
+        # Print the Thumbprint to verify
+        Write-Output "The certificate ThumbPrint is: $certificateThumbPrint"
 
         # Connect to SharePoint Online
         Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
 
         # Your PnP PowerShell commands
         Write-Host "Hello World"
-        
+        Write-Host "$appId"
+
         # Get container type information
         $containerType = Get-PnPContainerType
 
         # Check if container type already exists
-        if (-not $containerType) {New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APP_REGISTRATION_ID}
-        else {Write-Host "Container type already exists."}
+        if (-not $containerType) {
+          New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $appId
+        } else {
+          Write-Host "Container type already exists."
+        }
 
         # Get container type information
-        #$containerType = New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $env:OWNING_APP_REGISTRATION_ID
+        $containerType = Get-PnPContainerType
 
         # Store each value in a separate variable
         $ContainerTypeId = $containerType.ContainerTypeId
@@ -187,9 +231,8 @@ jobs:
 
         # Output each value
         Write-Host "ContainerTypeId: $ContainerTypeId"
-        Write-Host "ContainerTypeName: $ContainerTypeName"
-        Write-Host "OwningApplicationId: $OwningApplicationId"
-        Write-Host "Classification: $Classification"
-        Write-Host "AzureSubscriptionId: $AzureSubscriptionId"
-        Write-Host "ResourceGroup: $ResourceGroup"
-
+        # Write-Host "ContainerTypeName: $ContainerTypeName"
+        # Write-Host "OwningApplicationId: $OwningApplicationId"
+        # Write-Host "Classification: $Classification"
+        # Write-Host "AzureSubscriptionId: $AzureSubscriptionId"
+        # Write-Host "ResourceGroup: $ResourceGroup"

@@ -1,6 +1,5 @@
 import "./App.css";
-import React, { useState, useCallback, useEffect } from "react";
-import { Providers, ProviderState } from "@microsoft/mgt-element";
+import React, { useState, useCallback } from "react";
 import { Login } from "@microsoft/mgt-react";
 import { ISearchBoxStyles, SearchBox } from "@fluentui/react/lib/SearchBox";
 import {
@@ -33,14 +32,12 @@ import {
   INavStyles,
   IStyleSet,
   Nav,
-  Pivot,
-  PivotItem,
   registerIcons,
   Label,
 } from "@fluentui/react";
 
 import * as Constants from "../common/Constants";
-import { Navigate, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 const navStyles: Partial<INavStyles> = {
   root: {
@@ -92,6 +89,7 @@ const searchBoxStyles: Partial<IStyleSet<ISearchBoxStyles>> = {
     backgroundColor: "#f4f7fa",
     borderRadius: "4px",
     marginLeft: "44px",
+    boxShadow: "0px 5px 25px 0px rgba(0,0,0,0.1)",
   },
 };
 
@@ -110,7 +108,6 @@ function App() {
     },
     [baseSearchQuery]
   );
-
   const [isPanelOpen, setPanelOpen] = useState(false);
 
   registerIcons({

@@ -25,6 +25,10 @@ import {
   ChevronLeft20Regular,
   ChevronRight20Regular,
   Search12Regular,
+  ClosedCaption20Regular,
+  CalendarCancel20Filled,
+  Dismiss20Regular,
+  DismissCircle20Regular,
 } from "@fluentui/react-icons";
 import {
   ILabelStyles,
@@ -34,6 +38,7 @@ import {
   Nav,
   registerIcons,
   Label,
+  IconButton,
 } from "@fluentui/react";
 
 import * as Constants from "../common/Constants";
@@ -78,7 +83,7 @@ const navStyles: Partial<INavStyles> = {
 };
 
 const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
-  root: { marginTop: 10 },
+  root: { marginTop: 10, fontSize: 14, fontWeight: "600" },
 };
 
 const searchBoxStyles: Partial<IStyleSet<ISearchBoxStyles>> = {
@@ -109,6 +114,7 @@ function App() {
     [baseSearchQuery]
   );
   const [isPanelOpen, setPanelOpen] = useState(false);
+  const [showBanner, setShowBanner] = useState(true);
 
   registerIcons({
     icons: {
@@ -119,12 +125,18 @@ function App() {
       ChartMultiple20Regular: <ChartMultiple20Regular />,
       MoreVertical24Filled: <MoreVertical24Filled />,
       Search12Regular: <Search12Regular />,
+      DismissCircle20Regular: <DismissCircle20Regular />,
     },
   });
 
   const searchIcon = {
     iconName: "Search12Regular",
     style: { color: "#616161" },
+  };
+
+  const closeIcon = {
+    iconName: "DismissCircle20Regular",
+    style: { color: "white" },
   };
 
   const navLinkGroups: INavLinkGroup[] = [
@@ -182,7 +194,22 @@ function App() {
   return (
     <FluentProvider>
       <div className="App">
-        <div className="spe-app-content">
+        {showBanner && (
+          <div className="spe-app-banner">
+            <div className="spe-app-banner-content">
+              <Library20Regular className="spe-app-banner-icon" />
+              <Text>
+                Explore SharePoint Embedded resources from the right-hand panel
+              </Text>
+            </div>
+            <IconButton
+              iconProps={closeIcon}
+              ariaLabel="Close"
+              onClick={() => setShowBanner(false)}
+            />
+          </div>
+        )}
+        <div className={`spe-app-content ${showBanner ? "" : "no-banner"}`}>
           <div className="spe-app-content-navigation">
             <div className="spe-app-header-title">
               <Text size={600} style={{ fontSize: "22px", color: "#fff" }}>
@@ -271,17 +298,14 @@ function App() {
                       onClick={() => setPanelOpen(!isPanelOpen)}
                     />
                     <h2 style={{ display: "flex", alignItems: "center" }}>
-                      <Library20Regular
-                        className="spe-app-side-panel-icon"
-                        style={{ marginRight: "px" }}
-                      />
+                      <Library20Regular className="spe-app-side-panel-icon" />
                       Explore Resources
                     </h2>
                     <div style={{ flex: 0.5 }} />
                   </div>
-                  <div className="spe-app-navigation-content">
+                  <div className="spe-app-side-panel-content">
                     <Label styles={labelStyles}>APIs</Label>
-                    <div className="navigation-divider" />
+                    <div className="spe-app-side-panel-divider" />
                     <Text>Content Goes here</Text>
                   </div>
                 </div>

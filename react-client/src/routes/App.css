@@ -15,6 +15,30 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+.spe-app-banner {
+  background-color: #e92424;
+  color: white;
+  padding: 0 20px; /* Adjust padding to remove top/bottom padding */
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Ensure space between content and close button */
+  height: 47px;
+  width: 100%;
+  box-sizing: border-box; /* Ensure padding is included in height */
+}
+
+.spe-app-banner-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: center; /* Center content horizontally */
+}
+
+.spe-app-banner-icon {
+  margin-right: 10px; /* Space between icon and text */
+}
+
 .spe-app-header-main-container {
   display: flex;
   flex-direction: column;
@@ -24,8 +48,9 @@ body {
 .spe-app-content-navigation {
   width: 225px;
   padding: 20px;
-  height: 100vh;
+  height: 100vh; /* Adjust height */
   background-color: #393eb3;
+  transition: height 0.3s;
 }
 
 .spe-app-header {
@@ -72,13 +97,13 @@ body {
   margin-top: 30px;
 }
 
-.spe-app-header-subtitle{
+.spe-app-header-subtitle {
   margin-top: 10px;
   font-size: 16px;
-   color: #fff;
+  color: #fff;
 }
 
-.spe-app-header-subtitle-button{
+.spe-app-header-subtitle-button {
   margin-top: 30px;
 }
 
@@ -118,6 +143,26 @@ body {
   margin-right: 5px;
 }
 
+.spe-app-side-panel-content {
+  padding: 10px;
+}
+.spe-app-side-panel-divider {
+  margin: 25px 0;
+  height: 1px;
+  width: 100%;
+  border: 1px solid #d1d1d1;
+}
+
+.spe-app-banner-icon {
+  background-color: white;
+  color: #e92424;
+  border-radius: 50px;
+  width: 28px;
+  height: 28px;
+  padding: 4px;
+  margin-right: 10px;
+}
+
 .spe-app-side-panel.closed {
   display: block;
   height: 100vh;
@@ -136,12 +181,7 @@ body {
   padding: 10px 20px;
   border: 1px solid #d1d1d1;
 }
-.navigation-divider {
-  margin: 25px 0;
-  height: 1px;
-  width: 90vw;
-  border: 1px solid #d1d1d1;
-}
+
 .main-content-body {
   flex: 1;
   flex-grow: 1;

@@ -41,18 +41,25 @@ jobs:
         SHAREPOINT_ADMIN_SITE_URL=$(jq -r '.parameters.sharepointAdminSiteUrl.value' .github/workflows/parameters.json)
         CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
         RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
-
+        STATIC_WEB_APP_NAME=$(jq -r '.parameters.staticWebAppName.value' .github/workflows/parameters.json)
+        LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
+        
+        
         echo "OWNING_APP_REGISTRATION_NAME=$OWNING_APP_REGISTRATION_NAME" >> $GITHUB_ENV
         echo "SHAREPOINT_ADMIN_SITE_URL=$SHAREPOINT_ADMIN_SITE_URL" >> $GITHUB_ENV
         echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
         echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
+        echo "STATIC_WEB_APP_NAME=$STATIC_WEB_APP_NAME" >> $GITHUB_ENV
+        echo "LOCATION=$LOCATION" >> $GITHUB_ENV
 
         echo $OWNING_APP_REGISTRATION_NAME
         echo $SHAREPOINT_ADMIN_SITE_URL
         echo $CONTAINER_TYPE_NAME
         echo $RESOURCE_GROUP_NAME
+        echo $STATIC_WEB_APP_NAME
+        echo $LOCATION
         echo "##########################################################################"
-
+        
     - name: Create API permissions manifest file
       run: |
         echo '[
@@ -160,35 +167,35 @@ jobs:
         $spObject = $spId | ConvertFrom-Json
 
         # Extract the required values
-        $appId = $spObject.appId
+        $reach_app_azure_app_id = $spObject.appId
         $displayName = $spObject.displayName
-        $password = $spObject.password
+        $react_app_azure_secret = $spObject.password
         $tenant = $spObject.tenant
 
-        # az ad app update --id $appId --set replyUrlsWithType=@replyUrlsWithType.json
-        az ad app update --id $appId --web-redirect-uris  "https://localhost/signout-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signin-oidc" "https://oauth.pstmn.io/v1/callback" "https://oauth.pstmn.io/v1/browser-callback" "http://localhost/redirect"
+        # az ad app update --id $reach_app_azure_app_id --set replyUrlsWithType=@replyUrlsWithType.json
+        az ad app update --id $reach_app_azure_app_id --web-redirect-uris  "https://localhost/signout-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signin-oidc" "https://oauth.pstmn.io/v1/callback" "https://oauth.pstmn.io/v1/browser-callback" "http://localhost/redirect"
 
         # Print the values
-        Write-Host "App ID: $appId"
+        Write-Host "App ID: $reach_app_azure_app_id"
         Write-Host "Display Name: $displayName"
-        Write-Host "Password: $password"
+        Write-Host "REACT_APP_AZURE_SECRET: $REACT_APP_AZURE_SECRET"
         Write-Host "Tenant: $tenant"
 
         # Store values in environment variables
-        echo "APP_ID=$appId" >> $GITHUB_ENV
+        echo "REACT_APP_AZURE_APP_ID=$reach_app_azure_app_id" >> $GITHUB_ENV
         echo "DISPLAY_NAME=$displayName" >> $GITHUB_ENV
-        echo "PASSWORD=$password" >> $GITHUB_ENV
+        echo "REACT_APP_AZURE_SECRET=$react_app_azure_secret" >> $GITHUB_ENV
         echo "TENANT=$tenant" >> $GITHUB_ENV
 
         # Path to the manifest file
         $manifestPath = "$(pwd)/manifest.json"
         
-        echo "app id environment variable: $appId"
+        echo "app id environment variable: $reach_app_azure_app_id"
 
-        az ad app update --id $appId --required-resource-accesses @$manifestPath
-        az ad app permission admin-consent --id $appId
+        az ad app update --id $reach_app_azure_app_id --required-resource-accesses @$manifestPath
+        az ad app permission admin-consent --id $reach_app_azure_app_id
 
-        $objectId = az ad app show --id $appId --query id -o tsv
+        $objectId = az ad app show --id $reach_app_azure_app_id --query id -o tsv
         Write-Output "The Object ID is: $objectId"
 
         # Perform Azure REST API call to retrieve key credentials - Just extra, not required as $certificateThumbPrint line is working fine.
@@ -206,14 +213,14 @@ jobs:
 
         # Your PnP PowerShell commands
         Write-Host "Hello World"
-        Write-Host "$appId"
+        Write-Host "$reach_app_azure_app_id"
 
         # Get container type information
         $containerType = Get-PnPContainerType
 
         # Check if container type already exists
         if (-not $containerType) {
-          New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $appId
+          New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $reach_app_azure_app_id
         } else {
           Write-Host "Container type already exists."
         }
@@ -223,6 +230,8 @@ jobs:
 
         # Store each value in a separate variable
         $ContainerTypeId = $containerType.ContainerTypeId
+        echo "CONTAINER_TYPE_ID=$ContainerTypeId" >> $GITHUB_ENV
+
         $ContainerTypeName = $containerType.ContainerTypeName
         $OwningApplicationId = $containerType.OwningApplicationId
         $Classification = $containerType.Classification
@@ -231,8 +240,56 @@ jobs:
 
         # Output each value
         Write-Host "ContainerTypeId: $ContainerTypeId"
-        # Write-Host "ContainerTypeName: $ContainerTypeName"
-        # Write-Host "OwningApplicationId: $OwningApplicationId"
-        # Write-Host "Classification: $Classification"
-        # Write-Host "AzureSubscriptionId: $AzureSubscriptionId"
-        # Write-Host "ResourceGroup: $ResourceGroup"
+        Write-Host "ContainerTypeName: $ContainerTypeName"
+        Write-Host "OwningApplicationId: $OwningApplicationId"
+        Write-Host "Classification: $Classification"
+        Write-Host "AzureSubscriptionId: $AzureSubscriptionId"
+        Write-Host "ResourceGroup: $ResourceGroup"
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        allow-no-subscriptions: true
+        
+    - name: Check if Resource Group exists
+      id: check_resource_group
+      run: |
+        if az group show --name ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
+          echo "Resource Group ${{ env.RESOURCE_GROUP_NAME }} already exists"
+          echo "::set-output name=rg_exists::true"
+        else
+          az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location "${{ env.LOCATION }}"
+          echo "Resource Group created."
+        fi
+
+    - name: Check if Static Web App exists
+      id: check_static_webapp
+      run: |
+        if ! az staticwebapp show --name ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
+          echo "Static Web App does not exist."
+          echo "staticWebApp_exists=false" >> $GITHUB_ENV
+        else
+          echo "Static Web App exists."
+          echo "staticWebApp_exists=true" >> $GITHUB_ENV
+        fi
+
+    - name: Deploy Azure Static Webapp
+      if: env.staticWebApp_exists == 'false'
+      id: create_azure_static_webapp
+      run: |
+        az deployment group create \
+          --resource-group ${{ env.RESOURCE_GROUP_NAME }} \
+          --template-file .github/workflows/staticwebapp.bicep \
+          --parameters .github/workflows/parameters.json            
+
+    - name: Update the Azure Static Webapp Settings
+      if: env.staticWebApp_exists == 'false'
+      id: create_environment_variables
+      run: |
+        az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names \
+                                    "SPE_CONTAINER_TYPE_ID=${{ env.CONTAINER_TYPE_ID }}" \
+                                    "AZURE_CLIENT_SECRET=${{ env.REACT_APP_AZURE_SECRET }}" \
+                                    "AZURE_CLIENT_ID=${{ env.REACT_APP_AZURE_APP_ID }}" 

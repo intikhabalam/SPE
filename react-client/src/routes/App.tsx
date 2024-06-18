@@ -25,9 +25,6 @@ import {
   ChevronLeft20Regular,
   ChevronRight20Regular,
   Search12Regular,
-  ClosedCaption20Regular,
-  CalendarCancel20Filled,
-  Dismiss20Regular,
   DismissCircle20Regular,
 } from "@fluentui/react-icons";
 import {
@@ -38,7 +35,6 @@ import {
   Nav,
   registerIcons,
   Label,
-  IconButton,
 } from "@fluentui/react";
 
 import * as Constants from "../common/Constants";
@@ -94,7 +90,6 @@ const searchBoxStyles: Partial<IStyleSet<ISearchBoxStyles>> = {
     backgroundColor: "#f4f7fa",
     borderRadius: "4px",
     marginLeft: "44px",
-    
   },
 };
 
@@ -114,7 +109,6 @@ function App() {
     [baseSearchQuery]
   );
   const [isPanelOpen, setPanelOpen] = useState(false);
-  const [showBanner, setShowBanner] = useState(true);
 
   registerIcons({
     icons: {
@@ -132,11 +126,6 @@ function App() {
   const searchIcon = {
     iconName: "Search12Regular",
     style: { color: "#616161" },
-  };
-
-  const closeIcon = {
-    iconName: "DismissCircle20Regular",
-    style: { color: "white" },
   };
 
   const navLinkGroups: INavLinkGroup[] = [
@@ -194,148 +183,100 @@ function App() {
   return (
     <FluentProvider>
       <div className="App">
-        {showBanner && (
-          <div className="spe-app-banner">
-            <div className="spe-app-banner-content">
-              <Library20Regular className="spe-app-banner-icon" />
-              <Text>
-                Explore SharePoint Embedded resources from the right-hand panel
-              </Text>
+        <div className="spe-app-main">
+          <div className="spe-app-main-header">
+            <div className="spe-app-main-header-title">
+              SharePoint Embedded Demo app
             </div>
-            <IconButton
-              iconProps={closeIcon}
-              ariaLabel="Close"
-              onClick={() => setShowBanner(false)}
-            />
+            <div className="spe-app-main-header-actions">
+              <Text>About this Demo</Text>
+              <Text>Learn & How to</Text>
+              <Text>Show Code</Text>
+            </div>
           </div>
-        )}
-        <div className={`spe-app-content ${showBanner ? "" : "no-banner"}`}>
-          <div className="spe-app-content-navigation">
-            <div className="spe-app-header-title">
-              <Text size={600} style={{ fontSize: "22px", color: "#fff" }}>
-                contoso
-              </Text>
-              <Text
-                size={700}
-                weight="semibold"
-                style={{ fontSize: "22px", color: "#60B1D4" }}
-              >
-                HR
-              </Text>
-            </div>
 
-            <FluentProvider theme={webLightTheme}>
-              <Nav
-                selectedKey="key4"
-                ariaLabel="Nav basic example"
-                groups={navLinkGroups}
-                styles={navStyles}
-              />
-            </FluentProvider>
+          <div className="spe-app-main-description">
+            Build a custom document management system using SharePoint Embedded,
+            to organize, store, and manage documents.
           </div>
-          <div className="spe-app-header-main-container">
-            <div className="spe-app-header">
-              <div className="spe-app-header-search">
-                <SearchBox
-                  placeholder="Search"
-                  onSearch={onSearchTermChanged}
-                  onFocus={() => setShowSearchResults(true)}
-                  onBlur={() =>
-                    setTimeout(setShowSearchResults.bind(null, false), 200)
-                  }
-                  iconProps={searchIcon}
-                  styles={searchBoxStyles}
-                />
-              </div>
-              <div className="spe-app-header-actions">
-                <Toolbar>
-                  <Login
-                    ref={loginRef}
-                    loginView="avatar"
-                    showPresence={true}
-                    className="login"
-                  />
-                  <Menu>
-                    <MenuTrigger>
-                      <ToolbarButton
-                        aria-label="More"
-                        icon={<MoreVertical24Filled />}
-                      />
-                    </MenuTrigger>
 
-                    <MenuPopover>
-                      <MenuList>
-                        <MenuItem>Hi!</MenuItem>
-                      </MenuList>
-                    </MenuPopover>
-                  </Menu>
-                </Toolbar>
-              </div>
-            </div>
-            <div className="spe-app-content-main">
-              <div className="main-content-body">
-                <Outlet />
-              </div>
-            </div>
-          </div>
-          <div className="spe-app-content-dev">
-            <div
-              className={`spe-app-side-panel ${
-                isPanelOpen ? "open" : "closed"
-              }`}
-            >
-              {isPanelOpen ? (
-                <div>
-                  <div
-                    style={{
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      display: "flex",
-                      flexDirection: "row",
-                    }}
-                  >
-                    <ChevronRight20Regular
-                      onClick={() => setPanelOpen(!isPanelOpen)}
+          <div className="spe-app-main-content">
+            <div className="spe-app-content-container">
+              <div className="spe-app-content">
+                <div className="spe-app-content-navigation">
+                  <div className="spe-app-header-title">
+                    <Text
+                      size={600}
+                      style={{ fontSize: "22px", color: "#fff" }}
+                    >
+                      contoso
+                    </Text>
+                    <Text
+                      size={700}
+                      weight="semibold"
+                      style={{ fontSize: "22px", color: "#60B1D4" }}
+                    >
+                      HR
+                    </Text>
+                  </div>
+                  <FluentProvider theme={webLightTheme}>
+                    <Nav
+                      selectedKey="key4"
+                      ariaLabel="Nav basic example"
+                      groups={navLinkGroups}
+                      styles={navStyles}
                     />
-                    <h2 style={{ display: "flex", alignItems: "center" }}>
-                      <Library20Regular className="spe-app-side-panel-icon" />
-                      Explore Resources
-                    </h2>
-                    <div style={{ flex: 0.5 }} />
+                  </FluentProvider>
+                </div>
+                <div className="spe-app-header-container">
+                  <div className="spe-app-header">
+                    <div className="spe-app-header-search">
+                      <SearchBox
+                        placeholder="Search"
+                        onSearch={onSearchTermChanged}
+                        onFocus={() => setShowSearchResults(true)}
+                        onBlur={() =>
+                          setTimeout(
+                            setShowSearchResults.bind(null, false),
+                            200
+                          )
+                        }
+                        iconProps={searchIcon}
+                        styles={searchBoxStyles}
+                      />
+                    </div>
+                    <div className="spe-app-header-actions">
+                      <Toolbar>
+                        <Login
+                          ref={loginRef}
+                          loginView="avatar"
+                          showPresence={true}
+                          className="login"
+                        />
+                        <Menu>
+                          <MenuTrigger>
+                            <ToolbarButton
+                              aria-label="More"
+                              icon={<MoreVertical24Filled />}
+                            />
+                          </MenuTrigger>
+
+                          <MenuPopover>
+                            <MenuList>
+                              <MenuItem>Hi!</MenuItem>
+                            </MenuList>
+                          </MenuPopover>
+                        </Menu>
+                      </Toolbar>
+                    </div>
                   </div>
-                  <div className="spe-app-side-panel-content">
-                    <Label styles={labelStyles}>APIs</Label>
-                    <div className="spe-app-side-panel-divider" />
-                    <Text>Content Goes here</Text>
+                  <div className="spe-app-content-main">
+                    <div className="main-content-body">
+                      <Outlet />
+                    </div>
                   </div>
                 </div>
-              ) : (
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                  }}
-                  onClick={() => setPanelOpen(!isPanelOpen)}
-                >
-                  <ChevronLeft20Regular style={{ marginTop: "20px" }} />
-                  <Library20Regular
-                    className="spe-app-side-panel-icon"
-                    style={{
-                      marginTop: "20px",
-                      marginBottom: "85px",
-                    }}
-                  />
-                  <div
-                    style={{
-                      transform: "rotate(90deg)",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    <h2>Explore Resources</h2>
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
           </div>
         </div>

@@ -1,12 +1,32 @@
 import "./App.css";
-import React from "react";
-import { Login } from "@microsoft/mgt-react";
+import React, { useEffect, useState } from "react";
+import { Login, ProviderState, Providers } from "@microsoft/mgt-react";
 import { FluentProvider, Text } from "@fluentui/react-components";
+import { Navigate } from "react-router-dom";
+
+const useIsSignedIn = () => {
+  const [isSignedIn, setIsSignedIn] = useState<boolean>();
+
+  useEffect(() => {
+    const updateIsSignedIn = () => {
+      setIsSignedIn(Providers.globalProvider.state === ProviderState.SignedIn);
+    };
+    updateIsSignedIn();
+    Providers.globalProvider.onStateChanged(updateIsSignedIn);
+    return () => {
+      Providers.globalProvider.removeStateChangedHandler(updateIsSignedIn);
+    };
+  }, []);
+  return isSignedIn;
+};
 
 export const LoginPage: React.FunctionComponent = () => {
   const loginRef = React.useRef(null);
-  
-  return (
+  const isSignedIn = useIsSignedIn();
+
+  return isSignedIn ? (
+    <Navigate to={"/"} />
+  ) : (
     <FluentProvider>
       <div className="Login">
         <div className="spe-app-header-title-login">

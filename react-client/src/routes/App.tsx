@@ -1,5 +1,5 @@
 import "./App.css";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Login } from "@microsoft/mgt-react";
 import { ISearchBoxStyles, SearchBox } from "@fluentui/react/lib/SearchBox";
 import {
@@ -25,9 +25,6 @@ import {
   ChevronLeft20Regular,
   ChevronRight20Regular,
   Search12Regular,
-  ClosedCaption20Regular,
-  CalendarCancel20Filled,
-  Dismiss20Regular,
   DismissCircle20Regular,
 } from "@fluentui/react-icons";
 import {
@@ -42,7 +39,9 @@ import {
 } from "@fluentui/react";
 
 import * as Constants from "../common/Constants";
-import { Outlet } from "react-router-dom";
+import { Outlet, Route, Routes } from "react-router-dom";
+import { LoginPage } from "./Login";
+import PrivateRoute from "../components/PrivateRoute";
 
 const navStyles: Partial<INavStyles> = {
   root: {
@@ -94,11 +93,27 @@ const searchBoxStyles: Partial<IStyleSet<ISearchBoxStyles>> = {
     backgroundColor: "#f4f7fa",
     borderRadius: "4px",
     marginLeft: "44px",
-    boxShadow: "0px 5px 25px 0px rgba(0,0,0,0.1)",
   },
 };
 
-function App() {
+export default function App() {
+  // useEffect(() => {
+  //   console.log("Oh hi mark");
+  // });
+
+  return (
+    <FluentProvider>
+      <Routes>
+        <Route path="/" element={<PrivateRoute />}>
+          <Route path="/" element={<AppContent />} />
+        </Route>
+        {/* <Route path="/login" element={<LoginPage />} /> */}
+      </Routes>
+    </FluentProvider>
+  );
+}
+
+const AppContent = () => {
   const containerTypeId = Constants.SPE_CONTAINER_TYPE_ID;
   const baseSearchQuery = `ContainerTypeId:${containerTypeId} AND Title:'[Job Posting]*'`;
   const [searchQuery, setSearchQuery] = useState<string>(baseSearchQuery);
@@ -342,6 +357,4 @@ function App() {
       </div>
     </FluentProvider>
   );
-}
-
-export default App;
+};

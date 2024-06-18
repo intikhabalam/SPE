@@ -94,7 +94,6 @@ const searchBoxStyles: Partial<IStyleSet<ISearchBoxStyles>> = {
     backgroundColor: "#f4f7fa",
     borderRadius: "4px",
     marginLeft: "44px",
-    
   },
 };
 
@@ -171,7 +170,7 @@ function App() {
         },
         {
           name: "Hiring",
-          url: "",
+          url: "/",
           key: "key4",
           iconProps: {
             iconName: "Star20Regular",

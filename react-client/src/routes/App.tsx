@@ -94,7 +94,7 @@ const searchBoxStyles: Partial<IStyleSet<ISearchBoxStyles>> = {
     backgroundColor: "#f4f7fa",
     borderRadius: "4px",
     marginLeft: "44px",
-    boxShadow: "0px 5px 25px 0px rgba(0,0,0,0.1)",
+    
   },
 };
 

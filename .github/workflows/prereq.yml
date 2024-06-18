@@ -253,7 +253,7 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         allow-no-subscriptions: true
-        
+
     - name: Check if Resource Group exists
       id: check_resource_group
       run: |
@@ -286,7 +286,6 @@ jobs:
           --parameters .github/workflows/parameters.json            
 
     - name: Update the Azure Static Webapp Settings
-      if: env.staticWebApp_exists == 'false'
       id: create_environment_variables
       run: |
         az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names \

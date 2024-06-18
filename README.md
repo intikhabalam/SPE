@@ -1,4 +1,4 @@
-This article provides a comprehensive manual for deploying Microsoft Embedded systems. It guides you through the entire deployment process with a focus on minimizing the use of scripts.
+This article provides a comprehensive manual for deploying Microsoft Embedded systems. It guides you through the entire deployment process using all manual steps.
 
 
 Before you begin there are some Pre-Requsites that are required.
@@ -21,7 +21,7 @@ Select **Show All** at the bottom of the left-hand menu, then select **Admin Cen
 From the SharePoint Admin menu, select **Settings** from the left menu Locate and select SharePoint Embedded and review the terms of service and select Enable to enable on your tenant
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/1c60ac95-aeeb-4249-af04-bb3ee1cf175d)</kbd>
 
-If this setting is currently enabled you dont need to re-enable this.
+**If this setting is currently enabled you dont need to re-enable this.**
 
 # Step 2: Create App Registration
 
@@ -207,7 +207,13 @@ These next steps are using commands to register the container type in SharePoint
 As per the the Postman pre requsite there is a git repo with all the required Rest commands ready for you to use
 https://github.com/microsoft/SharePoint-Embedded-Samples
 
---Add Steps to download the package and ingest into Postman--
+
+Download the Zip file from the about github Repo. **Code -> Download Zip**
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/02492231-5a05-4c33-9041-e670825c2fe6)</kbd>
+
+Unzip the package and open Postman. Select Import and select the unzipped files 
+
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/548eb9ae-5a74-4e82-90bc-a54aca09a079)</kbd>
 
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/73786d2a-8cb8-4335-99b6-af2e4fd4f3d6)</kbd>
 
@@ -220,7 +226,7 @@ Select the Enviroments tab and add the following information
 - **RootSiteUrl:** The root URL of your tenant.
 - **ContainerTypeID:** The GUID of the Container Type created in Step 2.4
 - **CertThumbprint:** This is the thumbprint that is shown in Step 2.5
-- **CertPrivateKey:** This is teh private key of the cert which includes "-----BEGIN PRIVATE KEY-----" and "-----END PRIVATE KEY-----"
+- **CertPrivateKey:** This is the private key of the cert which includes "-----BEGIN PRIVATE KEY-----" and "-----END PRIVATE KEY-----"
 
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/b9323b1c-a7c3-401b-9192-b0164f237bb8)</kbd>
 

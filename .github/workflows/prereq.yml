@@ -303,9 +303,11 @@ jobs:
           echo "::set-output name=REACT_APP_AZURE_SECRET::$REACT_APP_AZURE_SECRET"
           echo "::set-output name=REACT_APP_AZURE_APP_ID::$REACT_APP_AZURE_APP_ID"
 
-      - name: Update the Azure Static Webapp Settings
-        run: |
+          echo "$(awk -F= '/CONTAINER_TYPE_ID/{print $2}' output.txt)"
+          echo "$(awk -F= '/REACT_APP_AZURE_SECRET/{print $2}' output.txt)"
+          echo "$(awk -F= '/REACT_APP_AZURE_APP_ID/{print $2}' output.txt)"
+
           az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names \
-                                      "SPE_CONTAINER_TYPE_ID=${{ steps.readFromFile.outputs.CONTAINER_TYPE_ID }}" \
-                                      "AZURE_CLIENT_SECRET=${{ steps.readFromFile.outputs.REACT_APP_AZURE_SECRET }}" \
-                                      "AZURE_CLIENT_ID=${{ steps.readFromFile.outputs.REACT_APP_AZURE_APP_ID }}"
+                                      "SPE_CONTAINER_TYPE_ID=$(awk -F= '/CONTAINER_TYPE_ID/{print $2}' output.txt)" \
+                                      "AZURE_CLIENT_SECRET=$(awk -F= '/REACT_APP_AZURE_SECRET/{print $2}' output.txt)" \
+                                      "AZURE_CLIENT_ID=$(awk -F= '/REACT_APP_AZURE_APP_ID/{print $2}' output.txt)

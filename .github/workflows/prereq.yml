@@ -291,10 +291,10 @@ jobs:
           # Update the Azure Static Webapp Settings
           az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names "SPE_CONTAINER_TYPE_ID=$ContainerTypeId" "AZURE_CLIENT_SECRET=$reactAppAzureSecret" "AZURE_CLIENT_ID=$reactAppAzureAppId"
 
-          SCOPE="${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}/.default"
+          $SCOPE="${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}/.default"
 
-          ACCESS_TOKEN=$(az account get-access-token --resource "$SCOPE" --client-id $reactAppAzureAppId" --client-secret "$reactAppAzureSecret" --tenant ${{ secrets.AZURE_TENANT_ID_PKSDEMO }} --query accessToken -o tsv)
-          ACCESS_TOKEN=$(az account get-access-token --resource "$SCOPE" --query accessToken -o tsv)
+          $ACCESS_TOKEN=$(az account get-access-token --resource "$SCOPE" --client-id $reactAppAzureAppId" --client-secret "$reactAppAzureSecret" --tenant ${{ secrets.AZURE_TENANT_ID_PKSDEMO }} --query accessToken -o tsv)
+          
           echo "ACCESS_TOKEN=$ACCESS_TOKEN" >> $GITHUB_ENV
 
           echo "Access Token:$ACCESS_TOKEN"

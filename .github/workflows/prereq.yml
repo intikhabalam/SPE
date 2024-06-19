@@ -171,6 +171,14 @@ jobs:
           STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
           echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
 
+      - name: Get Azure Static Webapp values
+        id: get_static_webapp_values
+        run: |
+          STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "properties.apiKey" -o tsv)
+          echo "STATIC_WEBAPP_TOKEN=$STATIC_WEBAPP_TOKEN" >> $GITHUB_ENV
+          STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
+          echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
+
       - name: Create Service Principal and Get Credentials
         shell: pwsh
         run: |
@@ -285,29 +293,13 @@ jobs:
 
           SCOPE="${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}/.default"
 
+          ACCESS_TOKEN=$(az account get-access-token --resource "$SCOPE" --client-id $reactAppAzureAppId" --client-secret "$reactAppAzureSecret" --tenant ${{ secrets.AZURE_TENANT_ID_PKSDEMO }} --query accessToken -o tsv)
           ACCESS_TOKEN=$(az account get-access-token --resource "$SCOPE" --query accessToken -o tsv)
           echo "ACCESS_TOKEN=$ACCESS_TOKEN" >> $GITHUB_ENV
 
           echo "Access Token:$ACCESS_TOKEN"
 
 
-          curl --location --request PUT 'https://pksmicrosoftcorp.sharepoint.com//_api/v2.1/storageContainerTypes/9f9083ab-0010-0091-2bb3-f4fcf99da0a8/applicationPermissions' \
-              --header 'Content-Type: application/json' \
-              --header "Authorization: Bearer $ACCESS_TOKEN" \
-              --data '{
-                  "value": [
-                      {
-                          "appId": "$appId",
-                          "delegated": ["full"],
-                          "appOnly": ["full"]
-                      },
-                      {
-                          "appId": "de8bc8b5-d9f9-48b1-a8ad-b748da725064",
-                          "delegated": ["full"],
-                          "appOnly": ["none"]
-                      }
-                  ]
-              }'
 
         env:
           SHAREPOINT_ADMIN_SITE_URL_PKSDEMO: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}

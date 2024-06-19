@@ -33,10 +33,11 @@ jobs:
 
       - name: Build frontend
         run: |
-          echo "REACT_APP_SAMPLE_API_URL=https://${{ env.REACT_APP_SAMPLE_API_URL }}/api"
+          echo "API_URL=${{ env.API_URL }}"
           echo "######################################################################"
         env:
-          REACT_APP_SAMPLE_API_URL: 'https://${{ env.MY_VARIABLE }}/api'
+          API_URL: '${{ env.MY_VARIABLE }}'
+
       - name: Install jq
         run: sudo apt-get install jq
 

@@ -313,7 +313,7 @@ jobs:
           Write-Host "ClientID: $reactAppAzureAppId"
           Write-Host "Client S e c r e t: $reactAppAzureSecret"
           Write-Host "Client S e c r e t: $Client_S_r_t"
-          Write-Host "ConsumingTenantId: ${{ secrets.AZURE_TENANT_ID_PKSDEMO }}
+          Write-Host "ConsumingTenantId: ${{ secrets.AZURE_TENANT_ID_PKSDEMO }}"
           Write-Host "RootSiteUrl: $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
           Write-Host "ContainerTypeId: $ContainerTypeId"
           Write-Host "TenantName: $TenantName"

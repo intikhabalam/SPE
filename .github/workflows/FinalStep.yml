@@ -1,4 +1,4 @@
-name: Deploy SharePoint Container
+name: FinalStep
 
 on:
   workflow_dispatch:

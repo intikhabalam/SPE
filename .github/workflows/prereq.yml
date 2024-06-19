@@ -33,7 +33,7 @@ jobs:
 
       - name: Build frontend
         run: |
-          echo "REACT_APP_SAMPLE_API_URL=https://${{ env.MY_VARIABLE }}/api"
+          echo "REACT_APP_SAMPLE_API_URL=https://${{ env.REACT_APP_SAMPLE_API_URL }}/api"
           echo "######################################################################"
         env:
           REACT_APP_SAMPLE_API_URL: 'https://${{ env.MY_VARIABLE }}/api'

@@ -135,6 +135,7 @@ jobs:
       shell: pwsh
 
     - name: Create Service Principal and Get Credentials
+      shell: pwsh
       run: |
         # Connect to Azure using device login
         az login --use-device-code

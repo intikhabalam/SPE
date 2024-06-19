@@ -5,6 +5,7 @@ import * as Constants from "../common/Constants";
 //import { ContainersApiProvider } from "../providers/ContainersApiProvider";
 import { Link } from "react-router-dom";
 import { CreateContainerButton } from "../components/CreateContainerButton";
+import { ContainersApiProvider } from "../providers/ContainersApiProvider";
 
 const useIsSignedIn = () => {
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
@@ -34,13 +35,13 @@ export const Home: React.FunctionComponent = () => {
     adminConsentLink = `https://login.microsoftonline.com/${tenantId}/adminconsent?client_id=${Constants.REACT_APP_AZURE_SERVER_APP_ID}&redirect_uri=${window.location.origin}`;
   }
 
-  // const onRegisterContainerType = async () => {
-  //   setRegistering(true);
-  //   const containersApi = ContainersApiProvider.instance;
-  //   const result = await containersApi.registerContainerType();
-  //   setRegistering(false);
-  //   setRegisterResult(JSON.stringify(result));
-  // };
+  const onRegisterContainerType = async () => {
+    setRegistering(true);
+    const containersApi = ContainersApiProvider.instance;
+    const result = await containersApi.registerContainerType();
+    setRegistering(false);
+    setRegisterResult(JSON.stringify(result));
+  };
 
   return (
     <div>
@@ -61,11 +62,23 @@ export const Home: React.FunctionComponent = () => {
         )}
         {isSignedIn && (
           <li>
-            <CreateContainerButton />
+            <Button
+              appearance="primary"
+              disabled={registering}
+              onClick={() => onRegisterContainerType()}
+              style={{
+                backgroundColor: "#393EB3",
+                color: "white",
+                padding: "5px",
+                borderRadius: "5px",
+              }}
+            >
+              Register
+            </Button>
             <span>
               {" "}
-              this app's Container on your tenant. You may need to ensure to
-              enable SPE in the SharePoint Admin center. Sometimes this
+              this app's Container Type on your tenant. You may need to ensure
+              to enable SPE in the SharePoint Admin center. Sometimes this
               registration will fail on the first try. If that happens, sign out
               of this app, sign in again, redo admin consent, and retry this
               registration.{" "}
@@ -76,6 +89,13 @@ export const Home: React.FunctionComponent = () => {
                 <code>{registerResult}</code>
               </p>
             )}
+          </li>
+        )}
+
+        {isSignedIn && (
+          <li>
+            <CreateContainerButton />
+            <span> this app's Container on your tenant.</span>
           </li>
         )}
         {isSignedIn && (

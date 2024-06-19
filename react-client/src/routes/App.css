@@ -3,11 +3,9 @@
 *::after {
   box-sizing: border-box;
 }
-
 body {
   margin: 0;
 }
-
 .App {
   height: 100vh;
   width: 100vw;
@@ -15,29 +13,141 @@ body {
   display: flex;
   flex-direction: column;
 }
-
-.spe-app-banner {
-  background-color: #e92424;
-  color: white;
-  padding: 0 20px; /* Adjust padding to remove top/bottom padding */
+.spe-app-main {
   display: flex;
-  align-items: center;
-  justify-content: space-between; /* Ensure space between content and close button */
-  height: 47px;
-  width: 100%;
-  box-sizing: border-box; /* Ensure padding is included in height */
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background-color: #eaeef1;
+  position: relative;
 }
 
-.spe-app-banner-content {
+.spe-app-main-header {
+  background-color: #242424;
+  color: white;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 47px;
+  width: 100%;
+  box-sizing: border-box;
+  z-index: 1000;
+}
+
+.spe-app-main-header-title {
+  color: #fff;
+  font-family: "Segoe UI";
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 47px; /* 130% */
+}
+
+.spe-app-main-header-actions {
+  color: #fff;
+  font-family: "Segoe UI";
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 20px;
+  display: flex; /* Ensure items are displayed in a row */
+  gap: 10px; /* Adds space between the items */
+}
+
+.spe-app-main-description {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* Center vertically */
+  color: #000;
+  text-align: center;
+  font-family: "Segoe UI";
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 26px; /* 130% */
+  margin: 120px 0 -120px 0; /* Adjust margin as needed */
+}
+
+.spe-app-main-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  flex: 1;
+}
+
+.show-side-panel .spe-app-main-content {
+  align-items: flex-start;
+  padding-left: 40px;
+}
+
+.show-side-panel .spe-app-main-description {
+  align-items: flex-start;
+  padding-left: 40px;
+}
+
+.custom-side-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 600px; /* Adjust width as needed */
+  background-color: #f4f4f4; /* Example background color */
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1); /* Example shadow */
+  z-index: 5; /* Ensure it overlays content except header */
+  transform: translateX(100%); /* Initially off-screen */
+  transition: transform 0.3s ease-in-out; /* Smooth transition */
+  display: flex; /* Use flexbox for centering */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+}
+
+.side-panel-text {
+  font-size: 22px; /* Correct property name for font size */
+  font-weight: 600;
+  color: #000;
+  text-align: center; /* Center text horizontally */
+}
+
+.show-side-panel .custom-side-panel {
+  transform: translateX(0); /* Show panel by translating into view */
+}
+
+.spe-app-content-container {
+  width: 1323px;
+  height: 701px; /* Assuming you want to adjust this height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f4f7fa;
+  border-radius: 25px;
+  box-shadow: 0px 5px 25px 0px rgba(0, 0, 0, 0.1);
+}
+
+/* .spe-app-banner {
+  background-color: #e92424;
+  color: white;
+  padding: 0 20px; 
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+  height: 47px;
+  width: 100%;
+  box-sizing: border-box; 
+} */
+
+/* .spe-app-banner-content {
   display: flex;
   align-items: center;
   flex: 1;
-  justify-content: center; /* Center content horizontally */
-}
+  justify-content: center; 
+} */
 
-.spe-app-banner-icon {
-  margin-right: 10px; /* Space between icon and text */
-}
+/* .spe-app-banner-icon {
+  margin-right: 10px; 
+} */
 
 .spe-app-header-main-container {
   display: flex;
@@ -48,9 +158,20 @@ body {
 .spe-app-content-navigation {
   width: 225px;
   padding: 20px;
-  height: 100vh; /* Adjust height */
+  height: 100%; /* Adjust height */
   background-color: #393eb3;
   transition: height 0.3s;
+}
+
+.spe-app-header-title {
+  margin-left: 20px;
+  margin-top: 30px;
+}
+
+.spe-app-header-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Ensure it takes full height of its parent */
 }
 
 .spe-app-header {
@@ -61,6 +182,7 @@ body {
   background: white;
   padding: 50px 5px;
   box-shadow: 0px 5px 25px 0px rgba(0, 0, 0, 0.1);
+  width: 100%;
 }
 
 .spe-app-header-search {
@@ -93,28 +215,14 @@ body {
   --login-person-avatar-size: 50px;
 }
 
-.spe-app-header-title {
-  margin-left: 20px;
-  margin-top: 30px;
-}
-
-.spe-app-header-subtitle {
-  margin-top: 10px;
-  font-size: 16px;
-  color: #fff;
-}
-
-.spe-app-header-subtitle-button {
-  margin-top: 30px;
-}
-
 .spe-app-content {
   flex: 1;
   display: flex;
   flex-direction: row;
   height: 100%;
-  width: 100vw;
+  width: 100%;
   overflow: hidden;
+  border-radius: 25px;
 }
 
 .spe-app-content-main {
@@ -190,6 +298,16 @@ body {
   border-radius: 20px 20px 0 0;
   margin-right: 25px;
 }
+
+/* Login Page
+.spe-app-header-subtitle {
+  margin-top: 10px;
+  font-size: 16px;
+  color: #fff;
+}
+.spe-app-header-subtitle-button {
+  margin-top: 30px;
+} */
 
 .setup-steps li {
   margin: 20px;

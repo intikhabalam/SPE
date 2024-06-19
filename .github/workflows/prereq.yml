@@ -297,9 +297,10 @@ jobs:
           
           echo "ACCESS_TOKEN=$ACCESS_TOKEN" >> $GITHUB_ENV
 
-          echo "Access Token $ACCESS_TOKEN"
-
-
+          Write-Host "###############################################"
+          Write-Host "Access Token $ACCESS_TOKEN"
+          Write-Host "###############################################"
+          
 
         env:
           SHAREPOINT_ADMIN_SITE_URL_PKSDEMO: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}

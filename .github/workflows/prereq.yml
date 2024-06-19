@@ -166,6 +166,10 @@ jobs:
         id: create_azure_static_webapp
         run: |
           az deployment group create --resource-group ${{ env.RESOURCE_GROUP_NAME }} --template-file .github/workflows/staticwebapp.bicep --parameters .github/workflows/parameters.json --parameters resourceGroupName=${{ env.RESOURCE_GROUP_NAME }} --parameters staticWebAppName=${{ env.STATIC_WEB_APP_NAME }}
+          STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "properties.apiKey" -o tsv)
+          echo "STATIC_WEBAPP_TOKEN=$STATIC_WEBAPP_TOKEN" >> $GITHUB_ENV
+          STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
+          echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
 
       - name: Create Service Principal and Get Credentials
         shell: pwsh
@@ -279,8 +283,35 @@ jobs:
           # Update the Azure Static Webapp Settings
           az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names "SPE_CONTAINER_TYPE_ID=$ContainerTypeId" "AZURE_CLIENT_SECRET=$reactAppAzureSecret" "AZURE_CLIENT_ID=$reactAppAzureAppId"
 
+          SCOPE="${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}.default"
+
+          ACCESS_TOKEN=$(az account get-access-token --resource "$SCOPE" --query accessToken -o tsv)
+          echo "ACCESS_TOKEN=$ACCESS_TOKEN" >> $GITHUB_ENV
+
+          echo "Access Token:$ACCESS_TOKEN"
+
+
+          curl --location --request PUT 'https://pksmicrosoftcorp.sharepoint.com//_api/v2.1/storageContainerTypes/9f9083ab-0010-0091-2bb3-f4fcf99da0a8/applicationPermissions' \
+              --header 'Content-Type: application/json' \
+              --header "Authorization: Bearer $ACCESS_TOKEN" \
+              --data '{
+                  "value": [
+                      {
+                          "appId": "$appId",
+                          "delegated": ["full"],
+                          "appOnly": ["full"]
+                      },
+                      {
+                          "appId": "de8bc8b5-d9f9-48b1-a8ad-b748da725064",
+                          "delegated": ["full"],
+                          "appOnly": ["none"]
+                      }
+                  ]
+              }'
+
         env:
           SHAREPOINT_ADMIN_SITE_URL_PKSDEMO: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
+
 
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -318,14 +349,6 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID_PKSDEMO }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }}
           allow-no-subscriptions: true
-
-      - name: Get Azure Static Webapp Site URL & Api Token
-        id: extract_and_get_sp_root_site_url
-        run: |
-          STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "properties.apiKey" -o tsv)
-          echo "STATIC_WEBAPP_TOKEN=$STATIC_WEBAPP_TOKEN" >> $GITHUB_ENV
-          STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
-          echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
 
       - name: Build frontend
         run: |

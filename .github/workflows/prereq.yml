@@ -283,13 +283,22 @@ jobs:
         env:
           SHAREPOINT_ADMIN_SITE_URL_PKSDEMO: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
 
+      - name: Read from output.txt and Set Outputs
+        id: readFromFile
+        run: |
+          # Read values from output.txt into environment variables
+          CONTAINER_TYPE_ID=$(awk -F= '/CONTAINER_TYPE_ID/{print $2}' output.txt)
+          REACT_APP_AZURE_SECRET=$(awk -F= '/REACT_APP_AZURE_SECRET/{print $2}' output.txt)
+          REACT_APP_AZURE_APP_ID=$(awk -F= '/REACT_APP_AZURE_APP_ID/{print $2}' output.txt)
+
+          # Set outputs for subsequent steps
+          echo "::set-output name=CONTAINER_TYPE_ID::$CONTAINER_TYPE_ID"
+          echo "::set-output name=REACT_APP_AZURE_SECRET::$REACT_APP_AZURE_SECRET"
+          echo "::set-output name=REACT_APP_AZURE_APP_ID::$REACT_APP_AZURE_APP_ID"
+
       - name: Update the Azure Static Webapp Settings
         run: |
           az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names \
-                                      "SPE_CONTAINER_TYPE_ID=${{ steps.create_sp.outputs.CONTAINER_TYPE_ID }}" \
-                                      "AZURE_CLIENT_SECRET=${{ steps.create_sp.outputs.react_app_azure_secret }}" \
-                                      "AZURE_CLIENT_ID=${{ steps.create_sp.outputs.react_app_azure_app_id }}" 
-        env:
-          CONTAINER_TYPE_ID: ${{ steps.create_sp.outputs.CONTAINER_TYPE_ID }}
-          REACT_APP_AZURE_APP_ID: ${{ steps.create_sp.outputs.react_app_azure_app_id }}
-          REACT_APP_AZURE_SECRET: ${{ steps.create_sp.outputs.react_app_azure_secret }}
+                                      "SPE_CONTAINER_TYPE_ID=${{ steps.readFromFile.outputs.CONTAINER_TYPE_ID }}" \
+                                      "AZURE_CLIENT_SECRET=${{ steps.readFromFile.outputs.REACT_APP_AZURE_SECRET }}" \
+                                      "AZURE_CLIENT_ID=${{ steps.readFromFile.outputs.REACT_APP_AZURE_APP_ID }}"

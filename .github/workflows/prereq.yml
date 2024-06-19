@@ -151,8 +151,8 @@ jobs:
           $certContent = Get-Content $certPath -Raw
           $certContent = $certContent -replace '(?s)^.*?(-----BEGIN PRIVATE KEY-----.*?-----END PRIVATE KEY-----).*$', '$1'
 
-          echo "Certificate Path: $certPath"
-          echo "Private Key Content: $certContent"
+          Write-Host "Certificate Path: $certPath"
+          Write-Host "Private Key Content: $certContent"
 
           # Store the private key content in an environment variable
           echo "PRIVATE_KEY=$certContent" >> $GITHUB_ENV
@@ -187,7 +187,7 @@ jobs:
           # Path to the manifest file
           $manifestPath = "$(pwd)/manifest.json"
 
-          echo "app id environment variable: $reactAppAzureAppId"
+          Write-Host "app id environment variable: $reactAppAzureAppId"
 
           az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
           az ad app permission admin-consent --id $reactAppAzureAppId
@@ -211,17 +211,11 @@ jobs:
             az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location "${{ env.LOCATION }}"
 
             # Deploy Azure Static Webapp if it doesn't exist
-              az deployment group create `
-                --resource-group ${{ env.RESOURCE_GROUP_NAME }} `
-                --template-file .github/workflows/staticwebapp.bicep `
-                --parameters .github/workflows/parameters.json
-              Write-Host "Static Web App created."
+            az deployment group create --resource-group ${{ env.RESOURCE_GROUP_NAME }} --template-file .github/workflows/staticwebapp.bicep --parameters .github/workflows/parameters.json
+            Write-Host "Static Web App created."
 
             # Update the Azure Static Webapp Settings
-            az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names `
-              "SPE_CONTAINER_TYPE_ID=$ContainerTypeId" `
-              "AZURE_CLIENT_SECRET=$reactAppAzureSecret" `
-              "AZURE_CLIENT_ID=$reactAppAzureAppId"
+            az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names "SPE_CONTAINER_TYPE_ID=$ContainerTypeId" "AZURE_CLIENT_SECRET=$reactAppAzureSecret" "AZURE_CLIENT_ID=$reactAppAzureAppId"
           }
 
           # Connect to SharePoint Online
@@ -261,5 +255,4 @@ jobs:
           Write-Host "Classification: $Classification"
           Write-Host "AzureSubscriptionId: $AzureSubscriptionId"
           Write-Host "ResourceGroup: $ResourceGroup"
-
 

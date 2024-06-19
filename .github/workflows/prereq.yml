@@ -37,26 +37,20 @@ jobs:
       - name: Extract variables from Parameters JSON file
         id: extract_parameters2
         run: |
-          OWNING_APP_REGISTRATION_NAME=$(jq -r '.parameters.owningAppRegName.value' .github/workflows/parameters.json)
-          SHAREPOINT_ADMIN_SITE_URL=$(jq -r '.parameters.sharepointAdminSiteUrl.value' .github/workflows/parameters.json)
-          CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
-          RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
-          STATIC_WEB_APP_NAME=$(jq -r '.parameters.staticWebAppName.value' .github/workflows/parameters.json)
+          RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourcePrefix.value' .github/workflows/parameters.json)
           LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
 
-
-          echo "OWNING_APP_REGISTRATION_NAME=$OWNING_APP_REGISTRATION_NAME" >> $GITHUB_ENV
-          echo "SHAREPOINT_ADMIN_SITE_URL=$SHAREPOINT_ADMIN_SITE_URL" >> $GITHUB_ENV
-          echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
-          echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
-          echo "STATIC_WEB_APP_NAME=$STATIC_WEB_APP_NAME" >> $GITHUB_ENV
+          echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME-ResGrp" >> $GITHUB_ENV
+          echo "STATIC_WEB_APP_NAME=$RESOURCE_GROUP_NAME-StaticWebApp" >> $GITHUB_ENV
+          echo "SPE_APP_NAME=$RESOURCE_GROUP_NAME-Spe_App_Reg" >> $GITHUB_ENV         
           echo "LOCATION=$LOCATION" >> $GITHUB_ENV
+          echo "CONTAINER_TYPE_NAME=$RESOURCE_GROUP_NAME-ContainerType" >> $GITHUB_ENV
+          
 
-          echo $OWNING_APP_REGISTRATION_NAME
-          echo $SHAREPOINT_ADMIN_SITE_URL
-          echo $CONTAINER_TYPE_NAME
           echo $RESOURCE_GROUP_NAME
           echo $STATIC_WEB_APP_NAME
+          echo $SPE_APP_NAME
+          echo $CONTAINER_TYPE_NAME
           echo $LOCATION
           echo "##########################################################################"
 
@@ -134,16 +128,6 @@ jobs:
           Get-Module -Name PnP.PowerShell -ListAvailable
         shell: pwsh
 
-      - name: Extracting variables from Parameters JSON file
-        id: extract_rg_location
-        run: |
-          RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
-          STATIC_WEB_APP_NAME=$(jq -r '.parameters.staticWebAppName.value' .github/workflows/parameters.json)
-          LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
-          echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
-          echo "STATIC_WEB_APP_NAME=$STATIC_WEB_APP_NAME" >> $GITHUB_ENV
-          echo "LOCATION=$LOCATION" >> $GITHUB_ENV
-
       - name: Azure Login
         uses: azure/login@v1
         with:
@@ -185,7 +169,7 @@ jobs:
           az login --use-device-code
 
           # Create a certificate for the Service Principal
-          $certOutput = az ad sp create-for-rbac -n ${{ env.OWNING_APP_REGISTRATION_NAME }} --create-cert
+          $certOutput = az ad sp create-for-rbac -n ${{ env.SPE_APP_NAME }} --create-cert
 
           # Extract the certificate file path
           $certObject = $certOutput | ConvertFrom-Json
@@ -195,14 +179,12 @@ jobs:
           $certContent = Get-Content $certPath -Raw
           $certContent = $certContent -replace '(?s)^.*?(-----BEGIN PRIVATE KEY-----.*?-----END PRIVATE KEY-----).*$', '$1'
 
-          Write-Host "Certificate Path: $certPath"
-          Write-Host "Private Key Content: $certContent"
 
           # Store the private key content in an environment variable
           echo "PRIVATE_KEY=$certContent" >> $GITHUB_ENV
 
           # Create Service Principal
-          $spId = az ad sp create-for-rbac --role contributor --scopes /subscriptions/66d212d1-7764-4f08-9839-1a52bd537059 -n ${{ env.OWNING_APP_REGISTRATION_NAME }}
+          $spId = az ad sp create-for-rbac --role contributor --scopes /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }} -n ${{ env.SPE_APP_NAME }}
 
           # Convert the JSON output to a PowerShell object
           $spObject = $spId | ConvertFrom-Json
@@ -211,7 +193,6 @@ jobs:
           $reactAppAzureAppId = $spObject.appId
           $displayName = $spObject.displayName
           $reactAppAzureSecret = $spObject.password
-          $tenant = $spObject.tenant
 
           # Update the application with redirect URIs
           az ad app update --id $reactAppAzureAppId --web-redirect-uris  "https://localhost/signout-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signin-oidc" "https://oauth.pstmn.io/v1/callback" "https://oauth.pstmn.io/v1/browser-callback" "http://localhost/redirect"
@@ -219,14 +200,10 @@ jobs:
           # Print the values
           Write-Host "App ID: $reactAppAzureAppId"
           Write-Host "Display Name: $displayName"
-          Write-Host "REACT_APP_AZURE_SECRET: $reactAppAzureSecret"
-          Write-Host "Tenant: $tenant"
 
           # Store values in environment variables
           echo "REACT_APP_AZURE_APP_ID=$reactAppAzureAppId" >> $GITHUB_ENV
           echo "DISPLAY_NAME=$displayName" >> $GITHUB_ENV
-          echo "REACT_APP_AZURE_SECRET=$reactAppAzureSecret" >> $GITHUB_ENV
-          echo "TENANT=$tenant" >> $GITHUB_ENV
 
           # Path to the manifest file
           $manifestPath = "$(pwd)/manifest.json"
@@ -252,7 +229,7 @@ jobs:
           az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names "SPE_CONTAINER_TYPE_ID=$ContainerTypeId" "AZURE_CLIENT_SECRET=$reactAppAzureSecret" "AZURE_CLIENT_ID=$reactAppAzureAppId"
 
           # Connect to SharePoint Online
-          Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
+          Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO  -DeviceLogin
 
           # Your PnP PowerShell commands
           Write-Host "Hello World"
@@ -263,7 +240,7 @@ jobs:
 
           # Check if container type already exists
           if (-not $containerType) {
-            New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $reactAppAzureAppId
+            New-PnPContainerType -TrialContainerType -ContainerTypeName ${{ env.CONTAINER_TYPE_NAME }} -OwningApplicationId $reactAppAzureAppId
           } else {
             Write-Host "Container type already exists."
           }
@@ -276,16 +253,18 @@ jobs:
           echo "CONTAINER_TYPE_ID=$ContainerTypeId" >> $GITHUB_ENV
 
           $ContainerTypeName = $containerType.ContainerTypeName
-          $OwningApplicationId = $containerType.OwningApplicationId
+          $OwningApplicationId = $reactAppAzureAppId
           $Classification = $containerType.Classification
-          $AzureSubscriptionId = $containerType.AzureSubscriptionId
-          $ResourceGroup = $containerType.ResourceGroup
 
           # Output each value
           Write-Host "ContainerTypeId: $ContainerTypeId"
           Write-Host "ContainerTypeName: $ContainerTypeName"
           Write-Host "OwningApplicationId: $OwningApplicationId"
           Write-Host "Classification: $Classification"
-          Write-Host "AzureSubscriptionId: $AzureSubscriptionId"
-          Write-Host "ResourceGroup: $ResourceGroup"
+          Write-Host "ClientID: $reactAppAzureAppId"
+          Write-Host "ClientSecret: $reactAppAzureSecret"
+          Write-Host "ConsumingTenantId: $OwningApplicationId"
+          Write-Host "RootSiteUrl: $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
 
+          Write-Host "Certificate Path: $certPath"
+          Write-Host "Private Key Content: $certContent"

@@ -11,41 +11,66 @@ body {
 .App {
   height: 100vh;
   width: 100vw;
-  background: #333;
+  background-color: #f4f7fa;
   display: flex;
   flex-direction: column;
+}
 
+.spe-app-banner {
+  background-color: #e92424;
+  color: white;
+  padding: 0 20px; /* Adjust padding to remove top/bottom padding */
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Ensure space between content and close button */
+  height: 47px;
+  width: 100%;
+  box-sizing: border-box; /* Ensure padding is included in height */
+}
+
+.spe-app-banner-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: center; /* Center content horizontally */
+}
+
+.spe-app-banner-icon {
+  margin-right: 10px; /* Space between icon and text */
+}
+
+.spe-app-header-main-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.spe-app-content-navigation {
+  width: 225px;
+  padding: 20px;
+  height: 100vh; /* Adjust height */
+  background-color: #393eb3;
+  transition: height 0.3s;
 }
 
 .spe-app-header {
-  flex: 0;
-  min-height: 70px;
-  height: 70px;
-  max-height: 70px;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-
   display: flex;
   flex-direction: row;
-
   background: white;
-
-}
-
-.spe-app-header-title {
-  flex: 1;
-  min-width: 300px;
-  padding-left: 50px;
+  padding: 50px 5px;
+  box-shadow: 0px 5px 25px 0px rgba(0, 0, 0, 0.1);
 }
 
 .spe-app-header-search {
-  flex: 2;
-  max-width: 400px;
-
-  position: relative;
+  margin-left: 20px;
+  width: 344px;
+  max-width: 344px;
+  height: 38px;
 }
 
-.spe-app-search-results {
+/* .spe-app-search-results {
   position: absolute;
   background-color: white;
   opacity: 1;
@@ -58,17 +83,29 @@ body {
   width: 500px;
   max-height: 400px;
   overflow: auto;
-}
+} */
 
-.spe-app-search-results-background {
+/* .spe-app-search-results-background {
   background-color: white;
+} */
+
+.login {
+  --login-person-avatar-size: 50px;
 }
 
-.spe-app-header-actions {
-  flex: 1;
-  display: flex;
-  flex-direction: row-reverse;
-  padding-right: 25px;
+.spe-app-header-title {
+  margin-left: 20px;
+  margin-top: 30px;
+}
+
+.spe-app-header-subtitle {
+  margin-top: 10px;
+  font-size: 16px;
+  color: #fff;
+}
+
+.spe-app-header-subtitle-button {
+  margin-top: 30px;
 }
 
 .spe-app-content {
@@ -78,71 +115,85 @@ body {
   height: 100%;
   width: 100vw;
   overflow: hidden;
-
-  background-color: #4854EE;
 }
-
-.spe-app-content-navigation {
-  flex: 1;
-  padding: 25px;
-  padding-right: 50px;
-  min-width: 300px;
-  width: 225px;
-
-
-}
-
-.navigation-tabs {
-  background-color: #4854EE;
-}
-.navigation-divider {
-  padding: 10px;
-  padding-top: 25px;
-  padding-bottom: 25px;
-}
-.navigation-containers {
-  display: flex;
-  flex-direction: row;
-}
-
 
 .spe-app-content-main {
-  flex: 10;
+  flex: 1;
+  flex-grow: 1;
   height: 100%;
   overflow: auto;
   display: flex;
   flex-direction: column;
 }
 
-.main-content-header {
-  flex: 0;
-  padding: 20px;
-  padding-left: 50px;
-  /*
-  min-height: 90px;
-  max-height: 90px;
-  height: 90px;
-  */
-  min-height: 30px;
-  max-height: 30px;
-  height: 30px;
+.spe-app-side-panel {
+  flex: 0 0 300px;
+  background-color: #fff;
+  border-left: 1px solid #ccc;
+  display: none;
+  transition: display 0.3s;
+}
 
-  background-color: #4854EE;
+.spe-app-side-panel-icon {
+  background-color: #e92424;
+  color: white;
+  border-radius: 50px;
+  width: 28px;
+  height: 28px;
+  padding: 4px;
+  margin-right: 5px;
+}
+
+.spe-app-side-panel-content {
+  padding: 10px;
+}
+.spe-app-side-panel-divider {
+  margin: 25px 0;
+  height: 1px;
+  width: 100%;
+  border: 1px solid #d1d1d1;
+}
+
+.spe-app-banner-icon {
+  background-color: white;
+  color: #e92424;
+  border-radius: 50px;
+  width: 28px;
+  height: 28px;
+  padding: 4px;
+  margin-right: 10px;
+}
+
+.spe-app-side-panel.closed {
+  display: block;
+  height: 100vh;
+  margin: 0;
+  width: 50px;
+  padding: 10px 20px;
+  border: 1px solid #d1d1d1;
+}
+.spe-app-side-panel.open {
+  display: block;
+  height: 100vh;
+  margin: 0;
+  min-width: 300px;
+  width: 580px;
+  max-width: 580px;
+  padding: 10px 20px;
+  border: 1px solid #d1d1d1;
 }
 
 .main-content-body {
   flex: 1;
+  flex-grow: 1;
   padding: 25px;
   border-radius: 20px 20px 0 0;
   margin-right: 25px;
-
-  background-color: white;
 }
 
 .setup-steps li {
   margin: 20px;
   font-size: 16px;
-
 }
 
 .edit-job {
@@ -169,9 +220,8 @@ body {
 }
 
 .posting-content iframe {
-  border: 1px solid #CCC;
+  border: 1px solid #ccc;
 }
-
 
 .spe-app-content-sidebar {
   flex: 1;
@@ -179,7 +229,6 @@ body {
   width: 350px;
   overflow: auto;
   position: relative;
-
 }
 
 .sidebar-resizer {
@@ -190,7 +239,7 @@ body {
   cursor: col-resize;
   background-color: black;
   opacity: 0;
- 
+
   z-index: 2;
   position: absolute;
   top: 0;
@@ -208,12 +257,10 @@ body {
   width: 100%;
   overflow: auto;
 
-
   position: absolute;
   top: 0;
   left: 0;
 }
-
 
 .container-browser {
   display: flex;
@@ -261,7 +308,7 @@ body {
   min-width: 90%;
   max-width: 90%;
   width: 90%;
-  
+
   flex: 1;
 }
 
@@ -280,7 +327,7 @@ body {
 .create-job-content label {
   margin-top: 20px;
   font-size: 18px;
-  font-weight: 500;;
+  font-weight: 500;
 }
 
 .view-job-breadcrumb {
@@ -322,3 +369,11 @@ body {
   display: block;
 }
 
+.Login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #393eb3;
+}

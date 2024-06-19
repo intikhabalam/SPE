@@ -51,25 +51,25 @@ jobs:
       #     Get-Module -Name Az -ListAvailable
       #   shell: pwsh
 
-      # - name: Extract variables from Parameters JSON file
-      #   id: extract_parameters2
-      #   run: |
-      #     RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourcePrefix.value' .github/workflows/parameters.json)
-      #     LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
+      - name: Extract variables from Parameters JSON file
+        id: extract_parameters2
+        run: |
+          RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourcePrefix.value' .github/workflows/parameters.json)
+          LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
 
-      #     echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME-ResGrp" >> $GITHUB_ENV
-      #     echo "STATIC_WEB_APP_NAME=$RESOURCE_GROUP_NAME-StaticWebApp" >> $GITHUB_ENV
-      #     echo "SPE_APP_NAME=$RESOURCE_GROUP_NAME-Spe_App_Reg" >> $GITHUB_ENV         
-      #     echo "LOCATION=$LOCATION" >> $GITHUB_ENV
-      #     echo "CONTAINER_TYPE_NAME=$RESOURCE_GROUP_NAME-ContainerType" >> $GITHUB_ENV
+          echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME-ResGrp" >> $GITHUB_ENV
+          echo "STATIC_WEB_APP_NAME=$RESOURCE_GROUP_NAME-StaticWebApp" >> $GITHUB_ENV
+          echo "SPE_APP_NAME=$RESOURCE_GROUP_NAME-Spe_App_Reg" >> $GITHUB_ENV         
+          echo "LOCATION=$LOCATION" >> $GITHUB_ENV
+          echo "CONTAINER_TYPE_NAME=$RESOURCE_GROUP_NAME-ContainerType" >> $GITHUB_ENV
           
 
-      #     echo $RESOURCE_GROUP_NAME
-      #     echo $STATIC_WEB_APP_NAME
-      #     echo $SPE_APP_NAME
-      #     echo $CONTAINER_TYPE_NAME
-      #     echo $LOCATION
-      #     echo "##########################################################################"
+          echo $RESOURCE_GROUP_NAME
+          echo $STATIC_WEB_APP_NAME
+          echo $SPE_APP_NAME
+          echo $CONTAINER_TYPE_NAME
+          echo $LOCATION
+          echo "##########################################################################"
 
       # - name: Create API permissions manifest file
       #   run: |

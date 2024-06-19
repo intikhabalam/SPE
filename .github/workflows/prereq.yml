@@ -135,11 +135,9 @@ jobs:
       shell: pwsh
 
     - name: Create Service Principal and Get Credentials
-      shell: pwsh
       run: |
         # Connect to Azure using device login
         az login --use-device-code
-        
 
         # Create a certificate for the Service Principal
         $certOutput = az ad sp create-for-rbac -n ${{ env.OWNING_APP_REGISTRATION_NAME }} --create-cert
@@ -158,8 +156,6 @@ jobs:
         # Store the private key content in an environment variable
         echo "PRIVATE_KEY=$certContent" >> $GITHUB_ENV
 
-
-
         # Create Service Principal
         $spId = az ad sp create-for-rbac --role contributor --scopes /subscriptions/66d212d1-7764-4f08-9839-1a52bd537059 -n ${{ env.OWNING_APP_REGISTRATION_NAME }}
 
@@ -167,44 +163,43 @@ jobs:
         $spObject = $spId | ConvertFrom-Json
 
         # Extract the required values
-        $reach_app_azure_app_id = $spObject.appId
+        $reactAppAzureAppId = $spObject.appId
         $displayName = $spObject.displayName
-        $react_app_azure_secret = $spObject.password
+        $reactAppAzureSecret = $spObject.password
         $tenant = $spObject.tenant
 
-        # az ad app update --id $reach_app_azure_app_id --set replyUrlsWithType=@replyUrlsWithType.json
-        az ad app update --id $reach_app_azure_app_id --web-redirect-uris  "https://localhost/signout-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signin-oidc" "https://oauth.pstmn.io/v1/callback" "https://oauth.pstmn.io/v1/browser-callback" "http://localhost/redirect"
+        # Update the application with redirect URIs
+        az ad app update --id $reactAppAzureAppId --web-redirect-uris  "https://localhost/signout-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signin-oidc" "https://oauth.pstmn.io/v1/callback" "https://oauth.pstmn.io/v1/browser-callback" "http://localhost/redirect"
 
         # Print the values
-        Write-Host "App ID: $reach_app_azure_app_id"
+        Write-Host "App ID: $reactAppAzureAppId"
         Write-Host "Display Name: $displayName"
-        Write-Host "REACT_APP_AZURE_SECRET: $REACT_APP_AZURE_SECRET"
+        Write-Host "REACT_APP_AZURE_SECRET: $reactAppAzureSecret"
         Write-Host "Tenant: $tenant"
 
         # Store values in environment variables
-        echo "REACT_APP_AZURE_APP_ID=$reach_app_azure_app_id" >> $GITHUB_ENV
+        echo "REACT_APP_AZURE_APP_ID=$reactAppAzureAppId" >> $GITHUB_ENV
         echo "DISPLAY_NAME=$displayName" >> $GITHUB_ENV
-        echo "REACT_APP_AZURE_SECRET=$react_app_azure_secret" >> $GITHUB_ENV
+        echo "REACT_APP_AZURE_SECRET=$reactAppAzureSecret" >> $GITHUB_ENV
         echo "TENANT=$tenant" >> $GITHUB_ENV
 
         # Path to the manifest file
         $manifestPath = "$(pwd)/manifest.json"
         
-        echo "app id environment variable: $reach_app_azure_app_id"
+        echo "app id environment variable: $reactAppAzureAppId"
 
-        az ad app update --id $reach_app_azure_app_id --required-resource-accesses @$manifestPath
-        az ad app permission admin-consent --id $reach_app_azure_app_id
+        az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
+        az ad app permission admin-consent --id $reactAppAzureAppId
 
-        $objectId = az ad app show --id $reach_app_azure_app_id --query id -o tsv
+        $objectId = az ad app show --id $reactAppAzureAppId --query id -o tsv
         Write-Output "The Object ID is: $objectId"
 
-        # Perform Azure REST API call to retrieve key credentials - Just extra, not required as $certificateThumbPrint line is working fine.
+        # Perform Azure REST API call to retrieve key credentials
         $response = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials"
         Write-Output "The response ID is: $response"
 
         $certificateThumbPrint = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials" | Select-String -Pattern '"customKeyIdentifier": "([^"]+)"' | ForEach-Object { $_.Matches.Groups[1].Value }
 
-        
         # Print the Thumbprint to verify
         Write-Output "The certificate ThumbPrint is: $certificateThumbPrint"
 
@@ -213,14 +208,14 @@ jobs:
 
         # Your PnP PowerShell commands
         Write-Host "Hello World"
-        Write-Host "$reach_app_azure_app_id"
+        Write-Host "$reactAppAzureAppId"
 
         # Get container type information
         $containerType = Get-PnPContainerType
 
         # Check if container type already exists
         if (-not $containerType) {
-          New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $reach_app_azure_app_id
+          New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $reactAppAzureAppId
         } else {
           Write-Host "Container type already exists."
         }
@@ -246,10 +241,11 @@ jobs:
         Write-Host "AzureSubscriptionId: $AzureSubscriptionId"
         Write-Host "ResourceGroup: $ResourceGroup"
 
-        Write-Host "SPE_CONTAINER_TYPE_ID=${{ env.CONTAINER_TYPE_ID }}"
-        Write-Host "AZURE_CLIENT_SECRET=${{ env.REACT_APP_AZURE_SECRET }}" 
-        Write-Host "AZURE_CLIENT_ID=${{ env.REACT_APP_AZURE_APP_ID }}" 
-
+    - name: Print Environment Variables
+      run: |
+        echo "REACT_APP_AZURE_APP_ID: ${{ env.REACT_APP_AZURE_APP_ID }}"
+        echo "REACT_APP_AZURE_SECRET: ${{ env.REACT_APP_AZURE_SECRET }}"
+        echo "CONTAINER_TYPE_ID: ${{ env.CONTAINER_TYPE_ID }}"
 
     - name: Azure Login
       uses: azure/login@v1

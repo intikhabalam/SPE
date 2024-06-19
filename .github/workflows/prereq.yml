@@ -25,6 +25,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Set Environment Variables
+        shell: pwsh
+        run: |
+          $env:MY_VARIABLE = 'my_value'
+          echo "MY_VARIABLE is now set to: $env:MY_VARIABLE"
+
+      - name: Build frontend
+        run: |
+          echo "REACT_APP_SAMPLE_API_URL=https://${{ env.MY_VARIABLE }}/api"
+          echo "######################################################################"
+        env:
+          REACT_APP_SAMPLE_API_URL: 'https://${{ env.MY_VARIABLE }}/api'
       - name: Install jq
         run: sudo apt-get install jq
 

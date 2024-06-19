@@ -273,4 +273,4 @@ jobs:
           Write-Host "Certificate Path: $certPath"
           Write-Host "Private Key Content: $certContent"
         env:
-          REPOSITORY_VAR: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
+          SHAREPOINT_ADMIN_SITE_URL_PKSDEMO: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}

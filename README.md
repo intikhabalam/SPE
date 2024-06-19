@@ -1,4 +1,4 @@
-This article provides a comprehensive manual for deploying Microsoft Embedded systems. It guides you through the entire deployment process with a focus on minimizing the use of scripts.
+This article provides a comprehensive manual for deploying Microsoft Embedded systems. It guides you through the entire deployment process using all manual steps.
 
 
 Before you begin there are some Pre-Requsites that are required.
@@ -11,17 +11,14 @@ Before you begin there are some Pre-Requsites that are required.
 
 # Step 1: Enable SharePoint Containers on your SharePoint Online tenant
 
-**This is now enabled by default on all tenants. You cannot see this menu unless you are the global admin of a tenant see: Pre-Requsites**
+**This is now enabled by default on all tenants. You cannot see this menu unless you have the SharePoint Embedded Administrator role. Global Admin has this permission by default**
 
-To enable SharePoint Embedded navigate to the M365 admin centre https://portal.microsoft.com and sign in with the tenant admin account
+To confirm that SharePoint Embedded is enabled navigate to the SharePoint admin centre by navigating to https://portal.microsoft.com and signning in with the tenant admin account
 
-Select **Show All** at the bottom of the left-hand menu, then select **Admin Centers -> SharePoint** 
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/7899aa7d-6b36-4bde-98df-722c6bca2837)</kbd>
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/1cae2c07-f3b8-4157-a381-3c91091e32b0)</kbd>
 
-From the SharePoint Admin menu, select **Settings** from the left menu Locate and select SharePoint Embedded and review the terms of service and select Enable to enable on your tenant
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/1c60ac95-aeeb-4249-af04-bb3ee1cf175d)</kbd>
-
-If this setting is currently enabled you dont need to re-enable this.
+**Currently there is a limit on the number of containers that can be active at one time through using SharePoint Embedded which is 5. This also includes containers that are deleted if you need to create a new container you will need to delete an existing container and permanantly delete it from the deleted location**
 
 # Step 2: Create App Registration
 
@@ -53,12 +50,12 @@ On the Configure single-page application pane, set the Redirect URL to [URL of E
 
 ## Step 2.2: Configure API Permissions
 
-This step you need to configure the API permissions for the app. What you are setting here is the the Container permissions.
+This step you need to configure the API permissions for the app. What you are setting here is the the Graph API permissions that the app reigstration is allowed to use / allowed access to. This is based on the least privledges principal.
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/e3b0e62b-dd57-49e5-aa8d-3a4f7fd2ee50)</kbd>
 
-navigate to the **Manage -> Manifest**. The following will need to be added to the manifest
+Navigate to the **Manage -> Manifest**. The following will need to be added to the manifest
 
-Search the minifest for the following **resourceAppID: 00000003-0000-0000-c000-000000000000** and update it so it matches the below code which sets the **FileStorageContainer.Selected** permission 
+Search the minifest for the following **resourceAppID: 00000003-0000-0000-c000-000000000000** and update it so it matches the below code. This sets all the Microsoft Graph permissions as shown in the image above
 ```
 {
   "resourceAppId": "00000003-0000-0000-c000-000000000000",
@@ -91,7 +88,7 @@ Search the minifest for the following **resourceAppID: 00000003-0000-0000-c000-0
 }
 ```
 
-Next Search the minifest for the following **resourceAppID: 00000003-0000-0ff1-ce00-000000000000** and update it so it matches the below code which sets the **Container.Selected** permission 
+Next Search the minifest for the following **resourceAppID: 00000003-0000-0ff1-ce00-000000000000** and update it so it matches the below code. This sets the permissions for SharePoint Online
 ```
 {
   "resourceAppId": "00000003-0000-0ff1-ce00-000000000000",
@@ -113,20 +110,23 @@ Next Search the minifest for the following **resourceAppID: 00000003-0000-0ff1-c
 ],
 ```
 
-When you have Set the permissions that you want you will need to approve the permissions. You would normally set the the button "Grant admin consent for {{Tenant Name}}" but due to the permissions being set not all have a name this button is not applicable 
+When you have updated the Manifest you will need to approve and authorise the permissions. You would normally set the the button "Grant admin consent for {{Tenant Name}}" but due to their being permissions being set that do not have a qualified name at this time (See IDs in the image above) the option does not work. In order to approve the permissions you will need to go into the Enterprise application and approve it through here instead
+
+--Screenshots of Enterprise app accept permissions--
 
 ## Step 2.3: Create Client Secret 
-For the app to authenticate through Azure and M365 you will need a new client secret. you will need to note down the secret as this will only appear one time
+For the app to authenticate through Azure and M365 you will need a new client secret on the app registration. You will need to note down the secret as this will only appear one time when you create the secret. You are also unable to view a previously created secret.
 
 Select **Manage -> Certificates and Secrets**
-{Image of Secret Menu}
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/97802d92-f653-4a1d-89d2-0226d56c1cd0)</kbd>
 
-Set the Details of the certificate
-- Description
-- Secret duration
+
+Set the Details of the Secret
+- Description: Name of the secret e.g. EmbeddedSecret
+- Secret duration Eg 1year
 
 ## Step 2.4: Create container Type
-This step we need to create the container type. At th etime of writing there are no UI options to create this therefore you will need to run powershell. 
+This step we need to create the container type. At the time of writing there are no UI options to create this therefore this will need to be created using powershell. 
 
 On your computer run powershell as administrator. You will need the Sharepoint powershell module.
 
@@ -207,7 +207,13 @@ These next steps are using commands to register the container type in SharePoint
 As per the the Postman pre requsite there is a git repo with all the required Rest commands ready for you to use
 https://github.com/microsoft/SharePoint-Embedded-Samples
 
---Add Steps to download the package and ingest into Postman--
+
+Download the Zip file from the about github Repo. **Code -> Download Zip**
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/02492231-5a05-4c33-9041-e670825c2fe6)</kbd>
+
+Unzip the package and open Postman. Select Import and select the unzipped files 
+
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/548eb9ae-5a74-4e82-90bc-a54aca09a079)</kbd>
 
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/73786d2a-8cb8-4335-99b6-af2e4fd4f3d6)</kbd>
 
@@ -220,7 +226,7 @@ Select the Enviroments tab and add the following information
 - **RootSiteUrl:** The root URL of your tenant.
 - **ContainerTypeID:** The GUID of the Container Type created in Step 2.4
 - **CertThumbprint:** This is the thumbprint that is shown in Step 2.5
-- **CertPrivateKey:** This is teh private key of the cert which includes "-----BEGIN PRIVATE KEY-----" and "-----END PRIVATE KEY-----"
+- **CertPrivateKey:** This is the private key of the cert which includes "-----BEGIN PRIVATE KEY-----" and "-----END PRIVATE KEY-----"
 
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/b9323b1c-a7c3-401b-9192-b0164f237bb8)</kbd>
 
@@ -228,7 +234,7 @@ When you have set these up you then need to run the **Register ContainerType** l
 
 --Add Steps here on running the command and the expected result--
 
-
+--Add Manual Steps to authenticate here--
 
 
 

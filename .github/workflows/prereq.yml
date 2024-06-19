@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main    
+      - main
   pull_request:
     branches:
       - main
@@ -17,222 +17,372 @@ jobs:
   deploy_sharepoint_container:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [18.x] # Use Node.js 16.x
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Install jq
-      run: sudo apt-get install jq
+      - name: Install jq
+        run: sudo apt-get install jq
 
-    - name: Install Azure CLI
-      run: |
-        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+      - name: Install Azure CLI
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-    - name: Install Az module
-      run: |
-        Install-Module -Name Az -Scope CurrentUser -Force
-        Get-Module -Name Az -ListAvailable
-      shell: pwsh
+      - name: Install Az module
+        run: |
+          Install-Module -Name Az -Scope CurrentUser -Force
+          Get-Module -Name Az -ListAvailable
+        shell: pwsh
 
-    - name: Extract variables from Parameters JSON file
-      id: extract_parameters2
-      run: |
-        OWNING_APP_REGISTRATION_NAME=$(jq -r '.parameters.owningAppRegName.value' .github/workflows/parameters.json)
-        SHAREPOINT_ADMIN_SITE_URL=$(jq -r '.parameters.sharepointAdminSiteUrl.value' .github/workflows/parameters.json)
-        CONTAINER_TYPE_NAME=$(jq -r '.parameters.containerTypeName.value' .github/workflows/parameters.json)
-        RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourceGroupName.value' .github/workflows/parameters.json)
+      - name: Extract variables from Parameters JSON file
+        id: extract_parameters2
+        run: |
+          RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourcePrefix.value' .github/workflows/parameters.json)
+          LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
 
-        echo "OWNING_APP_REGISTRATION_NAME=$OWNING_APP_REGISTRATION_NAME" >> $GITHUB_ENV
-        echo "SHAREPOINT_ADMIN_SITE_URL=$SHAREPOINT_ADMIN_SITE_URL" >> $GITHUB_ENV
-        echo "CONTAINER_TYPE_NAME=$CONTAINER_TYPE_NAME" >> $GITHUB_ENV
-        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
+          echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME-ResGrp" >> $GITHUB_ENV
+          echo "STATIC_WEB_APP_NAME=$RESOURCE_GROUP_NAME-StaticWebApp" >> $GITHUB_ENV
+          echo "SPE_APP_NAME=$RESOURCE_GROUP_NAME-Spe_App_Reg" >> $GITHUB_ENV         
+          echo "LOCATION=$LOCATION" >> $GITHUB_ENV
+          echo "CONTAINER_TYPE_NAME=$RESOURCE_GROUP_NAME-ContainerType" >> $GITHUB_ENV
+          
 
-        echo $OWNING_APP_REGISTRATION_NAME
-        echo $SHAREPOINT_ADMIN_SITE_URL
-        echo $CONTAINER_TYPE_NAME
-        echo $RESOURCE_GROUP_NAME
-        echo "##########################################################################"
+          echo $RESOURCE_GROUP_NAME
+          echo $STATIC_WEB_APP_NAME
+          echo $SPE_APP_NAME
+          echo $CONTAINER_TYPE_NAME
+          echo $LOCATION
+          echo "##########################################################################"
 
-    - name: Create API permissions manifest file
-      run: |
-        echo '[
+      - name: Create API permissions manifest file
+        run: |
+          echo '[
+            {
+              "resourceAppId": "00000003-0000-0000-c000-000000000000",
+              "resourceAccess": [
+                {"id": "37f7f235-527c-4136-accd-4a02d197296e", "type": "Scope"},
+                {"id": "14dad69e-099b-42c9-810b-d002981feec1", "type": "Scope"},
+                {"id": "7427e0e9-2fba-42fe-b0c0-848c9e6a8182", "type": "Scope"},
+                {"id": "085ca537-6565-41c2-aca7-db852babc212", "type": "Scope"},
+                {"id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d", "type": "Scope"},
+                {"id": "40dc41bc-0f7e-42ff-89bd-d9516947e474", "type": "Role"}
+              ]
+            },
+            {
+              "resourceAppId": "00000003-0000-0ff1-ce00-000000000000",
+              "resourceAccess": [
+                {"id": "4d114b1a-3649-4764-9dfb-be1e236ff371", "type": "Scope"},
+                {"id": "19766c1b-905b-43af-8756-06526ab42875", "type": "Role"},
+                {"id": "640ddd16-e5b7-4d71-9690-3f4022699ee7", "type": "Scope"}
+              ]
+            }
+          ]' > manifest.json
+
+          echo "API permissions manifest file created"
+
+      - name: Create JSON file for reply URLs with types
+        run: |
+          cat <<EOF > replyUrlsWithType.json
+          [
+              {
+                  "url": "http://localhost:7071/",
+                  "type": "Spa"
+              },
+              {
+                  "url": "http://localhost:3000/",
+                  "type": "Spa"
+              },
+              {
+                  "url": "https://agreeable-cliff-051b8dd10.5.azurestaticapps.net/",
+                  "type": "Spa"
+              },
+              {
+                  "url": "https://proud-bay-08ee10810.5.azurestaticapps.net/",
+                  "type": "Spa"
+              },
+              {
+                  "url": "https://ashy-bay-0a679a810.5.azurestaticapps.net/",
+                  "type": "Spa"
+              },
+              {
+                  "url": "https://lemon-smoke-0de0c8110.5.azurestaticapps.net/",
+                  "type": "Spa"
+              },
           {
-            "resourceAppId": "00000003-0000-0000-c000-000000000000",
-            "resourceAccess": [
-              {"id": "37f7f235-527c-4136-accd-4a02d197296e", "type": "Scope"},
-              {"id": "14dad69e-099b-42c9-810b-d002981feec1", "type": "Scope"},
-              {"id": "7427e0e9-2fba-42fe-b0c0-848c9e6a8182", "type": "Scope"},
-              {"id": "085ca537-6565-41c2-aca7-db852babc212", "type": "Scope"},
-              {"id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d", "type": "Scope"},
-              {"id": "40dc41bc-0f7e-42ff-89bd-d9516947e474", "type": "Role"}
-            ]
-          },
-          {
-            "resourceAppId": "00000003-0000-0ff1-ce00-000000000000",
-            "resourceAccess": [
-              {"id": "4d114b1a-3649-4764-9dfb-be1e236ff371", "type": "Scope"},
-              {"id": "19766c1b-905b-43af-8756-06526ab42875", "type": "Role"},
-              {"id": "640ddd16-e5b7-4d71-9690-3f4022699ee7", "type": "Scope"}
-            ]
+              "url": "http://localhost/",
+              "type": "Spa"
           }
-        ]' > manifest.json
+          ]
+          EOF
 
-        echo "API permissions manifest file created"
+      - name: Print manifest.json file and path
+        run: |
+          echo "Contents of manifest.json:"
+          cat manifest.json
+          echo "Path to manifest.json: $(pwd)/manifest.json"
 
-    - name: Create JSON file for reply URLs with types
-      run: |
-        cat <<EOF > replyUrlsWithType.json
-        [
-            {
-                "url": "http://localhost:7071/",
-                "type": "Spa"
-            },
-            {
-                "url": "http://localhost:3000/",
-                "type": "Spa"
-            },
-            {
-                "url": "https://agreeable-cliff-051b8dd10.5.azurestaticapps.net/",
-                "type": "Spa"
-            },
-            {
-                "url": "https://proud-bay-08ee10810.5.azurestaticapps.net/",
-                "type": "Spa"
-            },
-            {
-                "url": "https://ashy-bay-0a679a810.5.azurestaticapps.net/",
-                "type": "Spa"
-            },
-            {
-                "url": "https://lemon-smoke-0de0c8110.5.azurestaticapps.net/",
-                "type": "Spa"
-            },
-        {
-            "url": "http://localhost/",
-            "type": "Spa"
-        }
-        ]
-        EOF
+      - name: Install new PnP PowerShell module
+        run: |
+          Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force -AllowPrerelease -SkipPublisherCheck
+          # Validate installation
+          Get-Module -Name PnP.PowerShell -ListAvailable
+        shell: pwsh
 
-    - name: Print manifest.json file and path
-      run: |
-        echo "Contents of manifest.json:"
-        cat manifest.json
-        echo "Path to manifest.json: $(pwd)/manifest.json"
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ vars.AZURE_SERVICEPRINCIPAL_CLIENT_ID_PKSDEMO }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID_PKSDEMO }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }}
+          allow-no-subscriptions: true
 
-    - name: Install new PnP PowerShell module
-      run: |
-        Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force -AllowPrerelease -SkipPublisherCheck
-        # Validate installation
-        Get-Module -Name PnP.PowerShell -ListAvailable
-      shell: pwsh
+      - name: Check if Resource Group exists
+        id: check_resource_group
+        run: |
+          if az group show --name ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
+            echo "Resource Group ${{ env.RESOURCE_GROUP_NAME }} already exists"
+            echo "::set-output name=rg_exists::true"
+          else
+            az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location "${{ env.LOCATION }}"
+            echo "Resource Group created."
+          fi
+      - name: Check if Static Web App exists
+        id: check_static_webapp
+        run: |
+          if ! az staticwebapp show --name ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
+            echo "Static Web App does not exist."
+            echo "staticWebApp_exists=false" >> $GITHUB_ENV
+          else
+            echo "Static Web App exists."
+            echo "staticWebApp_exists=true" >> $GITHUB_ENV
+          fi
 
-    - name: Create Service Principal and Get Credentials
-      shell: pwsh
-      run: |
-        # Connect to Azure using device login
-        az login --use-device-code
-        
+      - name: Deploy Azure Static Webapp
+        if: env.staticWebApp_exists == 'false'
+        id: create_azure_static_webapp
+        run: |
+          az deployment group create --resource-group ${{ env.RESOURCE_GROUP_NAME }} --template-file .github/workflows/staticwebapp.bicep --parameters .github/workflows/parameters.json --parameters resourceGroupName=${{ env.RESOURCE_GROUP_NAME }} --parameters staticWebAppName=${{ env.STATIC_WEB_APP_NAME }}
+          STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "properties.apiKey" -o tsv)
+          echo "STATIC_WEBAPP_TOKEN=$STATIC_WEBAPP_TOKEN" >> $GITHUB_ENV
+          STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
+          echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
 
-        # Create a certificate for the Service Principal
-        $certOutput = az ad sp create-for-rbac -n ${{ env.OWNING_APP_REGISTRATION_NAME }} --create-cert
+      # - name: Get Azure Static Webapp values
+      #   id: get_static_webapp_values
+      #   run: |
+      #     STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "properties.apiKey" -o tsv)
+      #     echo "STATIC_WEBAPP_TOKEN=$STATIC_WEBAPP_TOKEN" >> $GITHUB_ENV
+      #     STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
+      #     echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
 
-        # Extract the certificate file path
-        $certObject = $certOutput | ConvertFrom-Json
-        $certPath = $certObject.fileWithCertAndPrivateKey
+      # - name: Set up Node.js
+      #   uses: actions/setup-node@v2
+      #   with:
+      #     node-version: ${{ matrix.node-version }}
 
-        # Read the certificate content and extract only the private key
-        $certContent = Get-Content $certPath -Raw
-        $certContent = $certContent -replace '(?s)^.*?(-----BEGIN PRIVATE KEY-----.*?-----END PRIVATE KEY-----).*$', '$1'
+      # - name: Cache Node.js modules
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ~/.npm
+      #     key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-node-${{ matrix.node-version }}-
 
-        echo "Certificate Path: $certPath"
-        echo "Private Key Content: $certContent"
+      # - name: Install dependencies (frontend)
+      #   run: |
+      #     cd react-client
+      #     npm install
+  
+      - name: Create Service Principal and Get Credentials
+        id: create_service_principal
+        shell: pwsh
+        run: |
+          # Connect to Azure using device login
+          az login --use-device-code
 
-        # Store the private key content in an environment variable
-        echo "PRIVATE_KEY=$certContent" >> $GITHUB_ENV
+          # Create a certificate for the Service Principal
+          $certOutput = az ad sp create-for-rbac -n ${{ env.SPE_APP_NAME }} --create-cert
+
+          # Extract the certificate file path
+          $certObject = $certOutput | ConvertFrom-Json
+          $certPath = $certObject.fileWithCertAndPrivateKey
+
+          # Read the certificate content and extract only the private key
+          $certContent = Get-Content $certPath -Raw
+          $certContent = $certContent -replace '(?s)^.*?(-----BEGIN PRIVATE KEY-----.*?-----END PRIVATE KEY-----).*$', '$1'
 
 
+          # Store the private key content in an environment variable
+          echo "PRIVATE_KEY=$certContent" >> $GITHUB_ENV
 
-        # Create Service Principal
-        $spId = az ad sp create-for-rbac --role contributor --scopes /subscriptions/66d212d1-7764-4f08-9839-1a52bd537059 -n ${{ env.OWNING_APP_REGISTRATION_NAME }}
+          # Create Service Principal
+          $spId = az ad sp create-for-rbac --role contributor --scopes /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }} -n ${{ env.SPE_APP_NAME }}
 
-        # Convert the JSON output to a PowerShell object
-        $spObject = $spId | ConvertFrom-Json
+          # Convert the JSON output to a PowerShell object
+          $spObject = $spId | ConvertFrom-Json
 
-        # Extract the required values
-        $appId = $spObject.appId
-        $displayName = $spObject.displayName
-        $password = $spObject.password
-        $tenant = $spObject.tenant
+          # Extract the required values
+          $reactAppAzureAppId = $spObject.appId
+          $displayName = $spObject.displayName
+          $reactAppAzureSecret = $spObject.password
+          $Client_S_r_t = $spObject.password
 
-        # az ad app update --id $appId --set replyUrlsWithType=@replyUrlsWithType.json
-        az ad app update --id $appId --web-redirect-uris  "https://localhost/signout-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signin-oidc" "https://oauth.pstmn.io/v1/callback" "https://oauth.pstmn.io/v1/browser-callback" "http://localhost/redirect"
+          # Update the application with redirect URIs
+          az ad app update --id $reactAppAzureAppId --web-redirect-uris  "https://localhost/signout-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signin-oidc" "https://oauth.pstmn.io/v1/callback" "https://oauth.pstmn.io/v1/browser-callback" "http://localhost/redirect"
 
-        # Print the values
-        Write-Host "App ID: $appId"
-        Write-Host "Display Name: $displayName"
-        Write-Host "Password: $password"
-        Write-Host "Tenant: $tenant"
+          # Print the values
+          Write-Host "App ID: $reactAppAzureAppId"
+          Write-Host "Display Name: $displayName"
 
-        # Store values in environment variables
-        echo "APP_ID=$appId" >> $GITHUB_ENV
-        echo "DISPLAY_NAME=$displayName" >> $GITHUB_ENV
-        echo "PASSWORD=$password" >> $GITHUB_ENV
-        echo "TENANT=$tenant" >> $GITHUB_ENV
+          # Store values in environment variables
+          echo "REACT_APP_AZURE_APP_ID=$reactAppAzureAppId" >> $GITHUB_ENV
+          echo "REACT_APP_AZURE_APP_SECRET=$reactAppAzureSecret" >> $GITHUB_ENV
+          echo "DISPLAY_NAME=$displayName" >> $GITHUB_ENV
 
-        # Path to the manifest file
-        $manifestPath = "$(pwd)/manifest.json"
-        
-        echo "app id environment variable: $appId"
+          # Path to the manifest file
+          $manifestPath = "$(pwd)/manifest.json"
 
-        az ad app update --id $appId --required-resource-accesses @$manifestPath
-        az ad app permission admin-consent --id $appId
+          Write-Host "app id environment variable: $reactAppAzureAppId"
 
-        $objectId = az ad app show --id $appId --query id -o tsv
-        Write-Output "The Object ID is: $objectId"
+          az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
+          az ad app permission admin-consent --id $reactAppAzureAppId
 
-        # Perform Azure REST API call to retrieve key credentials - Just extra, not required as $certificateThumbPrint line is working fine.
-        $response = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials"
-        Write-Output "The response ID is: $response"
+          $objectId = az ad app show --id $reactAppAzureAppId --query id -o tsv
+          Write-Output "The Object ID is: $objectId"
 
-        $certificateThumbPrint = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials" | Select-String -Pattern '"customKeyIdentifier": "([^"]+)"' | ForEach-Object { $_.Matches.Groups[1].Value }
+          # Perform Azure REST API call to retrieve key credentials
+          $response = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials"
+          Write-Output "The response ID is: $response"
 
-        
-        # Print the Thumbprint to verify
-        Write-Output "The certificate ThumbPrint is: $certificateThumbPrint"
+          $certificateThumbPrint = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials" | Select-String -Pattern '"customKeyIdentifier": "([^"]+)"' | ForEach-Object { $_.Matches.Groups[1].Value }
 
-        # Connect to SharePoint Online
-        Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
+          # Print the Thumbprint to verify
+          Write-Output "The certificate ThumbPrint is: $certificateThumbPrint"
 
-        # Your PnP PowerShell commands
-        Write-Host "Hello World"
-        Write-Host "$appId"
+          # Connect to SharePoint Online
+          Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO -DeviceLogin
 
-        # Get container type information
-        $containerType = Get-PnPContainerType
+          # Your PnP PowerShell commands
+          Write-Host "Hello World"
+          Write-Host "$reactAppAzureAppId"
 
-        # Check if container type already exists
-        if (-not $containerType) {
-          New-PnPContainerType -TrialContainerType -ContainerTypeName $env:CONTAINER_TYPE_NAME -OwningApplicationId $appId
-        } else {
-          Write-Host "Container type already exists."
-        }
+          # Get container type information
+          $containerType = Get-PnPContainerType
 
-        # Get container type information
-        $containerType = Get-PnPContainerType
+          # Check if container type already exists
+          if (-not $containerType) {
+            New-PnPContainerType -TrialContainerType -ContainerTypeName ${{ env.CONTAINER_TYPE_NAME }} -OwningApplicationId $reactAppAzureAppId
+          } else {
+            Write-Host "Container type already exists."
+          }
 
-        # Store each value in a separate variable
-        $ContainerTypeId = $containerType.ContainerTypeId
-        $ContainerTypeName = $containerType.ContainerTypeName
-        $OwningApplicationId = $containerType.OwningApplicationId
-        $Classification = $containerType.Classification
-        $AzureSubscriptionId = $containerType.AzureSubscriptionId
-        $ResourceGroup = $containerType.ResourceGroup
+          # Get container type information
+          $containerType = Get-PnPContainerType
 
-        # Output each value
-        Write-Host "ContainerTypeId: $ContainerTypeId"
-        # Write-Host "ContainerTypeName: $ContainerTypeName"
-        # Write-Host "OwningApplicationId: $OwningApplicationId"
-        # Write-Host "Classification: $Classification"
-        # Write-Host "AzureSubscriptionId: $AzureSubscriptionId"
-        # Write-Host "ResourceGroup: $ResourceGroup"
+          # Store each value in a separate variable
+          $ContainerTypeId = $containerType.ContainerTypeId
+          echo "CONTAINER_TYPE_ID=$ContainerTypeId" >> $GITHUB_ENV
+          echo "CONTAINER_TYPE_ID_Output=$ContainerTypeId" >> "$GITHUB_OUTPUT"
+          echo "REACT_APP_AZURE_APP_ID_Output=$reactAppAzureAppId" >> "$GITHUB_OUTPUT"
+
+          $ContainerTypeName = $containerType.ContainerTypeName
+          $OwningApplicationId = $reactAppAzureAppId
+          $Classification = $containerType.Classification
+
+
+          # Original URL
+          $originalUrl = $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO
+
+          # Extract the desired part using regex
+          if ($originalUrl -match "https://([^-]+)-admin.sharepoint.com") {
+              $TenantName = $matches[1]
+          }
+
+          # Print the result
+          Write-Output "Extracted Value: $TenantName"
+
+          # Output each value
+          Write-Host "ContainerTypeName: $ContainerTypeName"
+          Write-Host "OwningApplicationId: $OwningApplicationId"
+          Write-Host "Classification: $Classification"
+
+          Write-Host "ClientID value is      $reactAppAzureAppId"
+          Write-Host "Client S e c r e t value is      $reactAppAzureSecret"
+          Write-Host "Client S e c r e t value is      $Client_S_r_t"
+          Write-Host "ConsumingTenantId value is      ${{ vars.AZURE_TENANT_ID_PKSDEMO }}"
+          Write-Host "RootSiteUrl value is      $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
+          Write-Host "ContainerTypeId value is      $ContainerTypeId"
+          Write-Host "TenantName value is      $TenantName"
+          write-Host "CertThumbprint value is      $certificateThumbPrint"
+          Write-Host "CertPrivateKey value is      $certContent"
+
+          echo "ClientID value is      $reactAppAzureAppId"
+          echo "Client S e c r e t value is      $reactAppAzureSecret"
+          echo "Client S e c r e t value is      $Client_S_r_t"
+          echo "ConsumingTenantId value is      ${{ vars.AZURE_TENANT_ID_PKSDEMO }}"
+          echo "RootSiteUrl value is      $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
+          echo "ContainerTypeId value is      $ContainerTypeId"
+          echo "TenantName value is      $TenantName"
+          echo "CertThumbprint value is      $certificateThumbPrint"
+          echo "CertPrivateKey value is      $certContent"
+
+
+          # Connect to Azure using device login
+          az login --use-device-code
+
+          # Update the Azure Static Webapp Settings
+          az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names "SPE_CONTAINER_TYPE_ID=$ContainerTypeId" "AZURE_CLIENT_SECRET=$reactAppAzureSecret" "AZURE_CLIENT_ID=$reactAppAzureAppId"
+
+          # $SCOPE="${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}/.default"
+
+          # $ACCESS_TOKEN=$(az account get-access-token --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }}  --query accessToken -o tsv)        
+          # echo "ACCESS_TOKEN=$ACCESS_TOKEN" >> $GITHUB_ENV
+
+          Write-Host "###############################################"
+          Write-Host "Access Token $ACCESS_TOKEN"
+          Write-Host "###############################################"
+
+        env:
+          SHAREPOINT_ADMIN_SITE_URL_PKSDEMO: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
+
+      # - name: Build frontend
+      #   run: |
+      #     cd react-client
+      #     CI=false npm run build # Set CI=false to avoid treating warnings as errors
+      #     echo "REACT_APP_AZURE_SERVER_APP_ID=${{ env.REACT_APP_AZURE_APP_ID }}"
+      #     echo "REACT_APP_AZURE_APP_ID=${{ env.REACT_APP_AZURE_APP_ID }}"
+      #     echo "REACT_APP_AZURE_SERVER_APP_ID=${{ steps.create_service_principal.outputs.REACT_APP_AZURE_APP_ID_Output }}
+      #     echo "REACT_APP_AZURE_APP_ID=${{ steps.create_service_principal.outputs.REACT_APP_AZURE_APP_ID_Output }}
+      #     echo "REACT_APP_SPE_CONTAINER_TYPE_ID=${{ env.CONTAINER_TYPE_ID }}"
+      #     echo "REACT_APP_SP_ROOT_SITE_URL=${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}"
+      #     echo "REACT_APP_SAMPLE_API_URL=https://${{ env.STATIC_WEBAPP_URL }}/api"
+      #     echo "######################################################################"
+      #   env:
+      #     REACT_APP_AZURE_SERVER_APP_ID: ${{ steps.create_service_principal.outputs.REACT_APP_AZURE_APP_ID_Output }}
+      #     REACT_APP_AZURE_APP_ID: ${{ steps.create_service_principal.outputs.REACT_APP_AZURE_APP_ID_Output }}
+      #     REACT_APP_SPE_CONTAINER_TYPE_ID: ${{ steps.create_service_principal.outputs.CONTAINER_TYPE_ID_Output }}
+      #     REACT_APP_SP_ROOT_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
+      #     REACT_APP_SAMPLE_API_URL: 'https://${{env.STATIC_WEBAPP_URL}}/api'
+
+      # - name: Install dependencies (backend)
+      #   run: |
+      #     cd api
+      #     npm install
+
+      # - name: Build backend
+      #   run: |
+      #     cd api
+      #     CI=false npm run build # Set CI=false to avoid treating warnings as errors
+
+      # - name: Deploy to Azure Static Web Apps
+      #   uses: Azure/static-web-apps-deploy@v1
+      #   with:
+      #     azure_static_web_apps_api_token: ${{ env.STATIC_WEBAPP_TOKEN }}
+      #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+      #     action: 'upload'
+      #     app_location: 'react-client/build'
+      #     api_location: 'api'

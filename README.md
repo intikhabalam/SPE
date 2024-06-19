@@ -11,17 +11,14 @@ Before you begin there are some Pre-Requsites that are required.
 
 # Step 1: Enable SharePoint Containers on your SharePoint Online tenant
 
-**This is now enabled by default on all tenants. You cannot see this menu unless you are the global admin of a tenant see: Pre-Requsites**
+**This is now enabled by default on all tenants. You cannot see this menu unless you have the SharePoint Embedded Administrator role. Global Admin has this permission by default**
 
-To enable SharePoint Embedded navigate to the M365 admin centre https://portal.microsoft.com and sign in with the tenant admin account
+To confirm that SharePoint Embedded is enabled navigate to the SharePoint admin centre by navigating to https://portal.microsoft.com and signning in with the tenant admin account
 
-Select **Show All** at the bottom of the left-hand menu, then select **Admin Centers -> SharePoint** 
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/7899aa7d-6b36-4bde-98df-722c6bca2837)</kbd>
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/1cae2c07-f3b8-4157-a381-3c91091e32b0)</kbd>
 
-From the SharePoint Admin menu, select **Settings** from the left menu Locate and select SharePoint Embedded and review the terms of service and select Enable to enable on your tenant
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/1c60ac95-aeeb-4249-af04-bb3ee1cf175d)</kbd>
-
-**If this setting is currently enabled you dont need to re-enable this.**
+**Currently there is a limit on the number of containers that can be active at one time through using SharePoint Embedded which is 5. This also includes containers that are deleted if you need to create a new container you will need to delete an existing container and permanantly delete it from the deleted location**
 
 # Step 2: Create App Registration
 
@@ -237,7 +234,7 @@ When you have set these up you then need to run the **Register ContainerType** l
 
 --Add Steps here on running the command and the expected result--
 
-
+--Add Manual Steps to authenticate here--
 
 
 

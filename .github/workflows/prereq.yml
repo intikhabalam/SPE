@@ -335,9 +335,6 @@ jobs:
           Write-Host "###############################################"
           Write-Host "Access Token $ACCESS_TOKEN"
           Write-Host "###############################################"
-          
-          cd react-client
-          CI=false npm run build # Set CI=false to avoid treating warnings as errors
 
         env:
           SHAREPOINT_ADMIN_SITE_URL_PKSDEMO: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}

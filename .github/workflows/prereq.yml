@@ -272,5 +272,13 @@ jobs:
 
           Write-Host "Certificate Path: $certPath"
           Write-Host "Private Key Content: $certContent"
+
+
+          # Connect to Azure using device login
+          az login --use-device-code
+
+          # Update the Azure Static Webapp Settings
+          az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names "SPE_CONTAINER_TYPE_ID=$ContainerTypeId" "AZURE_CLIENT_SECRET=$reactAppAzureSecret" "AZURE_CLIENT_ID=$reactAppAzureAppId"
+
         env:
           SHAREPOINT_ADMIN_SITE_URL_PKSDEMO: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}

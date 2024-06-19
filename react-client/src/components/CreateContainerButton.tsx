@@ -1,129 +1,141 @@
+import * as React from "react";
+import {
+  Button,
+  InputOnChangeData,
+  InputProps,
+} from "@fluentui/react-components";
+import { Dialog, DialogType, DialogFooter } from "@fluentui/react/lib/Dialog";
+import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
+import { PrimaryButton, DefaultButton } from "@fluentui/react/lib/Button";
 
-import React, { useState } from 'react';
 import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogBody,
-    DialogContent,
-    DialogSurface,
-    DialogTitle,
-    Input,
-    InputOnChangeData,
-    InputProps,
-    Label,
-    Spinner,
-    makeStyles,
-} from '@fluentui/react-components';
-import {
-    Add32Regular
-  } from '@fluentui/react-icons';
-import { IContainer, IContainerClientCreateRequest } from '../../../common/schemas/ContainerSchemas';
-import { ContainersApiProvider } from '../providers/ContainersApiProvider';
+  IContainer,
+  IContainerClientCreateRequest,
+} from "../../../common/schemas/ContainerSchemas";
+import { ContainersApiProvider } from "../providers/ContainersApiProvider";
+import { useBoolean } from "@fluentui/react-hooks";
+import { TextField } from "@fluentui/react";
 
 const containersApi = ContainersApiProvider.instance;
 
-const useStyles = makeStyles({
-    containerSelectorControls: {
-        width: '400px',
-    },
-    dialogContent: {
-        display: 'flex',
-        flexDirection: 'column',
-        rowGap: '10px',
-        marginBottom: '25px'
-    }
-});
-
 export type ICreateContainerButtonProps = {
-    isOpen?: boolean;
-    onAbort?: () => void;
-    onContainerCreated?: (container: IContainer) => void;
-}
+  isOpen?: boolean;
+  onAbort?: () => void;
+  onContainerCreated?: (container: IContainer) => void;
+};
 
-export const CreateContainerButton: React.FunctionComponent<ICreateContainerButtonProps> = (props: ICreateContainerButtonProps) => {
-    const [isOpen, setIsOpen] = useState(props.isOpen || false);
-    const [displayName, setDisplayName] = React.useState('');
-    const [description, setDescription] = React.useState('');
-    const [saving, setSaving] = React.useState(false);
+const dialogContentProps = {
+  type: DialogType.largeHeader,
+  title: "Create a new storage Container",
+};
 
-    const handleDisplayNameChange: InputProps["onChange"] = (event: React.ChangeEvent<HTMLInputElement>, data: InputOnChangeData): void => {
-        setDisplayName(data?.value);
-    };
+export const CreateContainerButton: React.FunctionComponent<
+  ICreateContainerButtonProps
+> = (props: ICreateContainerButtonProps) => {
+  const [displayName, setDisplayName] = React.useState("");
+  const [description, setDescription] = React.useState("");
+  const [saving, setSaving] = React.useState(false);
+  const [hideDialog, { toggle: toggleHideDialog }] = useBoolean(true);
 
-    const handleDescriptionChange: InputProps["onChange"] = (event: React.ChangeEvent<HTMLInputElement>, data: InputOnChangeData): void => {
-        setDescription(data?.value);
-    };
+  const modalProps = {
+    isBlocking: false,
+    styles: {
+      main: {
+        width: "400px",
+        display: "flex",
+        flexDirection: "column",
+        rowGap: "10px",
+        marginBottom: "25px",
+        color: "black",
+        border: "none",
+      },
+    },
+  };
 
-    const onCancelClick = () => {
-        setIsOpen(false);
-        props.onAbort?.();
-    };
+  const handleDisplayNameChange = (
+    event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
+    newValue?: string | undefined
+  ): void => {
+    setDisplayName(newValue || "");
+  };
 
-    const onCreateClick = async (): Promise<void> => {
-        if (!displayName) {
-            return;
-        }
-        setSaving(true);
-        try {
-            const createContainerRequest: IContainerClientCreateRequest = {
-                displayName: displayName,
-                description: description
-            };
-            const newContainer = await containersApi.create(createContainerRequest);
-            props.onContainerCreated?.(newContainer);
-            setIsOpen(false);
-            setDisplayName('');
-            setDescription('');
-        } catch (error) {
+  const handleDescriptionChange = (
+    event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
+    newValue?: string | undefined
+  ): void => {
+    setDescription(newValue || "");
+  };
 
-        } finally {
-            setSaving(false);
-        }
-    };
+  const onCreateClick = async (): Promise<void> => {
+    if (!displayName) {
+      return;
+    }
+    setSaving(true);
+    try {
+      const createContainerRequest: IContainerClientCreateRequest = {
+        displayName: displayName,
+        description: description,
+      };
+      const newContainer = await containersApi.create(createContainerRequest);
+      props.onContainerCreated?.(newContainer);
+      toggleHideDialog();
+      setDisplayName("");
+      setDescription("");
+    } catch (error) {
+    } finally {
+      setSaving(false);
+    }
+  };
 
-    const styles = useStyles();
-    return (
-        <>
-            <Button onClick={() => setIsOpen(true)} icon={<Add32Regular />} style={{ marginLeft: '5px'}} />
-            <Dialog open={isOpen}>
-                <DialogSurface>
-                    <DialogBody>
-                        <DialogTitle>Create a new storage Container</DialogTitle>
-                        <DialogContent className={styles.dialogContent}>
-                            <Label htmlFor={displayName}>Container name:</Label>
-                            <Input 
-                                id={displayName} 
-                                className={styles.containerSelectorControls} 
-                                autoFocus 
-                                required
-                                value={displayName} 
-                                onChange={handleDisplayNameChange}
-                            />
-                            <Label htmlFor={description}>Container description:</Label>
-                            <Input id={description} className={styles.containerSelectorControls} autoFocus required
-                                value={description} onChange={handleDescriptionChange}></Input>
-                            {saving &&
-                                <Spinner size='medium' label="Creating storage Container..." labelPosition='after' />
-                            }
-                        </DialogContent>
-                        <DialogActions>
-                            <Button
-                                onClick={() => { onCreateClick() }}
-                                appearance="primary"
-                                disabled={saving || (displayName === '')}
-                            >
-                                Create
-                            </Button>
-                            <Button
-                                onClick={() => { onCancelClick(); }}
-                                appearance="secondary"
-                            >
-                                Cancel
-                            </Button>
-                        </DialogActions>
-                    </DialogBody>
-                </DialogSurface>
-            </Dialog>
-        </>);
-}
+  return (
+    <>
+      <Button
+        appearance="primary"
+        onClick={toggleHideDialog}
+        style={{
+          backgroundColor: "#393EB3",
+          color: "white",
+          padding: "5px",
+          borderRadius: "5px",
+        }}
+      >
+        Create
+      </Button>
+      <Dialog
+        hidden={hideDialog}
+        onDismiss={toggleHideDialog}
+        dialogContentProps={dialogContentProps}
+        modalProps={modalProps}
+      >
+        <form noValidate autoComplete="off">
+          <TextField
+            id={displayName}
+            label="Container name:"
+            required
+            value={displayName}
+            onChange={handleDisplayNameChange}
+          />
+          <TextField
+            id={description}
+            label="Container description:"
+            required
+            value={description}
+            onChange={handleDescriptionChange}
+          />
+        </form>
+        {saving && (
+          <Spinner
+            size={SpinnerSize.medium}
+            label="Creating storage Container..."
+            labelPosition="right"
+            style={{ marginTop: "10px" }}
+          />
+        )}
+        <DialogFooter>
+          <PrimaryButton onClick={onCreateClick}>Create</PrimaryButton>
+          <DefaultButton onClick={toggleHideDialog}>Cancel</DefaultButton>
+        </DialogFooter>
+      </Dialog>
+    </>
+  );
+};

@@ -1,29 +1,18 @@
-
-import './App.css';
-import React, {
-  useState, useEffect,
-  useCallback
-} from "react";
+import "./App.css";
+import React, { useState, useCallback } from "react";
+import { Login } from "@microsoft/mgt-react";
+import { ISearchBoxStyles, SearchBox } from "@fluentui/react/lib/SearchBox";
 import {
-  Providers,
-  ProviderState
-} from "@microsoft/mgt-element";
-import { Login, SearchBox, SearchResults } from "@microsoft/mgt-react";
-import {
-  Divider,
   FluentProvider,
   Menu,
   MenuItem,
   MenuList,
   MenuPopover,
   MenuTrigger,
-  Tab,
-  TabList,
   Text,
   Toolbar,
   ToolbarButton,
-  webDarkTheme,
-  webLightTheme
+  webLightTheme,
 } from "@fluentui/react-components";
 import {
   Map20Regular,
@@ -32,130 +21,320 @@ import {
   Star20Regular,
   ChartMultiple20Regular,
   MoreVertical24Filled,
-} from '@fluentui/react-icons';
-import './App.css';
-import * as Constants from '../common/Constants';
-import { ContainerSelector } from '../components/ContainerSelector';
-import ContainerBrowser from '../components/ContainerBrowser';
-import { IContainer } from '../../../common/schemas/ContainerSchemas';
-import { CreateContainerButton } from '../components/CreateContainerButton';
-import { Outlet } from 'react-router-dom';
+  Library20Regular,
+  ChevronLeft20Regular,
+  ChevronRight20Regular,
+  Search12Regular,
+  ClosedCaption20Regular,
+  CalendarCancel20Filled,
+  Dismiss20Regular,
+  DismissCircle20Regular,
+} from "@fluentui/react-icons";
+import {
+  ILabelStyles,
+  INavLinkGroup,
+  INavStyles,
+  IStyleSet,
+  Nav,
+  registerIcons,
+  Label,
+  IconButton,
+} from "@fluentui/react";
 
+import * as Constants from "../common/Constants";
+import { Outlet } from "react-router-dom";
 
-const useIsSignedIn = () => {
-  const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
+const navStyles: Partial<INavStyles> = {
+  root: {
+    color: "white",
+    backgroundColor: "#393EB3",
+    marginLeft: "-20px",
+    paddingTop: "40px",
+  },
+  navItem: { paddingTop: "10px" },
+  link: {
+    color: "white",
+    paddingLeft: "35px",
+    backgroundColor: "#393EB3",
+    selectors: {
+      "&:hover": {
+        fontWeight: "bold",
+        backgroundColor: "#393EB3 ",
+      },
+      "&:active": {
+        backgroundColor: "#393EB3 ",
+      },
+      "&.is-selected": {
+        backgroundColor: "#393EB3 ",
+      },
+    },
+  },
+  linkText: {
+    color: "white",
+  },
+  compositeLink: {
+    selectors: {
+      ":hover .ms-Nav-linkText": {
+        fontWeight: "bold",
+      },
+      ":hover .ms-Button--action": { backgroundColor: "#393EB3 !important" },
+    },
+  },
+};
 
-  useEffect(() => {
-    const updateIsSignedIn = () => {
-      setIsSignedIn(Providers.globalProvider.state === ProviderState.SignedIn);
-    }
-    updateIsSignedIn();
-    Providers.globalProvider.onStateChanged(updateIsSignedIn);
-    return () => {
-      Providers.globalProvider.removeStateChangedHandler(updateIsSignedIn);
-    }
-  }, []);
-  return isSignedIn;
-}
+const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
+  root: { marginTop: 10, fontSize: 14, fontWeight: "600" },
+};
 
-function App() {  
+const searchBoxStyles: Partial<IStyleSet<ISearchBoxStyles>> = {
+  root: {
+    width: "344px",
+    height: "38px",
+    border: "none",
+    backgroundColor: "#f4f7fa",
+    borderRadius: "4px",
+    marginLeft: "44px",
+  },
+};
+
+function App() {
   const containerTypeId = Constants.SPE_CONTAINER_TYPE_ID;
   const baseSearchQuery = `ContainerTypeId:${containerTypeId} AND Title:'[Job Posting]*'`;
-  const [selectedContainer, setSelectedContainer] = useState<IContainer | undefined>(undefined);
-  const [searchQuery, setSearchQuery] = useState<string>(baseSearchQuery)
+  const [searchQuery, setSearchQuery] = useState<string>(baseSearchQuery);
   const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
-  const isSignedIn = useIsSignedIn();
-  const mainContentRef = React.useRef(null);
   const loginRef = React.useRef(null);
-  const onSearchTermChanged = useCallback((e: CustomEvent < string > ) => {
-    const term = e.detail;   
-    const termQuery = term ? `'${term}'` : '';
-    setSearchQuery(`${termQuery} ${baseSearchQuery}`);
-    console.log(`${termQuery} ${baseSearchQuery}`);
-  }, [baseSearchQuery]);
+  const onSearchTermChanged = useCallback(
+    (e: CustomEvent<string>) => {
+      const term = e.detail;
+      const termQuery = term ? `'${term}'` : "";
+      setSearchQuery(`${termQuery} ${baseSearchQuery}`);
+      console.log(`${termQuery} ${baseSearchQuery}`);
+    },
+    [baseSearchQuery]
+  );
+  const [isPanelOpen, setPanelOpen] = useState(false);
+  const [showBanner, setShowBanner] = useState(true);
+
+  registerIcons({
+    icons: {
+      Map20Regular: <Map20Regular />,
+      People20Regular: <People20Regular />,
+      Open20Regular: <Open20Regular />,
+      Star20Regular: <Star20Regular />,
+      ChartMultiple20Regular: <ChartMultiple20Regular />,
+      MoreVertical24Filled: <MoreVertical24Filled />,
+      Search12Regular: <Search12Regular />,
+      DismissCircle20Regular: <DismissCircle20Regular />,
+    },
+  });
+
+  const searchIcon = {
+    iconName: "Search12Regular",
+    style: { color: "#616161" },
+  };
+
+  const closeIcon = {
+    iconName: "DismissCircle20Regular",
+    style: { color: "white" },
+  };
+
+  const navLinkGroups: INavLinkGroup[] = [
+    {
+      links: [
+        {
+          name: "Overview",
+          url: "",
+          iconProps: {
+            iconName: "Map20Regular",
+            style: { color: "#6DCCF4", width: "20px" },
+          },
+          key: "key1",
+        },
+        {
+          name: "People",
+          url: "",
+          key: "key2",
+          iconProps: {
+            iconName: "People20Regular",
+            style: { color: "#6DCCF4", width: "20px" },
+          },
+        },
+        {
+          name: "Openings",
+          url: "",
+          key: "key3",
+          iconProps: {
+            iconName: "Open20Regular",
+            style: { color: "#6DCCF4", width: "20px" },
+          },
+        },
+        {
+          name: "Hiring",
+          url: "/",
+          key: "key4",
+          iconProps: {
+            iconName: "Star20Regular",
+            style: { color: "#6DCCF4", width: "20px" },
+          },
+        },
+        {
+          name: "Reports",
+          url: "",
+          key: "key5",
+          iconProps: {
+            iconName: "ChartMultiple20Regular",
+            style: { color: "#6DCCF4", width: "20px" },
+          },
+        },
+      ],
+    },
+  ];
 
   return (
-    <FluentProvider theme={webLightTheme}>
+    <FluentProvider>
       <div className="App">
-        <div className="spe-app-header">
-          <div className="spe-app-header-title">
-            <Text size={600}>
-              Contoso
-              <Text size={700} weight='semibold'>H</Text>
-              <Text size={700} weight='semibold'>R</Text>
-            </Text>
-          </div>
-          <div className="spe-app-header-search">
-            <SearchBox 
-              searchTermChanged={onSearchTermChanged}
-              onFocus={() => setShowSearchResults(true)}
-              onBlur={() => setTimeout(setShowSearchResults.bind(null, false), 200)}
-            />
-            {showSearchResults && (
-            <div className="spe-app-search-results-background">
-            <SearchResults 
-              className="spe-app-search-results"
-              entityTypes={['driveItem']} 
-              fetchThumbnail={true} 
-              queryString={searchQuery} 
-            />
+        {showBanner && (
+          <div className="spe-app-banner">
+            <div className="spe-app-banner-content">
+              <Library20Regular className="spe-app-banner-icon" />
+              <Text>
+                Explore SharePoint Embedded resources from the right-hand panel
+              </Text>
             </div>
-            )}
+            <IconButton
+              iconProps={closeIcon}
+              ariaLabel="Close"
+              onClick={() => setShowBanner(false)}
+            />
           </div>
-          <div className="spe-app-header-actions">
-            <Toolbar>
-              <Login ref={loginRef} loginView='avatar' showPresence={true} />
-              <Menu>
-                <MenuTrigger>
-                  <ToolbarButton aria-label="More" icon={<MoreVertical24Filled />} />
-                </MenuTrigger>
+        )}
+        <div className={`spe-app-content ${showBanner ? "" : "no-banner"}`}>
+          <div className="spe-app-content-navigation">
+            <div className="spe-app-header-title">
+              <Text size={600} style={{ fontSize: "22px", color: "#fff" }}>
+                contoso
+              </Text>
+              <Text
+                size={700}
+                weight="semibold"
+                style={{ fontSize: "22px", color: "#60B1D4" }}
+              >
+                HR
+              </Text>
+            </div>
 
-                <MenuPopover>
-                  <MenuList>
-                    <MenuItem>Hi!</MenuItem>
-                  </MenuList>
-                </MenuPopover>
-              </Menu>
-            </Toolbar>
-          </div>
-        </div>
-        <div className="spe-app-content">
-          <div className="spe-app-content-navigation"><FluentProvider theme={webDarkTheme}>
-            <div className="navigation-tabs">
-              <TabList vertical={true} size='large' selectedValue="hiring">
-                <Tab value="overview" icon={<Map20Regular />}>Overview</Tab>
-                <Tab value="people" icon={<People20Regular />}>People</Tab>
-                <Tab value="openings" icon={<Open20Regular />}>Openings</Tab>
-                <Tab value="hiring" icon={<Star20Regular />}>Hiring</Tab>
-                <Tab value="reports" icon={<ChartMultiple20Regular />}>Reports</Tab>
-              </TabList>
-            </div></FluentProvider>
-            <div className="navigation-divider">
-              <Divider />
-            </div>
-            <div className="navigation-containers">
-              {isSignedIn && (<>
-                <ContainerSelector onContainerSelected={setSelectedContainer} />
-                <CreateContainerButton />
-              </>)}
-            </div>
-          </div>
-          <div className="spe-app-content-main" ref={mainContentRef}>
-            <div className="main-content-header" />
-            {/*
-            <FluentProvider theme={webDarkTheme}>
-            <div className="main-content-header">
-              <TabList size='large' selectedValue="documents">
-                <Tab value="dashboard">Dashboard</Tab>
-                <Tab value="requests">Requests</Tab>
-                <Tab value="documents">Documents</Tab>
-                <Tab value="settings">Settings</Tab>
-              </TabList>
-            </div>
+            <FluentProvider theme={webLightTheme}>
+              <Nav
+                selectedKey="key4"
+                ariaLabel="Nav basic example"
+                groups={navLinkGroups}
+                styles={navStyles}
+              />
             </FluentProvider>
-            */}
-            <div className="main-content-body">
-              <Outlet />
+          </div>
+          <div className="spe-app-header-main-container">
+            <div className="spe-app-header">
+              <div className="spe-app-header-search">
+                <SearchBox
+                  placeholder="Search"
+                  onSearch={onSearchTermChanged}
+                  onFocus={() => setShowSearchResults(true)}
+                  onBlur={() =>
+                    setTimeout(setShowSearchResults.bind(null, false), 200)
+                  }
+                  iconProps={searchIcon}
+                  styles={searchBoxStyles}
+                />
+              </div>
+              <div className="spe-app-header-actions">
+                <Toolbar>
+                  <Login
+                    ref={loginRef}
+                    loginView="avatar"
+                    showPresence={true}
+                    className="login"
+                  />
+                  <Menu>
+                    <MenuTrigger>
+                      <ToolbarButton
+                        aria-label="More"
+                        icon={<MoreVertical24Filled />}
+                      />
+                    </MenuTrigger>
+
+                    <MenuPopover>
+                      <MenuList>
+                        <MenuItem>Hi!</MenuItem>
+                      </MenuList>
+                    </MenuPopover>
+                  </Menu>
+                </Toolbar>
+              </div>
+            </div>
+            <div className="spe-app-content-main">
+              <div className="main-content-body">
+                <Outlet />
+              </div>
+            </div>
+          </div>
+          <div className="spe-app-content-dev">
+            <div
+              className={`spe-app-side-panel ${
+                isPanelOpen ? "open" : "closed"
+              }`}
+            >
+              {isPanelOpen ? (
+                <div>
+                  <div
+                    style={{
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      display: "flex",
+                      flexDirection: "row",
+                    }}
+                  >
+                    <ChevronRight20Regular
+                      onClick={() => setPanelOpen(!isPanelOpen)}
+                    />
+                    <h2 style={{ display: "flex", alignItems: "center" }}>
+                      <Library20Regular className="spe-app-side-panel-icon" />
+                      Explore Resources
+                    </h2>
+                    <div style={{ flex: 0.5 }} />
+                  </div>
+                  <div className="spe-app-side-panel-content">
+                    <Label styles={labelStyles}>APIs</Label>
+                    <div className="spe-app-side-panel-divider" />
+                    <Text>Content Goes here</Text>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                  onClick={() => setPanelOpen(!isPanelOpen)}
+                >
+                  <ChevronLeft20Regular style={{ marginTop: "20px" }} />
+                  <Library20Regular
+                    className="spe-app-side-panel-icon"
+                    style={{
+                      marginTop: "20px",
+                      marginBottom: "85px",
+                    }}
+                  />
+                  <div
+                    style={{
+                      transform: "rotate(90deg)",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    <h2>Explore Resources</h2>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

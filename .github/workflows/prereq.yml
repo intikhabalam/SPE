@@ -307,7 +307,7 @@ jobs:
           $Classification = $containerType.Classification
 
 
-          # Original URL
+          # Extracting TenantName from SharePoint Adminsite URL
           $originalUrl = $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO
 
           # Extract the desired part using regex
@@ -318,30 +318,30 @@ jobs:
           # Print the result
           Write-Output "Extracted Value: $TenantName"
 
-          # Output each value
-          Write-Host "ContainerTypeName: $ContainerTypeName"
-          Write-Host "OwningApplicationId: $OwningApplicationId"
-          Write-Host "Classification: $Classification"
+          # # Output each value
+          # Write-Host "ContainerTypeName: $ContainerTypeName"
+          # Write-Host "OwningApplicationId: $OwningApplicationId"
+          # Write-Host "Classification: $Classification"
 
-          Write-Host "ClientID value is      $reactAppAzureAppId"
-          Write-Host "Client S e c r e t value is      $reactAppAzureSecret"
-          Write-Host "Client S e c r e t value is      $Client_S_r_t"
-          Write-Host "ConsumingTenantId value is      ${{ vars.AZURE_TENANT_ID_PKSDEMO }}"
-          Write-Host "RootSiteUrl value is      $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
-          Write-Host "ContainerTypeId value is      $ContainerTypeId"
-          Write-Host "TenantName value is      $TenantName"
-          write-Host "CertThumbprint value is      $certificateThumbPrint"
-          Write-Host "CertPrivateKey value is      $certContent"
+          # Write-Host "ClientID value is      $reactAppAzureAppId"
+          # Write-Host "Client S e c r e t value is      $reactAppAzureSecret"
+          # Write-Host "Client S e c r e t value is      $Client_S_r_t"
+          # Write-Host "ConsumingTenantId value is      ${{ vars.AZURE_TENANT_ID_PKSDEMO }}"
+          # Write-Host "RootSiteUrl value is      $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
+          # Write-Host "ContainerTypeId value is      $ContainerTypeId"
+          # Write-Host "TenantName value is      $TenantName"
+          # write-Host "CertThumbprint value is      $certificateThumbPrint"
+          # Write-Host "CertPrivateKey value is      $certContent"
 
-          echo "ClientID value is      $reactAppAzureAppId"
-          echo "Client S e c r e t value is      $reactAppAzureSecret"
-          echo "Client S e c r e t value is      $Client_S_r_t"
-          echo "ConsumingTenantId value is      ${{ vars.AZURE_TENANT_ID_PKSDEMO }}"
-          echo "RootSiteUrl value is      $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
-          echo "ContainerTypeId value is      $ContainerTypeId"
-          echo "TenantName value is      $TenantName"
-          echo "CertThumbprint value is      $certificateThumbPrint"
-          echo "CertPrivateKey value is      $certContent"
+          # echo "ClientID value is      $reactAppAzureAppId"
+          # echo "Client S e c r e t value is      $reactAppAzureSecret"
+          # echo "Client S e c r e t value is      $Client_S_r_t"
+          # echo "ConsumingTenantId value is      ${{ vars.AZURE_TENANT_ID_PKSDEMO }}"
+          # echo "RootSiteUrl value is      $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
+          # echo "ContainerTypeId value is      $ContainerTypeId"
+          # echo "TenantName value is      $TenantName"
+          # echo "CertThumbprint value is      $certificateThumbPrint"
+          # echo "CertPrivateKey value is      $certContent"
 
 
           # Connect to Azure using device login
@@ -349,6 +349,17 @@ jobs:
 
           # Update the Azure Static Webapp Settings
           az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names "SPE_CONTAINER_TYPE_ID=$ContainerTypeId" "AZURE_CLIENT_SECRET=$reactAppAzureSecret" "AZURE_CLIENT_ID=$reactAppAzureAppId"
+
+          # Update the Azure Static Webapp Settings with Container Registration values
+          az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names `
+            "RegisterContainer_ClientID=$reactAppAzureAppId" `
+            "RegisterContainer_ClientSecret=$reactAppAzureSecret" `
+            "RegisterContainer_ConsumingTenantId=${{ vars.AZURE_TENANT_ID_PKSDEMO }}" `
+            "RegisterContainer_RootSiteUrl=$env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO" `
+            "RegisterContainer_ContainerTypeId=$ContainerTypeId" `
+            "RegisterContainer_TenantName=$TenantName" `
+            "RegisterContainer_CertThumbprint=$certificateThumbPrint" `
+            "RegisterContainer_CertPrivateKey=$certContent"
 
           # $SCOPE="${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}/.default"
 

@@ -171,31 +171,31 @@ jobs:
           STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
           echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
 
-      - name: Get Azure Static Webapp values
-        id: get_static_webapp_values
-        run: |
-          STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "properties.apiKey" -o tsv)
-          echo "STATIC_WEBAPP_TOKEN=$STATIC_WEBAPP_TOKEN" >> $GITHUB_ENV
-          STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
-          echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
+      # - name: Get Azure Static Webapp values
+      #   id: get_static_webapp_values
+      #   run: |
+      #     STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "properties.apiKey" -o tsv)
+      #     echo "STATIC_WEBAPP_TOKEN=$STATIC_WEBAPP_TOKEN" >> $GITHUB_ENV
+      #     STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
+      #     echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node-version }}
+      # - name: Set up Node.js
+      #   uses: actions/setup-node@v2
+      #   with:
+      #     node-version: ${{ matrix.node-version }}
 
-      - name: Cache Node.js modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-${{ matrix.node-version }}-
+      # - name: Cache Node.js modules
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ~/.npm
+      #     key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-node-${{ matrix.node-version }}-
 
-      - name: Install dependencies (frontend)
-        run: |
-          cd react-client
-          npm install
+      # - name: Install dependencies (frontend)
+      #   run: |
+      #     cd react-client
+      #     npm install
   
       - name: Create Service Principal and Get Credentials
         id: create_service_principal
@@ -319,6 +319,16 @@ jobs:
           Write-Host "TenantName value is      $TenantName"
           write-Host "CertThumbprint value is      $certificateThumbPrint"
           Write-Host "CertPrivateKey value is      $certContent"
+
+          echo "ClientID value is      $reactAppAzureAppId"
+          echo "Client S e c r e t value is      $reactAppAzureSecret"
+          echo "Client S e c r e t value is      $Client_S_r_t"
+          echo "ConsumingTenantId value is      ${{ secrets.AZURE_TENANT_ID_PKSDEMO }}"
+          echo "RootSiteUrl value is      $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
+          echo "ContainerTypeId value is      $ContainerTypeId"
+          echo "TenantName value is      $TenantName"
+          echo "CertThumbprint value is      $certificateThumbPrint"
+          echo "CertPrivateKey value is      $certContent"
 
 
           # Connect to Azure using device login

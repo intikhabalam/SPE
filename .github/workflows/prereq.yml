@@ -373,24 +373,26 @@ jobs:
         env:
           SHAREPOINT_ADMIN_SITE_URL_PKSDEMO: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
 
-      # - name: Build frontend
-      #   run: |
-      #     cd react-client
-      #     CI=false npm run build # Set CI=false to avoid treating warnings as errors
-      #     echo "REACT_APP_AZURE_SERVER_APP_ID=${{ env.REACT_APP_AZURE_APP_ID }}"
-      #     echo "REACT_APP_AZURE_APP_ID=${{ env.REACT_APP_AZURE_APP_ID }}"
-      #     echo "REACT_APP_AZURE_SERVER_APP_ID=${{ steps.create_service_principal.outputs.REACT_APP_AZURE_APP_ID_Output }}
-      #     echo "REACT_APP_AZURE_APP_ID=${{ steps.create_service_principal.outputs.REACT_APP_AZURE_APP_ID_Output }}
-      #     echo "REACT_APP_SPE_CONTAINER_TYPE_ID=${{ env.CONTAINER_TYPE_ID }}"
-      #     echo "REACT_APP_SP_ROOT_SITE_URL=${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}"
-      #     echo "REACT_APP_SAMPLE_API_URL=https://${{ env.STATIC_WEBAPP_URL }}/api"
-      #     echo "######################################################################"
-      #   env:
-      #     REACT_APP_AZURE_SERVER_APP_ID: ${{ steps.create_service_principal.outputs.REACT_APP_AZURE_APP_ID_Output }}
-      #     REACT_APP_AZURE_APP_ID: ${{ steps.create_service_principal.outputs.REACT_APP_AZURE_APP_ID_Output }}
-      #     REACT_APP_SPE_CONTAINER_TYPE_ID: ${{ steps.create_service_principal.outputs.CONTAINER_TYPE_ID_Output }}
-      #     REACT_APP_SP_ROOT_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
-      #     REACT_APP_SAMPLE_API_URL: 'https://${{env.STATIC_WEBAPP_URL}}/api'
+      - name: Build frontend
+        shell: bash
+        run: |
+          # Get environment variables from Azure Static Web App
+          REACT_APP_AZURE_APP_ID=$(az staticwebapp appsettings list --name ${{ env.STATIC_WEB_APP_NAME }} --query "[?name=='REACT_APP_AZURE_APP_ID'].value" -o tsv)
+          CONTAINER_TYPE_ID=$(az staticwebapp appsettings list --name ${{ env.STATIC_WEB_APP_NAME }} --query "[?name=='CONTAINER_TYPE_ID'].value" -o tsv)
+          STATIC_WEBAPP_URL=$(az staticwebapp appsettings list --name ${{ env.STATIC_WEB_APP_NAME }} --query "[?name=='STATIC_WEBAPP_URL'].value" -o tsv)
+
+          # Export the retrieved environment variables
+          echo "REACT_APP_AZURE_APP_ID=$REACT_APP_AZURE_APP_ID" >> $GITHUB_ENV
+          echo "CONTAINER_TYPE_ID=$CONTAINER_TYPE_ID" >> $GITHUB_ENV
+          echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
+
+          # Navigate to react-client directory and run the build
+          cd react-client
+          CI=false npm run build
+        env:
+          REACT_APP_SP_ROOT_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
+          REACT_APP_SAMPLE_API_URL: 'https://${{ env.STATIC_WEBAPP_URL }}/api'
+
 
       # - name: Install dependencies (backend)
       #   run: |

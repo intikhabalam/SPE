@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 jobs:
-  deploy_sharepoint_container:
+  build_and_deploy_code:
     runs-on: ubuntu-latest
 
     strategy:
@@ -48,8 +48,8 @@ jobs:
       - name: Azure Login
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID_PKSDEMO }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID_PKSDEMO }}
+          client-id: ${{ vars.AZURE_SERVICEPRINCIPAL_CLIENT_ID_PKSDEMO }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID_PKSDEMO }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }}
           allow-no-subscriptions: true
 

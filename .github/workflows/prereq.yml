@@ -135,8 +135,8 @@ jobs:
       - name: Azure Login
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID_PKSDEMO }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID_PKSDEMO }}
+          client-id: ${{ vars.AZURE_SERVICEPRINCIPAL_CLIENT_ID_PKSDEMO }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID_PKSDEMO }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }}
           allow-no-subscriptions: true
 
@@ -313,7 +313,7 @@ jobs:
           Write-Host "ClientID value is      $reactAppAzureAppId"
           Write-Host "Client S e c r e t value is      $reactAppAzureSecret"
           Write-Host "Client S e c r e t value is      $Client_S_r_t"
-          Write-Host "ConsumingTenantId value is      ${{ secrets.AZURE_TENANT_ID_PKSDEMO }}"
+          Write-Host "ConsumingTenantId value is      ${{ vars.AZURE_TENANT_ID_PKSDEMO }}"
           Write-Host "RootSiteUrl value is      $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
           Write-Host "ContainerTypeId value is      $ContainerTypeId"
           Write-Host "TenantName value is      $TenantName"
@@ -323,7 +323,7 @@ jobs:
           echo "ClientID value is      $reactAppAzureAppId"
           echo "Client S e c r e t value is      $reactAppAzureSecret"
           echo "Client S e c r e t value is      $Client_S_r_t"
-          echo "ConsumingTenantId value is      ${{ secrets.AZURE_TENANT_ID_PKSDEMO }}"
+          echo "ConsumingTenantId value is      ${{ vars.AZURE_TENANT_ID_PKSDEMO }}"
           echo "RootSiteUrl value is      $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
           echo "ContainerTypeId value is      $ContainerTypeId"
           echo "TenantName value is      $TenantName"
@@ -339,7 +339,7 @@ jobs:
 
           $SCOPE="${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}/.default"
 
-          $ACCESS_TOKEN=$(az account get-access-token --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }}  --query accessToken -o tsv)        
+          $ACCESS_TOKEN=$(az account get-access-token --subscription ${{ vars.AZURE_SUBSCRIPTION_ID_PKSDEMO }}  --query accessToken -o tsv)        
           echo "ACCESS_TOKEN=$ACCESS_TOKEN" >> $GITHUB_ENV
 
           Write-Host "###############################################"
@@ -348,6 +348,7 @@ jobs:
 
         env:
           SHAREPOINT_ADMIN_SITE_URL_PKSDEMO: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
+          AZURE_SUBSCRIPTION_ID_PKSDEMO: ${{ vars.AZURE_SUBSCRIPTION_ID_PKSDEMO }}
 
       # - name: Build frontend
       #   run: |

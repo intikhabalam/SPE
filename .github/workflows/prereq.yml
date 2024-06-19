@@ -297,7 +297,7 @@ jobs:
           
           echo "ACCESS_TOKEN=$ACCESS_TOKEN" >> $GITHUB_ENV
 
-          echo "Access Token:$ACCESS_TOKEN"
+          echo "Access Token $ACCESS_TOKEN"
 
 
 

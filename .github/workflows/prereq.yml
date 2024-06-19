@@ -158,6 +158,7 @@ jobs:
           fi
 
       - name: Deploy Azure Static Webapp
+        if: env.staticWebApp_exists == 'false'
         id: create_azure_static_webapp
         run: |
           az deployment group create --resource-group ${{ env.RESOURCE_GROUP_NAME }} --template-file .github/workflows/staticwebapp.bicep --parameters .github/workflows/parameters.json --parameters resourceGroupName=${{ env.RESOURCE_GROUP_NAME }} --parameters staticWebAppName=${{ env.STATIC_WEB_APP_NAME }}
@@ -280,6 +281,12 @@ jobs:
           echo "react_app_azure_app_id=$reactAppAzureAppId" >> $GITHUB_OUTPUT
           echo "react_app_azure_secret=$reactAppAzureSecret" >> $GITHUB_OUTPUT
           echo "CONTAINER_TYPE_ID=$ContainerTypeId" >> $GITHUB_OUTPUT
+
+          # Assuming you have already written values to output.txt
+          echo "CONTAINER_TYPE_ID=1234567890" > output.txt
+          echo "REACT_APP_AZURE_SECRET=mysecretvalue" >> output.txt
+          echo "REACT_APP_AZURE_APP_ID=myappid" >> output.txt
+
         env:
           SHAREPOINT_ADMIN_SITE_URL_PKSDEMO: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
 

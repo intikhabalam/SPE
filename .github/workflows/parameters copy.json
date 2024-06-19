@@ -28,6 +28,18 @@
     },
     "project": {
       "value": "SharePointEmbedded"
+    },
+    "sharepointAdminSiteUrl": {
+      "value": "https://pkssandbox-admin.sharepoint.com"
+    },
+    "containerTypeName": {
+      "value": "WednesdayCotainerType"
+    },
+    "owningApplicationId": {
+      "value": "e385ff92-0abb-4a26-b41d-2fa18a65d580"
+    },
+    "owningAppRegName": {
+      "value": "19WednesdayAppRegistration"
     }
   }
 }

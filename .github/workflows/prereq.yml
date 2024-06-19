@@ -176,10 +176,7 @@ jobs:
       - name: Deploy Azure Static Webapp
         id: create_azure_static_webapp
         run: |
-          az deployment group create \
-            --resource-group ${{ env.RESOURCE_GROUP_NAME }} \
-            --template-file .github/workflows/staticwebapp.bicep \
-            --parameters .github/workflows/parameters.json    
+          az deployment group create --resource-group ${{ env.RESOURCE_GROUP_NAME }} --template-file .github/workflows/staticwebapp.bicep --parameters .github/workflows/parameters.json    
 
       - name: Create Service Principal and Get Credentials
         shell: pwsh

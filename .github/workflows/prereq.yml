@@ -162,6 +162,26 @@ jobs:
             az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location "${{ env.LOCATION }}"
             echo "Resource Group created."
           fi
+      - name: Check if Static Web App exists
+        id: check_static_webapp
+        run: |
+          if ! az staticwebapp show --name ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
+            echo "Static Web App does not exist."
+            echo "staticWebApp_exists=false" >> $GITHUB_ENV
+          else
+            echo "Static Web App exists."
+            echo "staticWebApp_exists=true" >> $GITHUB_ENV
+          fi
+
+      - name: Deploy Azure Static Webapp
+        if: env.staticWebApp_exists == 'false'
+        id: create_azure_static_webapp
+        run: |
+          az deployment group create \
+            --resource-group ${{ env.RESOURCE_GROUP_NAME }} \
+            --template-file .github/workflows/staticwebapp.bicep \
+            --parameters .github/workflows/parameters.json    
+            
       - name: Create Service Principal and Get Credentials
         shell: pwsh
         run: |

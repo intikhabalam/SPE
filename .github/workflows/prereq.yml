@@ -38,18 +38,18 @@ jobs:
       #   env:
       #     API_URL: '${{ env.MY_VARIABLE }}'
 
-      # - name: Install jq
-      #   run: sudo apt-get install jq
+      - name: Install jq
+        run: sudo apt-get install jq
 
-      # - name: Install Azure CLI
-      #   run: |
-      #     curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+      - name: Install Azure CLI
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-      # - name: Install Az module
-      #   run: |
-      #     Install-Module -Name Az -Scope CurrentUser -Force
-      #     Get-Module -Name Az -ListAvailable
-      #   shell: pwsh
+      - name: Install Az module
+        run: |
+          Install-Module -Name Az -Scope CurrentUser -Force
+          Get-Module -Name Az -ListAvailable
+        shell: pwsh
 
       - name: Extract variables from Parameters JSON file
         id: extract_parameters2

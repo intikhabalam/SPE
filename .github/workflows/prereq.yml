@@ -310,15 +310,15 @@ jobs:
           Write-Host "OwningApplicationId: $OwningApplicationId"
           Write-Host "Classification: $Classification"
 
-          Write-Host "ClientID: $reactAppAzureAppId"
-          Write-Host "Client S e c r e t: $reactAppAzureSecret"
-          Write-Host "Client S e c r e t: $Client_S_r_t"
-          Write-Host "ConsumingTenantId: ${{ secrets.AZURE_TENANT_ID_PKSDEMO }}"
-          Write-Host "RootSiteUrl: $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
-          Write-Host "ContainerTypeId: $ContainerTypeId"
-          Write-Host "TenantName: $TenantName"
-          write-Host "CertThumbprint: $certificateThumbPrint"
-          Write-Host "CertPrivateKey: $certContent"
+          Write-Host "ClientID value is      $reactAppAzureAppId"
+          Write-Host "Client S e c r e t value is      $reactAppAzureSecret"
+          Write-Host "Client S e c r e t value is      $Client_S_r_t"
+          Write-Host "ConsumingTenantId value is      ${{ secrets.AZURE_TENANT_ID_PKSDEMO }}"
+          Write-Host "RootSiteUrl value is      $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
+          Write-Host "ContainerTypeId value is      $ContainerTypeId"
+          Write-Host "TenantName value is      $TenantName"
+          write-Host "CertThumbprint value is      $certificateThumbPrint"
+          Write-Host "CertPrivateKey value is      $certContent"
 
 
           # Connect to Azure using device login

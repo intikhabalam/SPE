@@ -158,7 +158,6 @@ jobs:
           fi
 
       - name: Deploy Azure Static Webapp
-        if: env.staticWebApp_exists == 'false'
         id: create_azure_static_webapp
         run: |
           az deployment group create --resource-group ${{ env.RESOURCE_GROUP_NAME }} --template-file .github/workflows/staticwebapp.bicep --parameters .github/workflows/parameters.json --parameters resourceGroupName=${{ env.RESOURCE_GROUP_NAME }} --parameters staticWebAppName=${{ env.STATIC_WEB_APP_NAME }}
@@ -226,15 +225,12 @@ jobs:
 
           # Print the Thumbprint to verify
           Write-Output "The certificate ThumbPrint is: $certificateThumbPrint"
-          echo "ContainerTypeId $ContainerTypeId"
-          echo "reactAppAzureSecret $reactAppAzureSecret"
-          echo "reactAppAzureAppId $reactAppAzureAppId"
 
           # Update the Azure Static Webapp Settings
           az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names "SPE_CONTAINER_TYPE_ID=$ContainerTypeId" "AZURE_CLIENT_SECRET=$reactAppAzureSecret" "AZURE_CLIENT_ID=$reactAppAzureAppId"
 
-          echo "####################################################################"
-          echo "####################################################################"
+          Write-Host "####################################################################"
+          Write-Host "####################################################################"
 
           # Connect to SharePoint Online
           Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO -DeviceLogin
@@ -276,38 +272,5 @@ jobs:
 
           Write-Host "Certificate Path: $certPath"
           Write-Host "Private Key Content: $certContent"
-
-          # Store values in output variables
-          echo "react_app_azure_app_id=$reactAppAzureAppId" >> $GITHUB_OUTPUT
-          echo "react_app_azure_secret=$reactAppAzureSecret" >> $GITHUB_OUTPUT
-          echo "CONTAINER_TYPE_ID=$ContainerTypeId" >> $GITHUB_OUTPUT
-
-          # Assuming you have already written values to output.txt
-          echo "CONTAINER_TYPE_ID=1234567890" > output.txt
-          echo "REACT_APP_AZURE_SECRET=mysecretvalue" >> output.txt
-          echo "REACT_APP_AZURE_APP_ID=myappid" >> output.txt
-
         env:
           SHAREPOINT_ADMIN_SITE_URL_PKSDEMO: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
-
-      - name: Read from output.txt and Set Outputs
-        id: readFromFile
-        run: |
-          # Read values from output.txt into environment variables
-          CONTAINER_TYPE_ID=$(awk -F= '/CONTAINER_TYPE_ID/{print $2}' output.txt)
-          REACT_APP_AZURE_SECRET=$(awk -F= '/REACT_APP_AZURE_SECRET/{print $2}' output.txt)
-          REACT_APP_AZURE_APP_ID=$(awk -F= '/REACT_APP_AZURE_APP_ID/{print $2}' output.txt)
-
-          # Set outputs for subsequent steps
-          echo "::set-output name=CONTAINER_TYPE_ID::$CONTAINER_TYPE_ID"
-          echo "::set-output name=REACT_APP_AZURE_SECRET::$REACT_APP_AZURE_SECRET"
-          echo "::set-output name=REACT_APP_AZURE_APP_ID::$REACT_APP_AZURE_APP_ID"
-
-          echo "$(awk -F= '/CONTAINER_TYPE_ID/{print $2}' output.txt)"
-          echo "$(awk -F= '/REACT_APP_AZURE_SECRET/{print $2}' output.txt)"
-          echo "$(awk -F= '/REACT_APP_AZURE_APP_ID/{print $2}' output.txt)"
-
-          az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names \
-                                      "SPE_CONTAINER_TYPE_ID=$(awk -F= '/CONTAINER_TYPE_ID/{print $2}' output.txt)" \
-                                      "AZURE_CLIENT_SECRET=$(awk -F= '/REACT_APP_AZURE_SECRET/{print $2}' output.txt)" \
-                                      "AZURE_CLIENT_ID=$(awk -F= '/REACT_APP_AZURE_APP_ID/{print $2}' output.txt)

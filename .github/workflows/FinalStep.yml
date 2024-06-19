@@ -1,0 +1,111 @@
+name: Deploy SharePoint Container
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy_sharepoint_container:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x] # Use Node.js 16.x
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Extract variables from Parameters JSON file
+        id: extract_parameters2
+        run: |
+          RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourcePrefix.value' .github/workflows/parameters.json)
+          LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
+
+          echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME-ResGrp" >> $GITHUB_ENV
+          echo "STATIC_WEB_APP_NAME=$RESOURCE_GROUP_NAME-StaticWebApp" >> $GITHUB_ENV
+          echo "SPE_APP_NAME=$RESOURCE_GROUP_NAME-Spe_App_Reg" >> $GITHUB_ENV         
+          echo "LOCATION=$LOCATION" >> $GITHUB_ENV
+          echo "CONTAINER_TYPE_NAME=$RESOURCE_GROUP_NAME-ContainerType" >> $GITHUB_ENV
+          
+
+          echo $RESOURCE_GROUP_NAME
+          echo $STATIC_WEB_APP_NAME
+          echo $SPE_APP_NAME
+          echo $CONTAINER_TYPE_NAME
+          echo $LOCATION
+          echo "##########################################################################"
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_SERVICEPRINCIPAL_CLIENT_ID_PKSDEMO }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID_PKSDEMO }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }}
+          allow-no-subscriptions: true
+
+      - name: Get Azure Static Webapp values
+        id: get_static_webapp_values
+        run: |
+          STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "properties.apiKey" -o tsv)
+          echo "STATIC_WEBAPP_TOKEN=$STATIC_WEBAPP_TOKEN" >> $GITHUB_ENV
+          STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
+          echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-${{ matrix.node-version }}-
+
+      - name: Install dependencies (frontend)
+        run: |
+          cd react-client
+          npm install
+ 
+
+      - name: Build frontend
+        run: |
+          cd react-client
+          CI=false npm run build # Set CI=false to avoid treating warnings as errors
+        env:
+          REACT_APP_AZURE_SERVER_APP_ID: ${{ vars.APP_REGISTRATION_CLIENT_ID_PKSDEMO }}
+          REACT_APP_AZURE_APP_ID: ${{ vars.APP_REGISTRATION_CLIENT_ID_PKSDEMO }}
+          REACT_APP_SPE_CONTAINER_TYPE_ID: ${{ vars.CONTAINER_TYPE_ID_PKSDEMO }}
+          REACT_APP_SP_ROOT_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
+          REACT_APP_SAMPLE_API_URL: 'https://${{env.STATIC_WEBAPP_URL}}/api'
+
+      - name: Install dependencies (backend)
+        run: |
+          cd api
+          npm install
+
+      - name: Build backend
+        run: |
+          cd api
+          CI=false npm run build # Set CI=false to avoid treating warnings as errors
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ env.STATIC_WEBAPP_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: 'upload'
+          app_location: 'react-client/build'
+          api_location: 'api'

@@ -227,13 +227,13 @@ jobs:
           Write-Output "The certificate ThumbPrint is: $certificateThumbPrint"
 
           # Update the Azure Static Webapp Settings
-          az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names "SPE_CONTAINER_TYPE_ID=$ContainerTypeId" "AZURE_CLIENT_SECRET=${{ env.REACT_APP_AZURE_APP_SECRET }}" "AZURE_CLIENT_ID= ${{ env.REACT_APP_AZURE_APP_ID }}"
+          az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names "SPE_CONTAINER_TYPE_ID=$ContainerTypeId" "AZURE_CLIENT_SECRET=$reactAppAzureSecret" "AZURE_CLIENT_ID=$reactAppAzureAppId"
 
           Write-Host "####################################################################"
           Write-Host "####################################################################"
 
           # Connect to SharePoint Online
-          Connect-PnPOnline -Url ${{ env.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }} -DeviceLogin
+          Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO -DeviceLogin
 
           # Your PnP PowerShell commands
           Write-Host "Hello World"
@@ -272,3 +272,5 @@ jobs:
 
           Write-Host "Certificate Path: $certPath"
           Write-Host "Private Key Content: $certContent"
+        env:
+          REPOSITORY_VAR: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}

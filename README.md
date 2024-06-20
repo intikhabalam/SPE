@@ -27,8 +27,8 @@ Select **Settings -> Secrets and variables -> Actions**
 From this menu we will now create the folowing variables and secret
 
 Variables:
-1. AZURE_SERVICEPRICIPAL_CLIENT_ID : This is an App registration created to allow the pipeline to deploy into your subscription
-2. AZURE_TENANT_ID: 
+1. AZURE_SERVICEPRICIPAL_CLIENT_ID : This is an App registration created to allow the pipeline to deploy into your subscription. See Step 1.2
+2. AZURE_TENANT_ID: This is the azure tenant ID. 
 3. SHAREPOINT_ADMIN_SITE_URL : This is the SharePoint administration site. This is in the format https://<TenantName>-admin.sharepoint.com
 
 Secret:
@@ -53,36 +53,70 @@ After the registration has been created we will need to secure it, we do this by
 From here we will create a GitHub deployed action
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/87c0b0b1-6fa7-46bc-9eff-a289fe053aa8)</kbd>
 
+For the default values they are the following from Github.
+
+**GitHub Details**
+- Orgainsation : This is the name of your repositiory
+- Respoitory : This is the name of the forked repository
+- Entity Type : Set this to Branch
+- GitHub Branch Name : Set this to main
+
+**Credential Details**
+-  Name : This is a name for this credential
+-  Description : Description of the credential
+
+
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/494c7cd2-826b-4e49-ac27-534f8f51e3d4)</kbd>
 
+Copy the application ID and set the variable AZURE_SERVICEPRICIPAL_CLIENT_ID to this value
+
+## Step 1.3 Setting the rights of the app registration
+We now need to set the permissions of the app registration to allow it to deploy out the code and set the variables and configurations needed for the applciation
+
+Navigate to your subscription and select **Access Control (IAM) -> Add -> Add Role Assignment**
+
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/3c2908d5-e251-4429-a870-96b855870ed1)</KBD>
+
+We are planning to assign the app refgistraion owner permissions at this time to allow it to complete its actions [Permissions are still being validated for least privledges] 
+
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/97de4aca-4f6a-442f-8a3d-2b3c06a11fd9)</kbd>
+
+Select **Owner** and selct **Next**
+
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/6ac42dd1-f181-473b-b21c-e97619f6a8da)</kbd>
+
+Select Members and we want to add the name of the service pricipal that wa created above in step 1.2.
+
+After the App Registration has been select **Next**. Select the Recommended "Allow user to assign all roles execpt privileged administrator roles Owner,UAA, BBAV"  
+
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/62576f31-cfef-48c5-83d1-aad5d7fc56ca)</kbd>
+
+Select **Next** and then **Review + Assign**
+
+This will allow the Github pipeline to now deploy into your azure subscription
 
 
+# Step 2: Deploy the GitHub Pipeline
+Now that you have configure the access for the Github to deploy into azure you are now ready to deploy the pipeline
 
+In Github Select Actions. And if you have not deployed a pipline before you will need to authorise and enable the pipelines
 
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/d6907c1d-3fe3-40f8-9fe3-fbf35bf898ca)</kbd>
 
+The pipeline that you need to run is the Deploy SharePoint Container Pipeline
 
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/7470eba7-e6f1-4570-bcfc-a376c4b29bf7)</kbd>
 
+Select the pipeline and select the main branch and select Run workflow
 
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/3c8f2619-756d-47da-84f7-6020e0e5a8a2)</kbd>
 
+The Pipeline deployment can take upwards to 15min to fully deploy and has 3 instances where you need to manually approve an Action
 
+<KBD>![image](https://github.com/intikhabalam/SPE/assets/171198457/e52662d5-ebad-4fc6-ab1b-40f9226b416b)</KBD>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+These steps will look like this
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/f41f7cef-93ab-4683-bbf3-fb534921e2a0)</kbd>
 
 
 

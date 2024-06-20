@@ -110,25 +110,13 @@ jobs:
                   "type": "Spa"
               },
               {
-                  "url": "https://agreeable-cliff-051b8dd10.5.azurestaticapps.net/",
-                  "type": "Spa"
-              },
-              {
-                  "url": "https://proud-bay-08ee10810.5.azurestaticapps.net/",
-                  "type": "Spa"
-              },
-              {
-                  "url": "https://ashy-bay-0a679a810.5.azurestaticapps.net/",
-                  "type": "Spa"
-              },
-              {
                   "url": "https://lemon-smoke-0de0c8110.5.azurestaticapps.net/",
                   "type": "Spa"
               },
-          {
-              "url": "http://localhost/",
-              "type": "Spa"
-          }
+              {
+                  "url": "http://localhost/",
+                  "type": "Spa"
+              }
           ]
           EOF
 
@@ -234,10 +222,7 @@ jobs:
           $manifestPath = "$(pwd)/manifest.json"
 
           Write-Host "app id environment variable: $reactAppAzureAppId"
-
-          az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
-          az ad app permission admin-consent --id $reactAppAzureAppId
-
+          
           $objectId = az ad app show --id $reactAppAzureAppId --query id -o tsv
           Write-Output "The Object ID is: $objectId"
 
@@ -249,6 +234,10 @@ jobs:
 
           # Print the Thumbprint to verify
           Write-Output "The certificate ThumbPrint is: $certificateThumbPrint"
+
+          #Grant Admin Consent to App Permissions
+          az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
+          az ad app permission admin-consent --id $reactAppAzureAppId
 
           # Connect to SharePoint Online
           Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO -DeviceLogin
@@ -289,6 +278,7 @@ jobs:
               $TenantName = $matches[1]
           }
 
+          
           # Print the result
           Write-Output "Extracted Value: $TenantName"
 
@@ -329,7 +319,7 @@ jobs:
             "RegisterContainer_ClientID=$reactAppAzureAppId" `
             "RegisterContainer_ClientSecret=$reactAppAzureSecret" `
             "RegisterContainer_ConsumingTenantId=${{ vars.AZURE_TENANT_ID_PKSDEMO }}" `
-            "RegisterContainer_RootSiteUrl=$env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO" `
+            "RegisterContainer_RootSiteUrl=https://$TenantName.sharepoint.com/" `
             "RegisterContainer_ContainerTypeId=$ContainerTypeId" `
             "RegisterContainer_TenantName=$TenantName" `
             "RegisterContainer_CertThumbprint=$certificateThumbPrint" `

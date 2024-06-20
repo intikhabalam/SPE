@@ -7,9 +7,164 @@ Before you begin there are some Pre-Requsites that are required.
 2. Global Admin: Azure
 3. Application: Windows Powershell
 4. Application: [PostMan](https://www.postman.com/downloads/)
+5. Application: Github account
 
 
-# Step 1: Enable SharePoint Containers on your SharePoint Online tenant
+# Pipeline deployment
+While this has been automated to a high degree there are some manual steps that need to be added or completed as part of deployment process
+## Step 1: Fork the SharePoint Embedded Repo
+Create a new fork of the existing code. This will allow you to create any customisation that you want to the code will bringing over the automation pipelines for the deployment
+
+Select **Fork - > Create new Fork** and create a new name
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/20e1ce24-aa51-410b-9862-2d36d824d3d9)</kbd>
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/a6d396e3-05d8-4203-bd46-14d002244104)</kbd>
+
+Now that the we have a fork of the deployment code we will need to update some of the configuration variables. These are variables that are specific to you tenant.
+
+Select **Settings -> Secrets and variables -> Actions**
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/0d727d84-7c2b-4f63-8c67-617005822bd0)</kbd>
+
+From this menu we will now create the folowing variables and secret
+
+Variables:
+1. AZURE_SERVICEPRICIPAL_CLIENT_ID : This is an App registration created to allow the pipeline to deploy into your subscription
+2. AZURE_TENANT_ID: 
+3. SHAREPOINT_ADMIN_SITE_URL : This is the SharePoint administration site. This is in the format https://<TenantName>-admin.sharepoint.com
+
+Secret:
+1. AZURE_SUBSCRIPTION_ID: This is the ID of the subscription that you want to deploy into in Azure
+
+## Step 1.2 Create App registration to allow for pipeline deployment
+Application management in Microsoft Entra ID (Microsoft Entra ID) is the process of securely creating, configuring, managing, and monitoring applications in the cloud. When you register your application in a Microsoft Entra tenant, you configure secure user access. We will need this in order to deploy our Github pipeline to azure
+
+Log into your Azure Subscription and navigate to **App Registrations** https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade
+
+Select **New Registration**
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/81c767d8-0ca7-45a6-a1c1-2fab540c1834)</kbd>
+
+**Name:** Name of the Registration. Name this something that would apply to your purpose eg "My Embedded App"
+
+**Supported account types:** Accounts in this organisational dectory only(Single Tenant)
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/29ee8b00-d5c9-4b1b-bb2d-86cfd319a2cd)</kbd>
+
+After the registration has been created we will need to secure it, we do this by creating a federated credential which is a replacement for the Client Secret
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/b93640c8-15f9-4eba-bf0c-58c8f56d5117)</kbd>
+
+From here we will create a GitHub deployed action
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/87c0b0b1-6fa7-46bc-9eff-a289fe053aa8)</kbd>
+
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/494c7cd2-826b-4e49-ac27-534f8f51e3d4)</kbd>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Manual Steps
+## Step 1: Enable SharePoint Containers on your SharePoint Online tenant
 
 **This is now enabled by default on all tenants. You cannot see this menu unless you have the SharePoint Embedded Administrator role. Global Admin has this permission by default**
 
@@ -20,7 +175,7 @@ To confirm that SharePoint Embedded is enabled navigate to the SharePoint admin 
 
 **Currently there is a limit on the number of containers that can be active at one time through using SharePoint Embedded which is 5. This also includes containers that are deleted if you need to create a new container you will need to delete an existing container and permanantly delete it from the deleted location**
 
-# Step 2: Create App Registration
+## Step 2: Create App Registration
 
 Application management in Microsoft Entra ID (Microsoft Entra ID) is the process of securely creating, configuring, managing, and monitoring applications in the cloud. When you register your application in a Microsoft Entra tenant, you configure secure user access.
 
@@ -36,7 +191,7 @@ Select **New Registration**
 
 Copy down the **Application (Client) ID** & **Directory (tenant) ID** as you will need these later
 
-## Step 2.1: Configure Authentication
+### Step 2.1: Configure Authentication
 This is the Public URL of the Embedded app and any urls that are in the app
 
 Select **Manage -> Authentication** from the left navigation menu
@@ -48,7 +203,7 @@ On the Configure single-page application pane, set the Redirect URL to [URL of E
 
 
 
-## Step 2.2: Configure API Permissions
+### Step 2.2: Configure API Permissions
 
 This step you need to configure the API permissions for the app. What you are setting here is the the Graph API permissions that the app reigstration is allowed to use / allowed access to. This is based on the least privledges principal.
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/e3b0e62b-dd57-49e5-aa8d-3a4f7fd2ee50)</kbd>
@@ -114,7 +269,7 @@ When you have updated the Manifest you will need to approve and authorise the pe
 
 --Screenshots of Enterprise app accept permissions--
 
-## Step 2.3: Create Client Secret 
+### Step 2.3: Create Client Secret 
 For the app to authenticate through Azure and M365 you will need a new client secret on the app registration. You will need to note down the secret as this will only appear one time when you create the secret. You are also unable to view a previously created secret.
 
 Select **Manage -> Certificates and Secrets**
@@ -125,7 +280,7 @@ Set the Details of the Secret
 - Description: Name of the secret e.g. EmbeddedSecret
 - Secret duration Eg 1year
 
-## Step 2.4: Create container Type
+### Step 2.4: Create container Type
 This step we need to create the container type. At the time of writing there are no UI options to create this therefore this will need to be created using powershell. 
 
 On your computer run powershell as administrator. You will need the Sharepoint powershell module.
@@ -167,7 +322,7 @@ Region              :
 ```
 Note down the container type ID as this will be required later
 
-## Step 2.5: Create a Self signed Certificate
+### Step 2.5: Create a Self signed Certificate
 This step you will need to create a self signed certificate. this certificate is what is used for the app to securely connect with SharePoint. 
 
 On your local Desktop open a powershell window as administrator run the below powershell code updating the following 
@@ -201,7 +356,7 @@ In the App Registraion from Step 2 select **Manage -> Certificates & Secrets** a
 
 Upload the *.cer by selecting Upload certificate and navigate to the location where the *.cer is located. Make a note of the Thumbprint of certificate as this will be needed for later.
 
-# Step 3: Registering the Container Type
+## Step 3: Registering the Container Type
 These next steps are using commands to register the container type in SharePoint. There are no active menus to currently complete this so it is advised that SharePoint Rest API commands are used to complete these actions.
 
 As per the the Postman pre requsite there is a git repo with all the required Rest commands ready for you to use
@@ -235,6 +390,9 @@ When you have set these up you then need to run the **Register ContainerType** l
 --Add Steps here on running the command and the expected result--
 
 --Add Manual Steps to authenticate here--
+
+
+
 
 
 

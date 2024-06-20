@@ -184,168 +184,168 @@ jobs:
           STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
           echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
   
-      # - name: Create Service Principal and Get Credentials
-      #   id: create_service_principal
-      #   shell: pwsh
-      #   run: |
-      #     # Connect to Azure using device login
-      #     az login --use-device-code
+      - name: Create Service Principal and Get Credentials
+        id: create_service_principal
+        shell: pwsh
+        run: |
+          # Connect to Azure using device login
+          az login --use-device-code
 
-      #     # Create a certificate for the Service Principal
-      #     $certOutput = az ad sp create-for-rbac -n ${{ env.SPE_APP_NAME }} --create-cert
+          # Create a certificate for the Service Principal
+          $certOutput = az ad sp create-for-rbac -n ${{ env.SPE_APP_NAME }} --create-cert
 
-      #     # Extract the certificate file path
-      #     $certObject = $certOutput | ConvertFrom-Json
-      #     $certPath = $certObject.fileWithCertAndPrivateKey
+          # Extract the certificate file path
+          $certObject = $certOutput | ConvertFrom-Json
+          $certPath = $certObject.fileWithCertAndPrivateKey
 
-      #     # Read the certificate content and extract only the private key
-      #     $certContent = Get-Content $certPath -Raw
-      #     $certContent = $certContent -replace '(?s)^.*?(-----BEGIN PRIVATE KEY-----.*?-----END PRIVATE KEY-----).*$', '$1'
-
-
-      #     # Store the private key content in an environment variable
-      #     echo "PRIVATE_KEY=$certContent" >> $GITHUB_ENV
-
-      #     # Create Service Principal
-      #     $spId = az ad sp create-for-rbac --role contributor --scopes /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }} -n ${{ env.SPE_APP_NAME }}
-
-      #     # Convert the JSON output to a PowerShell object
-      #     $spObject = $spId | ConvertFrom-Json
-
-      #     # Extract the required values
-      #     $reactAppAzureAppId = $spObject.appId
-      #     $displayName = $spObject.displayName
-      #     $reactAppAzureSecret = $spObject.password
-      #     $Client_S_r_t = $spObject.password
-
-      #     # Update the application with redirect URIs
-      #     az ad app update --id $reactAppAzureAppId --web-redirect-uris  "https://localhost/signout-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signin-oidc" "https://oauth.pstmn.io/v1/callback" "https://oauth.pstmn.io/v1/browser-callback" "http://localhost/redirect"
-
-      #     # Print the values
-      #     Write-Host "App ID: $reactAppAzureAppId"
-      #     Write-Host "Display Name: $displayName"
-
-      #     # Store values in environment variables
-      #     echo "REACT_APP_AZURE_APP_ID=$reactAppAzureAppId" >> $GITHUB_ENV
-      #     echo "REACT_APP_AZURE_APP_SECRET=$reactAppAzureSecret" >> $GITHUB_ENV
-      #     echo "DISPLAY_NAME=$displayName" >> $GITHUB_ENV
-
-      #     # Path to the manifest file
-      #     $manifestPath = "$(pwd)/manifest.json"
-
-      #     Write-Host "app id environment variable: $reactAppAzureAppId"
-
-      #     az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
-      #     az ad app permission admin-consent --id $reactAppAzureAppId
-
-      #     $objectId = az ad app show --id $reactAppAzureAppId --query id -o tsv
-      #     Write-Output "The Object ID is: $objectId"
-
-      #     # Perform Azure REST API call to retrieve key credentials
-      #     $response = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials"
-      #     Write-Output "The response ID is: $response"
-
-      #     $certificateThumbPrint = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials" | Select-String -Pattern '"customKeyIdentifier": "([^"]+)"' | ForEach-Object { $_.Matches.Groups[1].Value }
-
-      #     # Print the Thumbprint to verify
-      #     Write-Output "The certificate ThumbPrint is: $certificateThumbPrint"
-
-      #     # Connect to SharePoint Online
-      #     Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO -DeviceLogin
-
-      #     # Your PnP PowerShell commands
-      #     Write-Host "Hello World"
-      #     Write-Host "$reactAppAzureAppId"
-
-      #     # Get container type information
-      #     $containerType = Get-PnPContainerType
-
-      #     # Check if container type already exists
-      #     if (-not $containerType) {
-      #       New-PnPContainerType -TrialContainerType -ContainerTypeName ${{ env.CONTAINER_TYPE_NAME }} -OwningApplicationId $reactAppAzureAppId
-      #     } else {
-      #       Write-Host "Container type already exists."
-      #     }
-
-      #     # Get container type information
-      #     $containerType = Get-PnPContainerType
-
-      #     # Store each value in a separate variable
-      #     $ContainerTypeId = $containerType.ContainerTypeId
-      #     echo "CONTAINER_TYPE_ID=$ContainerTypeId" >> $GITHUB_ENV
-      #     echo "CONTAINER_TYPE_ID_Output=$ContainerTypeId" >> "$GITHUB_OUTPUT"
-      #     echo "REACT_APP_AZURE_APP_ID_Output=$reactAppAzureAppId" >> "$GITHUB_OUTPUT"
-
-      #     $ContainerTypeName = $containerType.ContainerTypeName
-      #     $OwningApplicationId = $reactAppAzureAppId
-      #     $Classification = $containerType.Classification
+          # Read the certificate content and extract only the private key
+          $certContent = Get-Content $certPath -Raw
+          $certContent = $certContent -replace '(?s)^.*?(-----BEGIN PRIVATE KEY-----.*?-----END PRIVATE KEY-----).*$', '$1'
 
 
-      #     # Extracting TenantName from SharePoint Adminsite URL
-      #     $originalUrl = $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO
+          # Store the private key content in an environment variable
+          echo "PRIVATE_KEY=$certContent" >> $GITHUB_ENV
 
-      #     # Extract the desired part using regex
-      #     if ($originalUrl -match "https://([^-]+)-admin.sharepoint.com") {
-      #         $TenantName = $matches[1]
-      #     }
+          # Create Service Principal
+          $spId = az ad sp create-for-rbac --role contributor --scopes /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }} -n ${{ env.SPE_APP_NAME }}
 
-      #     # Print the result
-      #     Write-Output "Extracted Value: $TenantName"
+          # Convert the JSON output to a PowerShell object
+          $spObject = $spId | ConvertFrom-Json
 
-      #     # # Output each value
-      #     # Write-Host "ContainerTypeName: $ContainerTypeName"
-      #     # Write-Host "OwningApplicationId: $OwningApplicationId"
-      #     # Write-Host "Classification: $Classification"
+          # Extract the required values
+          $reactAppAzureAppId = $spObject.appId
+          $displayName = $spObject.displayName
+          $reactAppAzureSecret = $spObject.password
+          $Client_S_r_t = $spObject.password
 
-      #     # Write-Host "ClientID value is      $reactAppAzureAppId"
-      #     # Write-Host "Client S e c r e t value is      $reactAppAzureSecret"
-      #     # Write-Host "Client S e c r e t value is      $Client_S_r_t"
-      #     # Write-Host "ConsumingTenantId value is      ${{ vars.AZURE_TENANT_ID_PKSDEMO }}"
-      #     # Write-Host "RootSiteUrl value is      $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
-      #     # Write-Host "ContainerTypeId value is      $ContainerTypeId"
-      #     # Write-Host "TenantName value is      $TenantName"
-      #     # write-Host "CertThumbprint value is      $certificateThumbPrint"
-      #     # Write-Host "CertPrivateKey value is      $certContent"
+          # Update the application with redirect URIs
+          az ad app update --id $reactAppAzureAppId --web-redirect-uris  "https://localhost/signout-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signin-oidc" "https://oauth.pstmn.io/v1/callback" "https://oauth.pstmn.io/v1/browser-callback" "http://localhost/redirect"
 
-      #     # echo "ClientID value is      $reactAppAzureAppId"
-      #     # echo "Client S e c r e t value is      $reactAppAzureSecret"
-      #     # echo "Client S e c r e t value is      $Client_S_r_t"
-      #     # echo "ConsumingTenantId value is      ${{ vars.AZURE_TENANT_ID_PKSDEMO }}"
-      #     # echo "RootSiteUrl value is      $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
-      #     # echo "ContainerTypeId value is      $ContainerTypeId"
-      #     # echo "TenantName value is      $TenantName"
-      #     # echo "CertThumbprint value is      $certificateThumbPrint"
-      #     # echo "CertPrivateKey value is      $certContent"
+          # Print the values
+          Write-Host "App ID: $reactAppAzureAppId"
+          Write-Host "Display Name: $displayName"
+
+          # Store values in environment variables
+          echo "REACT_APP_AZURE_APP_ID=$reactAppAzureAppId" >> $GITHUB_ENV
+          echo "REACT_APP_AZURE_APP_SECRET=$reactAppAzureSecret" >> $GITHUB_ENV
+          echo "DISPLAY_NAME=$displayName" >> $GITHUB_ENV
+
+          # Path to the manifest file
+          $manifestPath = "$(pwd)/manifest.json"
+
+          Write-Host "app id environment variable: $reactAppAzureAppId"
+
+          az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
+          az ad app permission admin-consent --id $reactAppAzureAppId
+
+          $objectId = az ad app show --id $reactAppAzureAppId --query id -o tsv
+          Write-Output "The Object ID is: $objectId"
+
+          # Perform Azure REST API call to retrieve key credentials
+          $response = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials"
+          Write-Output "The response ID is: $response"
+
+          $certificateThumbPrint = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials" | Select-String -Pattern '"customKeyIdentifier": "([^"]+)"' | ForEach-Object { $_.Matches.Groups[1].Value }
+
+          # Print the Thumbprint to verify
+          Write-Output "The certificate ThumbPrint is: $certificateThumbPrint"
+
+          # Connect to SharePoint Online
+          Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO -DeviceLogin
+
+          # Your PnP PowerShell commands
+          Write-Host "Hello World"
+          Write-Host "$reactAppAzureAppId"
+
+          # Get container type information
+          $containerType = Get-PnPContainerType
+
+          # Check if container type already exists
+          if (-not $containerType) {
+            New-PnPContainerType -TrialContainerType -ContainerTypeName ${{ env.CONTAINER_TYPE_NAME }} -OwningApplicationId $reactAppAzureAppId
+          } else {
+            Write-Host "Container type already exists."
+          }
+
+          # Get container type information
+          $containerType = Get-PnPContainerType
+
+          # Store each value in a separate variable
+          $ContainerTypeId = $containerType.ContainerTypeId
+          echo "CONTAINER_TYPE_ID=$ContainerTypeId" >> $GITHUB_ENV
+          echo "CONTAINER_TYPE_ID_Output=$ContainerTypeId" >> "$GITHUB_OUTPUT"
+          echo "REACT_APP_AZURE_APP_ID_Output=$reactAppAzureAppId" >> "$GITHUB_OUTPUT"
+
+          $ContainerTypeName = $containerType.ContainerTypeName
+          $OwningApplicationId = $reactAppAzureAppId
+          $Classification = $containerType.Classification
 
 
-      #     # Connect to Azure using device login
-      #     az login --use-device-code
+          # Extracting TenantName from SharePoint Adminsite URL
+          $originalUrl = $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO
 
-      #     # Update the Azure Static Webapp Settings
-      #     az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names "SPE_CONTAINER_TYPE_ID=$ContainerTypeId" "AZURE_CLIENT_SECRET=$reactAppAzureSecret" "AZURE_CLIENT_ID=$reactAppAzureAppId"
+          # Extract the desired part using regex
+          if ($originalUrl -match "https://([^-]+)-admin.sharepoint.com") {
+              $TenantName = $matches[1]
+          }
 
-      #     # Update the Azure Static Webapp Settings with Contain
-      #     az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names `
-      #       "RegisterContainer_ClientID=$reactAppAzureAppId" `
-      #       "RegisterContainer_ClientSecret=$reactAppAzureSecret" `
-      #       "RegisterContainer_ConsumingTenantId=${{ vars.AZURE_TENANT_ID_PKSDEMO }}" `
-      #       "RegisterContainer_RootSiteUrl=$env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO" `
-      #       "RegisterContainer_ContainerTypeId=$ContainerTypeId" `
-      #       "RegisterContainer_TenantName=$TenantName" `
-      #       "RegisterContainer_CertThumbprint=$certificateThumbPrint" `
-      #       "RegisterContainer_CertPrivateKey=$certContent"
+          # Print the result
+          Write-Output "Extracted Value: $TenantName"
 
-      #     # $SCOPE="${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}/.default"
+          # # Output each value
+          # Write-Host "ContainerTypeName: $ContainerTypeName"
+          # Write-Host "OwningApplicationId: $OwningApplicationId"
+          # Write-Host "Classification: $Classification"
 
-      #     # $ACCESS_TOKEN=$(az account get-access-token --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }}  --query accessToken -o tsv)        
-      #     # echo "ACCESS_TOKEN=$ACCESS_TOKEN" >> $GITHUB_ENV
+          # Write-Host "ClientID value is      $reactAppAzureAppId"
+          # Write-Host "Client S e c r e t value is      $reactAppAzureSecret"
+          # Write-Host "Client S e c r e t value is      $Client_S_r_t"
+          # Write-Host "ConsumingTenantId value is      ${{ vars.AZURE_TENANT_ID_PKSDEMO }}"
+          # Write-Host "RootSiteUrl value is      $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
+          # Write-Host "ContainerTypeId value is      $ContainerTypeId"
+          # Write-Host "TenantName value is      $TenantName"
+          # write-Host "CertThumbprint value is      $certificateThumbPrint"
+          # Write-Host "CertPrivateKey value is      $certContent"
 
-      #     Write-Host "###############################################"
-      #     Write-Host "Access Token $ACCESS_TOKEN"
-      #     Write-Host "###############################################"
+          # echo "ClientID value is      $reactAppAzureAppId"
+          # echo "Client S e c r e t value is      $reactAppAzureSecret"
+          # echo "Client S e c r e t value is      $Client_S_r_t"
+          # echo "ConsumingTenantId value is      ${{ vars.AZURE_TENANT_ID_PKSDEMO }}"
+          # echo "RootSiteUrl value is      $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
+          # echo "ContainerTypeId value is      $ContainerTypeId"
+          # echo "TenantName value is      $TenantName"
+          # echo "CertThumbprint value is      $certificateThumbPrint"
+          # echo "CertPrivateKey value is      $certContent"
 
-      #   env:
-      #     SHAREPOINT_ADMIN_SITE_URL_PKSDEMO: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
+
+          # Connect to Azure using device login
+          az login --use-device-code
+
+          # Update the Azure Static Webapp Settings
+          az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names "SPE_CONTAINER_TYPE_ID=$ContainerTypeId" "AZURE_CLIENT_SECRET=$reactAppAzureSecret" "AZURE_CLIENT_ID=$reactAppAzureAppId"
+
+          # Update the Azure Static Webapp Settings with Contain
+          az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names `
+            "RegisterContainer_ClientID=$reactAppAzureAppId" `
+            "RegisterContainer_ClientSecret=$reactAppAzureSecret" `
+            "RegisterContainer_ConsumingTenantId=${{ vars.AZURE_TENANT_ID_PKSDEMO }}" `
+            "RegisterContainer_RootSiteUrl=$env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO" `
+            "RegisterContainer_ContainerTypeId=$ContainerTypeId" `
+            "RegisterContainer_TenantName=$TenantName" `
+            "RegisterContainer_CertThumbprint=$certificateThumbPrint" `
+            "RegisterContainer_CertPrivateKey=$certContent"
+
+          # $SCOPE="${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}/.default"
+
+          # $ACCESS_TOKEN=$(az account get-access-token --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }}  --query accessToken -o tsv)        
+          # echo "ACCESS_TOKEN=$ACCESS_TOKEN" >> $GITHUB_ENV
+
+          Write-Host "###############################################"
+          Write-Host "Access Token $ACCESS_TOKEN"
+          Write-Host "###############################################"
+
+        env:
+          SHAREPOINT_ADMIN_SITE_URL_PKSDEMO: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
 
           
       - name: Azure Login

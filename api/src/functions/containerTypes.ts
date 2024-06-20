@@ -25,7 +25,7 @@ export async function registerContainerType(request: HttpRequest, context: Invoc
         const registerPayload = {
             value: [
                 {
-                    appId: "1f83ba3b-1066-4946-935d-e9ac61cb3f21",
+                    appId: process.env.AZURE_CLIENT_ID,
                     delegated: ['full'],
                     appOnly: ['full']
                 },

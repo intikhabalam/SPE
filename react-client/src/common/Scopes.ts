@@ -22,7 +22,7 @@ export const GRAPH_SCOPES = [
 ];
 
 // sample app API scopes
-export const SAMPLE_API_CONTAINER_MANAGE = `api://1f83ba3b-1066-4946-935d-e9ac61cb3f21/Container.Manage`; // for pks microsoft corp
+export const SAMPLE_API_CONTAINER_MANAGE = `api://${Constants.AZURE_CLIENT_ID}/Container.Manage`; // for pks microsoft corp
 
 // sample app API scopes array
 export const SAMPLE_API_SCOPES = [

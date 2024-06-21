@@ -31,27 +31,12 @@ jobs:
         run: |
           # Connect to Azure using device login
           az login --use-device-code
-      
-          Write-Output "The Object ID is: $objectId"
-          
-          # Capture the Static Web App URL
-          $STATIC_WEBAPP_URL = az staticwebapp show -n 'SPE-Demo-StaticWebApp' --resource-group 'SPE-Demo-ResGrp' --query "defaultHostname" -o tsv
-      
-          Write-Output "Static Web App URL: $STATIC_WEBAPP_URL"
-      
-          # Construct the JSON body with the evaluated URL
-          $body = @{
-              spa = @{
-                  redirectUris = @("https://$STATIC_WEBAPP_URL/")
-              }
-          }
-      
-          # Convert the body to JSON format
-          $jsonBody = $body | ConvertTo-Json -Compress
-      
-          # Make the PATCH request
-          az rest --method PATCH --uri "https://graph.microsoft.com/v1.0/applications/$objectId" --headers "Content-Type=application/json" --body $jsonBody
 
+          Write-Output "The Object ID is: $objectId"
+          $STATIC_WEBAPP_URL=$(az staticwebapp show -n 'SPE-Demo-StaticWebApp' --resource-group 'SPE-Demo-ResGrp' --query "defaultHostname" -o tsv)
+
+          echo "Static Web App URL: $STATIC_WEBAPP_URL"
+          az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/$objectId" --headers "Content-Type=application/json" --body '{\"spa\":{\"redirectUris\":[\"https://$STATIC_WEBAPP_URL/\"]}}'
 
       - name: Install jq
         run: sudo apt-get install jq

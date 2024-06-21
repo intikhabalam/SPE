@@ -33,14 +33,19 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }}
           allow-no-subscriptions: true
 
-      - name: Create Azure AD Application
+      - name: Create Azure AD Application and Get Credentials
+        id: create_ad_app
         shell: pwsh
         run: |
+          # Create Azure AD Application
           $serverApp = az ad app create --display-name "Connection (Server, Test)" --available-to-other-tenants false | ConvertFrom-Json
           $AppId = $serverApp.appId
+          
+          # Update Azure AD Application Identifier URI
           az ad app update --id $AppId --identifier-uris "api://$AppId"
-          $app = az ad app show --id $AppId | ConvertFrom-Json
-          $permissionScop = @{
+          
+          # Define API permission scope
+          $permissionScope = @{
               id = [guid]::NewGuid().Guid
               adminConsentDescription = "API.Access"
               adminConsentDisplayName = "API.Access"
@@ -50,10 +55,24 @@ jobs:
               userConsentDisplayName = "API.Access"
               value = "user_impersonation"
           }
-          $api = $app.api
-          $api.oauth2PermissionScopes = @($permissionScop)
-          $apiJson = $api | ConvertTo-Json -Depth 10
-          az ad app update --id $AppId --set api.oauth2PermissionScopes="$($apiJson)"
+          
+          # Get the application API properties
+          $app = az ad app show --id $AppId | ConvertFrom-Json
+          
+          # Update API permission scopes
+          $appApi = $app.api
+          if (-not $appApi) {
+            $appApi = @{
+              oauth2PermissionScopes = @()
+            }
+          }
+          $appApi.oauth2PermissionScopes += $permissionScope
+          $appApiJson = $appApi | ConvertTo-Json -Depth 10
+          
+          az ad app update --id $AppId --set api="$appApiJson"
+          
+          # Store AppId in environment variable
+          echo "APP_ID=$AppId" >> $GITHUB_ENV
           
       - name: Install jq
         run: sudo apt-get install jq

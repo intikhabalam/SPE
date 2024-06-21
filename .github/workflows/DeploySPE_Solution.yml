@@ -220,13 +220,6 @@ jobs:
 
           # Print the Thumbprint to verify
           Write-Output "The certificate ThumbPrint is: $certificateThumbPrint"
-
-          #Grant Admin Consent to App Permissions
-          az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
-          az ad app permission admin-consent --id $reactAppAzureAppId
-
-          # Update Azure AD Application Identifier URI
-          az ad app update --id $reactAppAzureAppId --identifier-uris "api://$reactAppAzureAppId"
           
           # Define API permission scope
           $permissionScope = @{
@@ -255,9 +248,14 @@ jobs:
           
           az ad app update --id $reactAppAzureAppId --set api="$appApiJson"
           
-          # Store AppId in environment variable
-          # echo "APP_ID=$reactAppAzureAppId" >> $GITHUB_ENV
+          #Grant Admin Consent to App Permissions
+          az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
+          az ad app permission admin-consent --id $reactAppAzureAppId
 
+          # Update Azure AD Application Identifier URI
+          az ad app update --id $reactAppAzureAppId --identifier-uris "api://$reactAppAzureAppId"
+
+          ################################ ContainerType Creation - Start ##############################################
           # Connect to SharePoint Online
           Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO -DeviceLogin
 
@@ -298,6 +296,9 @@ jobs:
           }
 
           
+          ################################ ContainerType Creation - End ##############################################
+
+          ##################### Add Env variables in Azure Static Webapp - Start #####################################
 
           # Connect to Azure using device login
           az login --use-device-code
@@ -315,8 +316,6 @@ jobs:
             "RegisterContainer_TenantName=$TenantName" `
             "RegisterContainer_CertThumbprint=$certificateThumbPrint" `
             "RegisterContainer_CertPrivateKey=$certContent"
-
-
         env:
           SHAREPOINT_ADMIN_SITE_URL_PKSDEMO: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
 

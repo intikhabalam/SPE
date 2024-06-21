@@ -1,9 +1,5 @@
 import * as React from "react";
-import {
-  Button,
-  InputOnChangeData,
-  InputProps,
-} from "@fluentui/react-components";
+import { Button } from "@fluentui/react-components";
 import { Dialog, DialogType, DialogFooter } from "@fluentui/react/lib/Dialog";
 import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
 import { PrimaryButton, DefaultButton } from "@fluentui/react/lib/Button";

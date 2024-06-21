@@ -38,7 +38,7 @@ jobs:
         shell: pwsh
         run: |
           # Create Azure AD Application
-          $serverApp = az ad app create --display-name "Connection (Server, Test)" --available-to-other-tenants false | ConvertFrom-Json
+          $serverApp = az ad app create --display-name "Connection (Server, Test)" | ConvertFrom-Json
           $AppId = $serverApp.appId
           
           # Update Azure AD Application Identifier URI

@@ -25,19 +25,36 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set Environment Variables
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ vars.AZURE_SERVICEPRINCIPAL_CLIENT_ID_PKSDEMO }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID_PKSDEMO }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }}
+          allow-no-subscriptions: true
+
+      - name: Create Azure AD Application
         shell: pwsh
         run: |
-          $env:MY_VARIABLE = 'my_value'
-          echo "MY_VARIABLE is now set to: $env:MY_VARIABLE"
-
-      - name: Build frontend
-        run: |
-          echo "API_URL=${{ env.API_URL }}"
-          echo "######################################################################"
-        env:
-          API_URL: '${{ env.MY_VARIABLE }}'
-
+          $serverApp = az ad app create --display-name "Connection (Server, Test)" --available-to-other-tenants false | ConvertFrom-Json
+          $AppId = $serverApp.appId
+          az ad app update --id $AppId --identifier-uris "api://$AppId"
+          $app = az ad app show --id $AppId | ConvertFrom-Json
+          $permissionScop = @{
+              id = [guid]::NewGuid().Guid
+              adminConsentDescription = "API.Access"
+              adminConsentDisplayName = "API.Access"
+              isEnabled = $true
+              type = "User"
+              userConsentDescription = "API.Access"
+              userConsentDisplayName = "API.Access"
+              value = "user_impersonation"
+          }
+          $api = $app.api
+          $api.oauth2PermissionScopes = @($permissionScop)
+          $apiJson = $api | ConvertTo-Json -Depth 10
+          az ad app update --id $AppId --set api.oauth2PermissionScopes="$($apiJson)"
+          
       - name: Install jq
         run: sudo apt-get install jq
 

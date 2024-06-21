@@ -42,13 +42,13 @@ jobs:
           # Define API permission scope
           $permissionScope = @{
               id = [guid]::NewGuid().Guid
-              adminConsentDescription = "API.Access"
-              adminConsentDisplayName = "API.Access"
+              adminConsentDescription = "Create and manage storage containers"
+              adminConsentDisplayName = "Create and manage storage containers"
               isEnabled = $true
               type = "User"
-              userConsentDescription = "API.Access"
-              userConsentDisplayName = "API.Access"
-              value = "user_impersonation"
+              userConsentDescription = "Create and manage storage containers"
+              userConsentDisplayName = "Create and manage storage containers"
+              value = "Container.Manage"
           }
           
           # Get the application API properties

@@ -36,38 +36,6 @@ jobs:
           $serverApp = az ad app create --display-name "Connection (Server, Test)" | ConvertFrom-Json
           $AppId = $serverApp.appId
           
-          # Update Azure AD Application Identifier URI
-          az ad app update --id $AppId --identifier-uris "api://$AppId"
-          
-          # Define API permission scope
-          $permissionScope = @{
-              id = [guid]::NewGuid().Guid
-              adminConsentDescription = "Create and manage storage containers"
-              adminConsentDisplayName = "Create and manage storage containers"
-              isEnabled = $true
-              type = "User"
-              userConsentDescription = "Create and manage storage containers"
-              userConsentDisplayName = "Create and manage storage containers"
-              value = "Container.Manage"
-          }
-          
-          # Get the application API properties
-          $app = az ad app show --id $AppId | ConvertFrom-Json
-          
-          # Update API permission scopes
-          $appApi = $app.api
-          if (-not $appApi) {
-            $appApi = @{
-              oauth2PermissionScopes = @()
-            }
-          }
-          $appApi.oauth2PermissionScopes += $permissionScope
-          $appApiJson = $appApi | ConvertTo-Json -Depth 10
-          
-          az ad app update --id $AppId --set api="$appApiJson"
-          
-          # Store AppId in environment variable
-          echo "APP_ID=$AppId" >> $GITHUB_ENV
           
       - name: Install jq
         run: sudo apt-get install jq
@@ -269,6 +237,39 @@ jobs:
           #Grant Admin Consent to App Permissions
           az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
           az ad app permission admin-consent --id $reactAppAzureAppId
+
+          # Update Azure AD Application Identifier URI
+          az ad app update --id $reactAppAzureAppId --identifier-uris "api://$reactAppAzureAppId"
+          
+          # Define API permission scope
+          $permissionScope = @{
+              id = [guid]::NewGuid().Guid
+              adminConsentDescription = "Create and manage storage containers"
+              adminConsentDisplayName = "Create and manage storage containers"
+              isEnabled = $true
+              type = "User"
+              userConsentDescription = "Create and manage storage containers"
+              userConsentDisplayName = "Create and manage storage containers"
+              value = "Container.Manage"
+          }
+          
+          # Get the application API properties
+          $app = az ad app show --id $reactAppAzureAppId | ConvertFrom-Json
+          
+          # Update API permission scopes
+          $appApi = $app.api
+          if (-not $appApi) {
+            $appApi = @{
+              oauth2PermissionScopes = @()
+            }
+          }
+          $appApi.oauth2PermissionScopes += $permissionScope
+          $appApiJson = $appApi | ConvertTo-Json -Depth 10
+          
+          az ad app update --id $reactAppAzureAppId --set api="$appApiJson"
+          
+          # Store AppId in environment variable
+          # echo "APP_ID=$reactAppAzureAppId" >> $GITHUB_ENV
 
           # Connect to SharePoint Online
           Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO -DeviceLogin

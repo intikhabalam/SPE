@@ -37,7 +37,7 @@ jobs:
           $STATIC_WEBAPP_URL=$(az staticwebapp show -n 'SPE-Demo-StaticWebApp' --resource-group 'SPE-Demo-ResGrp' --query "defaultHostname" -o tsv)
 
           echo "Static Web App URL: $STATIC_WEBAPP_URL"
-          az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/$objectId" --headers "Content-Type=application/json" --body '{\"spa\":{\"redirectUris\":[\"https://$STATIC_WEBAPP_URL/\"]}}'
+          az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/9a7f692b-c8ec-4257-9738-5261bf13ff1d" --headers "Content-Type=application/json" --body '{\"spa\":{\"redirectUris\":[\"https://happy-field-0daef5610.5.azurestaticapps.net/\"]}}'
 
       - name: Install jq
         run: sudo apt-get install jq

@@ -113,8 +113,10 @@ The Pipeline deployment can take upwards to 15min to fully deploy and has 3 inst
 
 <KBD>![image](https://github.com/intikhabalam/SPE/assets/171198457/e52662d5-ebad-4fc6-ab1b-40f9226b416b)</KBD>
 
-These steps will look like this
+These steps will look like this. All 3 are covered under the "Create Service Principal and Get Credentials" step and the code will stop until you have submitted the auth codes. 
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/f41f7cef-93ab-4683-bbf3-fb534921e2a0)</kbd>
+
+**The codes do have a time out so the pipline might fail if the code is not entered in a timely manner**
 
 # Step 2.1 : Set Defaults and expose app
 The final parts to the deploy are to configure some settings that dont have an exposed API yet.

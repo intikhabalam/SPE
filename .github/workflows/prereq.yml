@@ -25,6 +25,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2        
           
+      - name: Create Service Principal and Get Credentials
+        id: create_service_principal
+        shell: pwsh
+        run: |
+          # Connect to Azure using device login
+          az login --use-device-code
+
+          Write-Output "The Object ID is: $objectId"
+          $STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
+
+          echo "Static Web App URL: $STATIC_WEBAPP_URL"
+          az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/$objectId" --headers "Content-Type=application/json" --body '{\"spa\":{\"redirectUris\":[\"$STATIC_WEBAPP_URL\"]}}'
+
       - name: Install jq
         run: sudo apt-get install jq
 

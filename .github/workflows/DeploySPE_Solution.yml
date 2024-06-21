@@ -204,9 +204,6 @@ jobs:
           echo "REACT_APP_AZURE_APP_SECRET=$reactAppAzureSecret" >> $GITHUB_ENV
           echo "DISPLAY_NAME=$displayName" >> $GITHUB_ENV
 
-          # Path to the manifest file
-          $manifestPath = "$(pwd)/manifest.json"
-
           Write-Host "app id environment variable: $reactAppAzureAppId"
           
           $objectId = az ad app show --id $reactAppAzureAppId --query id -o tsv
@@ -244,16 +241,18 @@ jobs:
             }
           }
           $appApi.oauth2PermissionScopes += $permissionScope
-          $appApiJson = $appApi | ConvertTo-Json -Depth 10
-          
-          az ad app update --id $reactAppAzureAppId --set api="$appApiJson"
-          
-          #Grant Admin Consent to App Permissions
-          az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
-          az ad app permission admin-consent --id $reactAppAzureAppId
+          $appApiJson = $appApi | ConvertTo-Json -Depth 10         
+          az ad app update --id $reactAppAzureAppId --set api="$appApiJson"          
 
           # Update Azure AD Application Identifier URI
           az ad app update --id $reactAppAzureAppId --identifier-uris "api://$reactAppAzureAppId"
+
+          # Path to the manifest file
+          $manifestPath = "$(pwd)/manifest.json"
+          az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
+
+          #Grant Admin Consent to App Permissions
+          az ad app permission admin-consent --id $reactAppAzureAppId
 
           ################################ ContainerType Creation - Start ##############################################
           # Connect to SharePoint Online

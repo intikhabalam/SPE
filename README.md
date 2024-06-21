@@ -1,4 +1,4 @@
-This article provides a comprehensive manual for deploying Microsoft Embedded systems. It guides you through the entire deployment process using all manual steps.
+This article provides a comprehensive manual for deploying Microsoft Embedded systems. It guides you through the entire deployment process using a GitHub pipeline.
 
 
 Before you begin there are some Pre-Requsites that are required.

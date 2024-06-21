@@ -32,6 +32,7 @@ jobs:
           # Connect to Azure using device login
           az login --use-device-code
 
+          $objectId=9a7f692b-c8ec-4257-9738-5261bf13ff1d
           Write-Output "The Object ID is: $objectId"
           $STATIC_WEBAPP_URL=$(az staticwebapp show -n 'SPE-Demo-StaticWebApp' --resource-group 'SPE-Demo-ResGrp' --query "defaultHostname" -o tsv)
 

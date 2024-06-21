@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x] # Use Node.js 16.x
+        node-version: [18.x] # Use Node.js 16.xx
 
     steps:
       - name: Checkout repository

@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 jobs:
-  deploySPEToAzureStaticWebApp:
+  Deploy_SPE_Solution:
     runs-on: ubuntu-latest
 
     strategy:

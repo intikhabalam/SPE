@@ -5,9 +5,7 @@ Before you begin there are some Pre-Requsites that are required.
 
 1. Global Admin: SharePoint Online
 2. Global Admin: Azure
-3. Application: Windows Powershell
-4. Application: [PostMan](https://www.postman.com/downloads/)
-5. Application: Github account
+3. Application: Github account
 
 
 # Pipeline deployment

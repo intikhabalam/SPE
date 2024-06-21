@@ -19,24 +19,25 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x] # Use Node.js 16.x
+        node-version: [18.x] # Use Node.js 16.xx
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Set Environment Variables
+        uses: actions/checkout@v2        
+          
+      - name: Create Service Principal and Get Credentials
+        id: create_service_principal2
         shell: pwsh
         run: |
-          $env:MY_VARIABLE = 'my_value'
-          echo "MY_VARIABLE is now set to: $env:MY_VARIABLE"
+          # Connect to Azure using device login
+          az login --use-device-code
 
-      - name: Build frontend
-        run: |
-          echo "API_URL=${{ env.API_URL }}"
-          echo "######################################################################"
-        env:
-          API_URL: '${{ env.MY_VARIABLE }}'
+          $objectId = '9a7f692b-c8ec-4257-9738-5261bf13ff1d'
+          Write-Output "The Object ID is: $objectId"
+          $STATIC_WEBAPP_URL=$(az staticwebapp show -n 'SPE-Demo-StaticWebApp' --resource-group 'SPE-Demo-ResGrp' --query "defaultHostname" -o tsv)
+
+          echo "Static Web App URL: $STATIC_WEBAPP_URL"
+          az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/9a7f692b-c8ec-4257-9738-5261bf13ff1d" --headers "Content-Type=application/json" --body '{\"spa\":{\"redirectUris\":[\"https://happy-field-0daef5610.5.azurestaticapps.net/\"]}}'
 
       - name: Install jq
         run: sudo apt-get install jq
@@ -239,6 +240,39 @@ jobs:
           az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
           az ad app permission admin-consent --id $reactAppAzureAppId
 
+          # Update Azure AD Application Identifier URI
+          az ad app update --id $reactAppAzureAppId --identifier-uris "api://$reactAppAzureAppId"
+          
+          # Define API permission scope
+          $permissionScope = @{
+              id = [guid]::NewGuid().Guid
+              adminConsentDescription = "Create and manage storage containers"
+              adminConsentDisplayName = "Create and manage storage containers"
+              isEnabled = $true
+              type = "User"
+              userConsentDescription = "Create and manage storage containers"
+              userConsentDisplayName = "Create and manage storage containers"
+              value = "Container.Manage"
+          }
+          
+          # Get the application API properties
+          $app = az ad app show --id $reactAppAzureAppId | ConvertFrom-Json
+          
+          # Update API permission scopes
+          $appApi = $app.api
+          if (-not $appApi) {
+            $appApi = @{
+              oauth2PermissionScopes = @()
+            }
+          }
+          $appApi.oauth2PermissionScopes += $permissionScope
+          $appApiJson = $appApi | ConvertTo-Json -Depth 10
+          
+          az ad app update --id $reactAppAzureAppId --set api="$appApiJson"
+          
+          # Store AppId in environment variable
+          # echo "APP_ID=$reactAppAzureAppId" >> $GITHUB_ENV
+
           # Connect to SharePoint Online
           Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO -DeviceLogin
 
@@ -324,6 +358,13 @@ jobs:
             "RegisterContainer_TenantName=$TenantName" `
             "RegisterContainer_CertThumbprint=$certificateThumbPrint" `
             "RegisterContainer_CertPrivateKey=$certContent"
+
+
+          Write-Output "The Object ID is: $objectId"
+          $STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
+
+          echo "Static Web App URL: $STATIC_WEBAPP_URL"
+          az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/$objectId" --headers "Content-Type=application/json" --body '{\"spa\":{\"redirectUris\":[\"$STATIC_WEBAPP_URL/\"]}}'
 
           # $SCOPE="${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}/.default"
 

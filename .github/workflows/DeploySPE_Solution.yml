@@ -218,6 +218,9 @@ jobs:
           # Print the Thumbprint to verify
           Write-Output "The certificate ThumbPrint is: $certificateThumbPrint"
           
+          # Update Azure AD Application Identifier URI
+          az ad app update --id $reactAppAzureAppId --identifier-uris "api://$reactAppAzureAppId"
+
           # Define API permission scope
           $permissionScope = @{
               id = [guid]::NewGuid().Guid
@@ -244,8 +247,6 @@ jobs:
           $appApiJson = $appApi | ConvertTo-Json -Depth 10         
           az ad app update --id $reactAppAzureAppId --set api="$appApiJson"          
 
-          # Update Azure AD Application Identifier URI
-          az ad app update --id $reactAppAzureAppId --identifier-uris "api://$reactAppAzureAppId"
 
           # Path to the manifest file
           $manifestPath = "$(pwd)/manifest.json"

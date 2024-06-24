@@ -6,6 +6,7 @@ import * as Constants from "../common/Constants";
 import { Link } from "react-router-dom";
 import { CreateContainerButton } from "../components/CreateContainerButton";
 import { ContainersApiProvider } from "../providers/ContainersApiProvider";
+import { ContainerSelector } from "../components/ContainerSelector";
 
 const useIsSignedIn = () => {
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
@@ -94,13 +95,20 @@ export const Home: React.FunctionComponent = () => {
 
         {isSignedIn && (
           <li>
-            <CreateContainerButton />
-            <span> this app's Container on your tenant.</span>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <ContainerSelector />
+              <span style={{ margin: "0 5px" }}> or </span>
+              <CreateContainerButton />
+              <span style={{ marginLeft: "5px" }}>
+                {" "}
+                this app's Container on your tenant.
+              </span>
+            </div>
           </li>
         )}
         {isSignedIn && (
           <li>
-            Visit the <Link to="/jobs">Jobs</Link> page to use the demo app
+            Visit the <Link to="/hiring">Hiring</Link> page to use the demo app
           </li>
         )}
       </ol>

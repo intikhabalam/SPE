@@ -55,7 +55,7 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "/jobs",
+        path: "/hiring",
         element: <Jobs />,
         loader: jobsLoader,
         action: createJobAction,

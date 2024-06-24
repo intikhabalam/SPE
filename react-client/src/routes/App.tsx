@@ -28,6 +28,7 @@ import {
   MoreVertical24Filled,
   Search12Regular,
   DismissCircle20Regular,
+  Settings20Regular,
 } from "@fluentui/react-icons";
 import {
   ILabelStyles,
@@ -158,6 +159,7 @@ function App() {
       MoreVertical24Filled: <MoreVertical24Filled />,
       Search12Regular: <Search12Regular />,
       DismissCircle20Regular: <DismissCircle20Regular />,
+      Settings20Regular: <Settings20Regular />,
     },
   });
 
@@ -201,7 +203,7 @@ function App() {
         },
         {
           name: "Hiring",
-          url: "/",
+          url: "/hiring",
           key: "key4",
           iconProps: {
             iconName: "Star20Regular",
@@ -218,9 +220,28 @@ function App() {
             style: { color: "#A6A6A6", width: "20px" },
           },
         },
+        {
+          name: "Admin",
+          url: "/",
+          key: "key6",
+          iconProps: {
+            iconName: "Settings20Regular",
+            style: { color: "#6DCCF4", width: "20px" },
+          },
+        },
       ],
     },
   ];
+
+  const getSelectedKey = () => {
+    for (const group of navLinkGroups) {
+      for (const link of group.links) {
+        if (link.url === window.location.pathname) {
+          return link.key;
+        }
+      }
+    }
+  };
 
   const menuProps = useConst<IContextualMenuProps>(() => ({
     shouldFocusOnMount: true,
@@ -293,7 +314,7 @@ function App() {
                   </div>
                   <FluentProvider theme={webLightTheme}>
                     <Nav
-                      selectedKey="key4"
+                      selectedKey={getSelectedKey()}
                       ariaLabel="Nav basic example"
                       groups={navLinkGroups}
                       styles={navStyles}

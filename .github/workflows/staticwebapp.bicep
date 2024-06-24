@@ -7,7 +7,6 @@ param resourceGroupName string
 @description('Prefix for resource group and static webapp')
 param resourcePrefix string
 
-
 @description('Location of the resource')
 param location string
 

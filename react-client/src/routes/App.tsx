@@ -3,6 +3,11 @@ import React, { useState, useCallback } from "react";
 import { Login } from "@microsoft/mgt-react";
 import { ISearchBoxStyles, SearchBox } from "@fluentui/react/lib/SearchBox";
 import {
+  IContextualMenuProps,
+  IContextualMenuStyles,
+} from "@fluentui/react/lib/ContextualMenu";
+import { IToggleStyles, Toggle } from "@fluentui/react/lib/Toggle";
+import {
   FluentProvider,
   Menu,
   MenuItem,
@@ -21,13 +26,7 @@ import {
   Star20Regular,
   ChartMultiple20Regular,
   MoreVertical24Filled,
-  Library20Regular,
-  ChevronLeft20Regular,
-  ChevronRight20Regular,
   Search12Regular,
-  ClosedCaption20Regular,
-  CalendarCancel20Filled,
-  Dismiss20Regular,
   DismissCircle20Regular,
 } from "@fluentui/react-icons";
 import {
@@ -37,10 +36,10 @@ import {
   IStyleSet,
   Nav,
   registerIcons,
-  Label,
-  IconButton,
+  Link,
+  DefaultButton,
 } from "@fluentui/react";
-
+import { useConst } from "@fluentui/react-hooks";
 import * as Constants from "../common/Constants";
 import { Outlet } from "react-router-dom";
 
@@ -57,33 +56,46 @@ const navStyles: Partial<INavStyles> = {
     paddingLeft: "35px",
     backgroundColor: "#393EB3",
     selectors: {
-      "&:hover": {
+      "&:hover:not(.is-disabled)": {
         fontWeight: "bold",
-        backgroundColor: "#393EB3 ",
+        backgroundColor: "#393EB3",
+        color: "white", // Ensuring hover color for non-disabled links
       },
       "&:active": {
-        backgroundColor: "#393EB3 ",
+        backgroundColor: "#393EB3",
       },
       "&.is-selected": {
-        backgroundColor: "#393EB3 ",
+        backgroundColor: "#393EB3",
+      },
+      "&.is-disabled": {
+        color: "#A6A6A6",
+        cursor: "default",
+        backgroundColor: "#393EB3",
+        fontWeight: "normal",
+        pointerEvents: "none",
       },
     },
   },
-  linkText: {
-    color: "white",
-  },
   compositeLink: {
     selectors: {
-      ":hover .ms-Nav-linkText": {
-        fontWeight: "bold",
+      ":hover .ms-Button--action": {
+        backgroundColor: "#393EB3 !important",
       },
-      ":hover .ms-Button--action": { backgroundColor: "#393EB3 !important" },
     },
   },
 };
 
-const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
-  root: { marginTop: 10, fontSize: 14, fontWeight: "600" },
+// const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
+//   root: { marginTop: 10, fontSize: 14, fontWeight: "600" },
+// };
+
+const linkStyles: Partial<IStyleSet<ILabelStyles>> = {
+  root: {
+    color: "white",
+    fontSize: "14px",
+    fontWeight: "600",
+    padding: "8px 12px",
+  },
 };
 
 const searchBoxStyles: Partial<IStyleSet<ISearchBoxStyles>> = {
@@ -95,6 +107,25 @@ const searchBoxStyles: Partial<IStyleSet<ISearchBoxStyles>> = {
     borderRadius: "4px",
     marginLeft: "44px",
   },
+};
+
+const contextMenuStyles: Partial<IContextualMenuStyles> = {
+  root: { border: "none", color: "white", backgroundColor: "#242424" },
+  title: {
+    color: "white",
+    backgroundColor: "#242424",
+    border: "none",
+    fontSize: "14px",
+    fontWeight: "600",
+    padding: "2px 12px",
+    ":hover": { backgroundColor: "white" },
+    ":selected": { backgroundColor: "white" },
+  },
+};
+
+const toggleStyles: Partial<IToggleStyles> = {
+  root: { padding: "2px 12px" },
+  label: { color: "white" },
 };
 
 function App() {
@@ -112,8 +143,10 @@ function App() {
     },
     [baseSearchQuery]
   );
-  const [isPanelOpen, setPanelOpen] = useState(false);
-  const [showBanner, setShowBanner] = useState(true);
+  const [showSidePanel, setShowSidePanel] = useState(false);
+  const toggleSidePanel = () => {
+    setShowSidePanel(!showSidePanel);
+  };
 
   registerIcons({
     icons: {
@@ -133,39 +166,37 @@ function App() {
     style: { color: "#616161" },
   };
 
-  const closeIcon = {
-    iconName: "DismissCircle20Regular",
-    style: { color: "white" },
-  };
-
   const navLinkGroups: INavLinkGroup[] = [
     {
       links: [
         {
           name: "Overview",
           url: "",
+          disabled: true,
           iconProps: {
             iconName: "Map20Regular",
-            style: { color: "#6DCCF4", width: "20px" },
+            style: { color: "#A6A6A6", width: "20px" },
           },
           key: "key1",
         },
         {
           name: "People",
           url: "",
+          disabled: true,
           key: "key2",
           iconProps: {
             iconName: "People20Regular",
-            style: { color: "#6DCCF4", width: "20px" },
+            style: { color: "#A6A6A6", width: "20px" },
           },
         },
         {
           name: "Openings",
           url: "",
+          disabled: true,
           key: "key3",
           iconProps: {
             iconName: "Open20Regular",
-            style: { color: "#6DCCF4", width: "20px" },
+            style: { color: "#A6A6A6", width: "20px" },
           },
         },
         {
@@ -180,167 +211,156 @@ function App() {
         {
           name: "Reports",
           url: "",
+          disabled: true,
           key: "key5",
           iconProps: {
             iconName: "ChartMultiple20Regular",
-            style: { color: "#6DCCF4", width: "20px" },
+            style: { color: "#A6A6A6", width: "20px" },
           },
         },
       ],
     },
   ];
 
+  const menuProps = useConst<IContextualMenuProps>(() => ({
+    shouldFocusOnMount: true,
+    items: [
+      {
+        key: "link1",
+        text: "Link 1",
+        href: "",
+      },
+      { key: "link2", text: "Link 2", href: "" },
+      { key: "link3", text: "Link 3", href: "" },
+      { key: "link4", text: "Link 4", href: "" },
+    ],
+  }));
+
   return (
     <FluentProvider>
-      <div className="App">
-        {showBanner && (
-          <div className="spe-app-banner">
-            <div className="spe-app-banner-content">
-              <Library20Regular className="spe-app-banner-icon" />
-              <Text>
-                Explore SharePoint Embedded resources from the right-hand panel
-              </Text>
+      <div className={`App ${showSidePanel ? "show-side-panel" : ""}`}>
+        <div className="spe-app-main">
+          <div className="spe-app-main-header">
+            <div className="spe-app-main-header-title">
+              SharePoint Embedded Demo app
             </div>
-            <IconButton
-              iconProps={closeIcon}
-              ariaLabel="Close"
-              onClick={() => setShowBanner(false)}
-            />
-          </div>
-        )}
-        <div className={`spe-app-content ${showBanner ? "" : "no-banner"}`}>
-          <div className="spe-app-content-navigation">
-            <div className="spe-app-header-title">
-              <Text size={600} style={{ fontSize: "22px", color: "#fff" }}>
-                contoso
-              </Text>
-              <Text
-                size={700}
-                weight="semibold"
-                style={{ fontSize: "22px", color: "#60B1D4" }}
+            <div className="spe-app-main-header-actions">
+              <Link
+                href={"https://www.youtube.com/watch?v=G76IufvQLnM"}
+                styles={linkStyles}
               >
-                HR
-              </Text>
-            </div>
-
-            <FluentProvider theme={webLightTheme}>
-              <Nav
-                selectedKey="key4"
-                ariaLabel="Nav basic example"
-                groups={navLinkGroups}
-                styles={navStyles}
+                About this Demo
+              </Link>
+              <DefaultButton
+                text="Learn & How to"
+                menuProps={menuProps}
+                styles={contextMenuStyles}
               />
-            </FluentProvider>
+              <Toggle
+                className="action-show-code"
+                label="Show Code"
+                inlineLabel
+                checked={showSidePanel}
+                onChange={toggleSidePanel}
+                styles={toggleStyles}
+              />
+            </div>
           </div>
-          <div className="spe-app-header-main-container">
-            <div className="spe-app-header">
-              <div className="spe-app-header-search">
-                <SearchBox
-                  placeholder="Search"
-                  onSearch={onSearchTermChanged}
-                  onFocus={() => setShowSearchResults(true)}
-                  onBlur={() =>
-                    setTimeout(setShowSearchResults.bind(null, false), 200)
-                  }
-                  iconProps={searchIcon}
-                  styles={searchBoxStyles}
-                />
-              </div>
-              <div className="spe-app-header-actions">
-                <Toolbar>
-                  <Login
-                    ref={loginRef}
-                    loginView="avatar"
-                    showPresence={true}
-                    className="login"
-                  />
-                  <Menu>
-                    <MenuTrigger>
-                      <ToolbarButton
-                        aria-label="More"
-                        icon={<MoreVertical24Filled />}
-                      />
-                    </MenuTrigger>
 
-                    <MenuPopover>
-                      <MenuList>
-                        <MenuItem>Hi!</MenuItem>
-                      </MenuList>
-                    </MenuPopover>
-                  </Menu>
-                </Toolbar>
-              </div>
-            </div>
-            <div className="spe-app-content-main">
-              <div className="main-content-body">
-                <Outlet />
-              </div>
-            </div>
+          <div className="spe-app-main-description">
+            Build a custom document management system using SharePoint Embedded,
+            to organize, store, and manage documents.
           </div>
-          <div className="spe-app-content-dev">
-            <div
-              className={`spe-app-side-panel ${
-                isPanelOpen ? "open" : "closed"
-              }`}
-            >
-              {isPanelOpen ? (
-                <div>
-                  <div
-                    style={{
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      display: "flex",
-                      flexDirection: "row",
-                    }}
-                  >
-                    <ChevronRight20Regular
-                      onClick={() => setPanelOpen(!isPanelOpen)}
+
+          <div className="spe-app-main-content">
+            <div className="spe-app-content-container">
+              <div className="spe-app-content">
+                <div className="spe-app-content-navigation">
+                  <div className="spe-app-header-title">
+                    <Text
+                      size={600}
+                      style={{ fontSize: "22px", color: "#fff" }}
+                    >
+                      contoso
+                    </Text>
+                    <Text
+                      size={700}
+                      weight="semibold"
+                      style={{ fontSize: "22px", color: "#60B1D4" }}
+                    >
+                      HR
+                    </Text>
+                  </div>
+                  <FluentProvider theme={webLightTheme}>
+                    <Nav
+                      selectedKey="key4"
+                      ariaLabel="Nav basic example"
+                      groups={navLinkGroups}
+                      styles={navStyles}
                     />
-                    <h2 style={{ display: "flex", alignItems: "center" }}>
-                      <Library20Regular className="spe-app-side-panel-icon" />
-                      Explore Resources
-                    </h2>
-                    <div style={{ flex: 0.5 }} />
+                  </FluentProvider>
+                </div>
+                <div className="spe-app-header-container">
+                  <div className="spe-app-header">
+                    <div className="spe-app-header-search">
+                      <SearchBox
+                        placeholder="Search"
+                        onSearch={onSearchTermChanged}
+                        onFocus={() => setShowSearchResults(true)}
+                        onBlur={() =>
+                          setTimeout(
+                            setShowSearchResults.bind(null, false),
+                            200
+                          )
+                        }
+                        iconProps={searchIcon}
+                        styles={searchBoxStyles}
+                      />
+                    </div>
+                    <div className="spe-app-header-actions">
+                      <Toolbar>
+                        <Login
+                          ref={loginRef}
+                          loginView="avatar"
+                          showPresence={true}
+                          className="login"
+                        />
+                        <Menu>
+                          <MenuTrigger>
+                            <ToolbarButton
+                              aria-label="More"
+                              icon={<MoreVertical24Filled />}
+                            />
+                          </MenuTrigger>
+
+                          <MenuPopover>
+                            <MenuList>
+                              <MenuItem>Hi!</MenuItem>
+                            </MenuList>
+                          </MenuPopover>
+                        </Menu>
+                      </Toolbar>
+                    </div>
                   </div>
-                  <div className="spe-app-side-panel-content">
-                    <Label styles={labelStyles}>APIs</Label>
-                    <div className="spe-app-side-panel-divider" />
-                    <Text>Content Goes here</Text>
+                  <div className="spe-app-content-main">
+                    <div className="main-content-body">
+                      <Outlet />
+                    </div>
                   </div>
                 </div>
-              ) : (
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                  }}
-                  onClick={() => setPanelOpen(!isPanelOpen)}
-                >
-                  <ChevronLeft20Regular style={{ marginTop: "20px" }} />
-                  <Library20Regular
-                    className="spe-app-side-panel-icon"
-                    style={{
-                      marginTop: "20px",
-                      marginBottom: "85px",
-                    }}
-                  />
-                  <div
-                    style={{
-                      transform: "rotate(90deg)",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    <h2>Explore Resources</h2>
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
           </div>
+
+          {/* Custom Side Panel */}
+          {showSidePanel && (
+            <div className="custom-side-panel">
+              <h2 className="side-panel-text">Place to Show Code</h2>
+            </div>
+          )}
         </div>
       </div>
     </FluentProvider>
   );
 }
-
 export default App;

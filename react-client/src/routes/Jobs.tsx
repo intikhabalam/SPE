@@ -21,23 +21,23 @@ import { Job } from "../model/Job";
 import { getFileTypeIconProps } from "@fluentui/react-file-type-icons";
 import { Icon, registerIcons, Link as FluentLink } from "@fluentui/react";
 import { CreateJobPostingButton } from "../components/CreateJobPostingButton";
-// import { mockJobs } from "../model/Job.mock";
+import { mockJobs } from "../model/Job.mock";
 import { useRef, useState, useEffect } from "react";
 import { Info20Regular } from "@fluentui/react-icons";
 
 // To Be uncommented when APIs decide to work
-export async function loader({ params }: ILoaderParams): Promise<Job[]> {
-  const jobsLite = await JobsApiProvider.instance.list();
-  const jobs = jobsLite.map(async (job) => {
-    return await JobsApiProvider.instance.get(job.id);
-  });
-  return Promise.all(jobs);
-}
+// export async function loader({ params }: ILoaderParams): Promise<Job[]> {
+//   const jobsLite = await JobsApiProvider.instance.list();
+//   const jobs = jobsLite.map(async (job) => {
+//     return await JobsApiProvider.instance.get(job.id);
+//   });
+//   return Promise.all(jobs);
+// }
 
 // To Be uncommented for Local use
-// export async function loader({ params }: ILoaderParams): Promise<IJob[]> {
-//   return mockJobs; // Return mock data directly
-// }
+export async function loader({ params }: ILoaderParams): Promise<IJob[]> {
+  return mockJobs; // Return mock data directly
+}
 
 export async function action({ params, request }: ILoaderParams) {
   const formData = await request.formData();

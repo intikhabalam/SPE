@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 jobs:
-  deploy_sharepoint_container:
+  Deploy_SPE_Solution:
     runs-on: ubuntu-latest
 
     strategy:
@@ -25,20 +25,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2        
           
-      - name: Create Service Principal and Get Credentials
-        id: create_service_principal2
-        shell: pwsh
-        run: |
-          # Connect to Azure using device login
-          az login --use-device-code
-
-          $objectId = '9a7f692b-c8ec-4257-9738-5261bf13ff1d'
-          Write-Output "The Object ID is: $objectId"
-          $STATIC_WEBAPP_URL=$(az staticwebapp show -n 'SPE-Demo-StaticWebApp' --resource-group 'SPE-Demo-ResGrp' --query "defaultHostname" -o tsv)
-
-          echo "Static Web App URL: $STATIC_WEBAPP_URL"
-          az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/9a7f692b-c8ec-4257-9738-5261bf13ff1d" --headers "Content-Type=application/json" --body '{\"spa\":{\"redirectUris\":[\"https://happy-field-0daef5610.5.azurestaticapps.net/\"]}}'
-
       - name: Install jq
         run: sudo apt-get install jq
 
@@ -62,8 +48,7 @@ jobs:
           echo "STATIC_WEB_APP_NAME=$RESOURCE_GROUP_NAME-StaticWebApp" >> $GITHUB_ENV
           echo "SPE_APP_NAME=$RESOURCE_GROUP_NAME-Spe_App_Reg" >> $GITHUB_ENV         
           echo "LOCATION=$LOCATION" >> $GITHUB_ENV
-          echo "CONTAINER_TYPE_NAME=$RESOURCE_GROUP_NAME-ContainerType" >> $GITHUB_ENV
-          
+          echo "CONTAINER_TYPE_NAME=$RESOURCE_GROUP_NAME-ContainerType" >> $GITHUB_ENV        
 
           echo $RESOURCE_GROUP_NAME
           echo $STATIC_WEB_APP_NAME
@@ -97,29 +82,6 @@ jobs:
           ]' > manifest.json
 
           echo "API permissions manifest file created"
-
-      - name: Create JSON file for reply URLs with types
-        run: |
-          cat <<EOF > replyUrlsWithType.json
-          [
-              {
-                  "url": "http://localhost:7071/",
-                  "type": "Spa"
-              },
-              {
-                  "url": "http://localhost:3000/",
-                  "type": "Spa"
-              },
-              {
-                  "url": "https://lemon-smoke-0de0c8110.5.azurestaticapps.net/",
-                  "type": "Spa"
-              },
-              {
-                  "url": "http://localhost/",
-                  "type": "Spa"
-              }
-          ]
-          EOF
 
       - name: Print manifest.json file and path
         run: |
@@ -173,12 +135,36 @@ jobs:
           STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
           echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
   
-      - name: Create Service Principal and Get Credentials
-        id: create_service_principal
+      - name: Create Service Principal, ContainerType and Get Credentials
+        id: create_service_principal_container_type
         shell: pwsh
         run: |
           # Connect to Azure using device login
           az login --use-device-code
+
+          # Set the app registration display name
+          $appName = "${{ env.SPE_APP_NAME }}"
+
+          # Find the app registration
+          $app = az ad app list --display-name $appName --query "[?displayName=='$appName']" | ConvertFrom-Json
+
+          if ($app.Count -eq 0) {
+              Write-Output "App registration '$appName' does not exist."
+          } else {
+              $appId = $app[0].appId
+              Write-Output "App registration '$appName' exists with App ID: $appId"
+
+              # Get the objectId of the app registration
+              $objectId = az ad app show --id $appId --query "id" -o tsv
+
+              if ($null -ne $objectId) {
+                  Write-Output "Deleting app registration with Object ID: $objectId"
+                  az ad app delete --id $objectId
+                  Write-Output "App registration '$appName' has been deleted."
+              } else {
+                  Write-Output "Failed to get Object ID for app registration '$appName'."
+              }
+          }
 
           # Create a certificate for the Service Principal
           $certOutput = az ad sp create-for-rbac -n ${{ env.SPE_APP_NAME }} --create-cert
@@ -190,7 +176,6 @@ jobs:
           # Read the certificate content and extract only the private key
           $certContent = Get-Content $certPath -Raw
           $certContent = $certContent -replace '(?s)^.*?(-----BEGIN PRIVATE KEY-----.*?-----END PRIVATE KEY-----).*$', '$1'
-
 
           # Store the private key content in an environment variable
           echo "PRIVATE_KEY=$certContent" >> $GITHUB_ENV
@@ -219,9 +204,6 @@ jobs:
           echo "REACT_APP_AZURE_APP_SECRET=$reactAppAzureSecret" >> $GITHUB_ENV
           echo "DISPLAY_NAME=$displayName" >> $GITHUB_ENV
 
-          # Path to the manifest file
-          $manifestPath = "$(pwd)/manifest.json"
-
           Write-Host "app id environment variable: $reactAppAzureAppId"
           
           $objectId = az ad app show --id $reactAppAzureAppId --query id -o tsv
@@ -235,14 +217,10 @@ jobs:
 
           # Print the Thumbprint to verify
           Write-Output "The certificate ThumbPrint is: $certificateThumbPrint"
-
-          #Grant Admin Consent to App Permissions
-          az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
-          az ad app permission admin-consent --id $reactAppAzureAppId
-
+          
           # Update Azure AD Application Identifier URI
           az ad app update --id $reactAppAzureAppId --identifier-uris "api://$reactAppAzureAppId"
-          
+
           # Define API permission scope
           $permissionScope = @{
               id = [guid]::NewGuid().Guid
@@ -266,13 +244,18 @@ jobs:
             }
           }
           $appApi.oauth2PermissionScopes += $permissionScope
-          $appApiJson = $appApi | ConvertTo-Json -Depth 10
-          
-          az ad app update --id $reactAppAzureAppId --set api="$appApiJson"
-          
-          # Store AppId in environment variable
-          # echo "APP_ID=$reactAppAzureAppId" >> $GITHUB_ENV
+          $appApiJson = $appApi | ConvertTo-Json -Depth 10         
+          az ad app update --id $reactAppAzureAppId --set api="$appApiJson"          
 
+
+          # Path to the manifest file
+          $manifestPath = "$(pwd)/manifest.json"
+          az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
+
+          #Grant Admin Consent to App Permissions
+          az ad app permission admin-consent --id $reactAppAzureAppId
+
+          ################################ ContainerType Creation - Start ##############################################
           # Connect to SharePoint Online
           Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO -DeviceLogin
 
@@ -313,34 +296,9 @@ jobs:
           }
 
           
-          # Print the result
-          Write-Output "Extracted Value: $TenantName"
+          ################################ ContainerType Creation - End ##############################################
 
-          # # Output each value
-          # Write-Host "ContainerTypeName: $ContainerTypeName"
-          # Write-Host "OwningApplicationId: $OwningApplicationId"
-          # Write-Host "Classification: $Classification"
-
-          # Write-Host "ClientID value is      $reactAppAzureAppId"
-          # Write-Host "Client S e c r e t value is      $reactAppAzureSecret"
-          # Write-Host "Client S e c r e t value is      $Client_S_r_t"
-          # Write-Host "ConsumingTenantId value is      ${{ vars.AZURE_TENANT_ID_PKSDEMO }}"
-          # Write-Host "RootSiteUrl value is      $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
-          # Write-Host "ContainerTypeId value is      $ContainerTypeId"
-          # Write-Host "TenantName value is      $TenantName"
-          # write-Host "CertThumbprint value is      $certificateThumbPrint"
-          # Write-Host "CertPrivateKey value is      $certContent"
-
-          # echo "ClientID value is      $reactAppAzureAppId"
-          # echo "Client S e c r e t value is      $reactAppAzureSecret"
-          # echo "Client S e c r e t value is      $Client_S_r_t"
-          # echo "ConsumingTenantId value is      ${{ vars.AZURE_TENANT_ID_PKSDEMO }}"
-          # echo "RootSiteUrl value is      $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO"
-          # echo "ContainerTypeId value is      $ContainerTypeId"
-          # echo "TenantName value is      $TenantName"
-          # echo "CertThumbprint value is      $certificateThumbPrint"
-          # echo "CertPrivateKey value is      $certContent"
-
+          ##################### Add Env variables in Azure Static Webapp - Start #####################################
 
           # Connect to Azure using device login
           az login --use-device-code
@@ -358,23 +316,6 @@ jobs:
             "RegisterContainer_TenantName=$TenantName" `
             "RegisterContainer_CertThumbprint=$certificateThumbPrint" `
             "RegisterContainer_CertPrivateKey=$certContent"
-
-
-          Write-Output "The Object ID is: $objectId"
-          $STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
-
-          echo "Static Web App URL: $STATIC_WEBAPP_URL"
-          az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/$objectId" --headers "Content-Type=application/json" --body '{\"spa\":{\"redirectUris\":[\"$STATIC_WEBAPP_URL/\"]}}'
-
-          # $SCOPE="${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}/.default"
-
-          # $ACCESS_TOKEN=$(az account get-access-token --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }}  --query accessToken -o tsv)        
-          # echo "ACCESS_TOKEN=$ACCESS_TOKEN" >> $GITHUB_ENV
-
-          Write-Host "###############################################"
-          Write-Host "Access Token $ACCESS_TOKEN"
-          Write-Host "###############################################"
-
         env:
           SHAREPOINT_ADMIN_SITE_URL_PKSDEMO: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
 

@@ -1,3 +1,4 @@
+import "./App.css";
 import { Link, useActionData, useLoaderData } from "react-router-dom";
 import { ILoaderParams } from "../common/ILoaderParams";
 import { JobsApiProvider } from "../providers/JobsApiProvider";
@@ -31,7 +32,7 @@ export async function loader({ params }: ILoaderParams): Promise<Job[]> {
   return Promise.all(jobs);
 }
 
-//To Be uncommented for Local use
+// To Be uncommented for Local use
 // export async function loader({ params }: ILoaderParams): Promise<IJob[]> {
 //   return mockJobs; // Return mock data directly
 // }
@@ -54,6 +55,29 @@ export const Jobs: React.FunctionComponent = () => {
     //navigate(`/jobs/${job.id}`);
     //window.open(`/jobs/${job.id}`);
   }
+  const selection = new Selection({
+    onSelectionChanged: () => {
+      const selectionDetails = getSelectionDetails();
+      console.log(selectionDetails);
+      // You can also update the state or perform other actions here
+    },
+  });
+
+  const getSelectionDetails = (): string => {
+    const selectionCount = selection.getSelectedCount();
+    switch (selectionCount) {
+      case 0:
+        return "No items selected";
+      case 1:
+        return (
+          "1 item selected: " +
+          (selection.getSelection()[0] as IJob).displayName
+        );
+      default:
+        return `${selectionCount} items selected`;
+    }
+  };
+
   const columns: IColumn[] = [
     {
       key: "displayName",
@@ -63,6 +87,12 @@ export const Jobs: React.FunctionComponent = () => {
       maxWidth: 200,
       isResizable: true,
       onRender: (job: Job) => <Link to={job.id}>{job.displayName}</Link>,
+      styles: {
+        cellTitle: {
+          display: "flex",
+          alignItems: "center",
+        },
+      },
     },
     {
       key: "description",
@@ -72,6 +102,12 @@ export const Jobs: React.FunctionComponent = () => {
       maxWidth: 300,
       isResizable: true,
       onRender: (job: Job) => <span>{job.description}</span>,
+      styles: {
+        cellTitle: {
+          display: "flex",
+          alignItems: "center",
+        },
+      },
     },
     {
       key: "createdDate",
@@ -81,15 +117,38 @@ export const Jobs: React.FunctionComponent = () => {
       maxWidth: 100,
       isResizable: true,
       onRender: (job: Job) => <span>{job.createdDateTime}</span>,
+      styles: {
+        cellTitle: {
+          display: "flex",
+          alignItems: "center",
+        },
+      },
     },
     {
       key: "state",
       name: "State",
       fieldName: "state",
-      minWidth: 50,
+      minWidth: 25,
       maxWidth: 100,
       isResizable: true,
-      onRender: (job: Job) => <Tag appearance="brand">{job.state}</Tag>,
+      onRender: (job: Job) => (
+        <div
+          style={{
+            display: "inline-block",
+            padding: "2px 8px",
+            background: "#E4F1FD",
+            color: "#0F6CBD",
+          }}
+        >
+          <Tag appearance="brand">{job.customProperties?.state.value}</Tag>
+        </div>
+      ),
+      styles: {
+        cellTitle: {
+          display: "flex",
+          alignItems: "center",
+        },
+      },
     },
     {
       key: "posting",
@@ -98,6 +157,12 @@ export const Jobs: React.FunctionComponent = () => {
       minWidth: 100,
       maxWidth: 200,
       isResizable: true,
+      styles: {
+        cellTitle: {
+          display: "flex",
+          alignItems: "center",
+        },
+      },
       onRender: (job: Job) => {
         const iconProps = getFileTypeIconProps({ extension: "docx", size: 24 });
 
@@ -106,7 +171,11 @@ export const Jobs: React.FunctionComponent = () => {
             {job.postingDoc && job.postingDoc.name && job.postingDoc.webUrl && (
               <>
                 <Icon {...iconProps} />
-                <FluentLink href={job.postingDoc.webUrl} target="_blank">
+                <FluentLink
+                  href={job.postingDoc.webUrl}
+                  target="_blank"
+                  style={{ paddingLeft: "5px" }}
+                >
                   {job.postingDoc.name}
                 </FluentLink>
               </>
@@ -130,19 +199,20 @@ export const Jobs: React.FunctionComponent = () => {
         </div>
         <CreateJobPostingButton />
       </div>
-      <DetailsList
-        items={jobs}
-        columns={columns}
-        setKey="set"
-        layoutMode={DetailsListLayoutMode.justified}
-        // selection={this._selection}
-        selectionPreservedOnEmptyClick={true}
-        ariaLabelForSelectionColumn="Toggle selection"
-        ariaLabelForSelectAllCheckbox="Toggle selection for all items"
-        checkButtonAriaLabel="select row"
-        // onItemInvoked={this._onItemInvoked}
-        styles={detailListStyles}
-      />
+      <MarqueeSelection selection={selection}>
+        <DetailsList
+          items={jobs}
+          columns={columns}
+          setKey="set"
+          layoutMode={DetailsListLayoutMode.justified}
+          selection={selection}
+          selectionPreservedOnEmptyClick={true}
+          ariaLabelForSelectionColumn="Toggle selection"
+          ariaLabelForSelectAllCheckbox="Toggle selection for all items"
+          checkButtonAriaLabel="select row"
+          styles={detailListStyles}
+        />
+      </MarqueeSelection>
     </div>
   );
 };

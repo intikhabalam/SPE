@@ -56,27 +56,31 @@ const navStyles: Partial<INavStyles> = {
     paddingLeft: "35px",
     backgroundColor: "#393EB3",
     selectors: {
-      "&:hover": {
+      "&:hover:not(.is-disabled)": {
         fontWeight: "bold",
-        backgroundColor: "#393EB3 ",
+        backgroundColor: "#393EB3",
+        color: "white", // Ensuring hover color for non-disabled links
       },
       "&:active": {
-        backgroundColor: "#393EB3 ",
+        backgroundColor: "#393EB3",
       },
       "&.is-selected": {
-        backgroundColor: "#393EB3 ",
+        backgroundColor: "#393EB3",
+      },
+      "&.is-disabled": {
+        color: "#A6A6A6",
+        cursor: "default",
+        backgroundColor: "#393EB3",
+        fontWeight: "normal",
+        pointerEvents: "none",
       },
     },
   },
-  linkText: {
-    color: "white",
-  },
   compositeLink: {
     selectors: {
-      ":hover .ms-Nav-linkText": {
-        fontWeight: "bold",
+      ":hover .ms-Button--action": {
+        backgroundColor: "#393EB3 !important",
       },
-      ":hover .ms-Button--action": { backgroundColor: "#393EB3 !important" },
     },
   },
 };
@@ -168,28 +172,31 @@ function App() {
         {
           name: "Overview",
           url: "",
+          disabled: true,
           iconProps: {
             iconName: "Map20Regular",
-            style: { color: "#6DCCF4", width: "20px" },
+            style: { color: "#A6A6A6", width: "20px" },
           },
           key: "key1",
         },
         {
           name: "People",
           url: "",
+          disabled: true,
           key: "key2",
           iconProps: {
             iconName: "People20Regular",
-            style: { color: "#6DCCF4", width: "20px" },
+            style: { color: "#A6A6A6", width: "20px" },
           },
         },
         {
           name: "Openings",
           url: "",
+          disabled: true,
           key: "key3",
           iconProps: {
             iconName: "Open20Regular",
-            style: { color: "#6DCCF4", width: "20px" },
+            style: { color: "#A6A6A6", width: "20px" },
           },
         },
         {
@@ -204,10 +211,11 @@ function App() {
         {
           name: "Reports",
           url: "",
+          disabled: true,
           key: "key5",
           iconProps: {
             iconName: "ChartMultiple20Regular",
-            style: { color: "#6DCCF4", width: "20px" },
+            style: { color: "#A6A6A6", width: "20px" },
           },
         },
       ],

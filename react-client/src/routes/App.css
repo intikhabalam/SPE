@@ -25,11 +25,11 @@ body {
 .spe-app-main-header {
   background-color: #242424;
   color: white;
-  padding: 0 20px;
+  padding: 0 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 47px;
+  height: 80px;
   width: 100%;
   box-sizing: border-box;
   z-index: 1000;
@@ -41,7 +41,7 @@ body {
   font-size: 20px;
   font-style: normal;
   font-weight: 600;
-  line-height: 47px; /* 130% */
+  line-height: 80px; /* 130% */
 }
 
 .spe-app-main-header-actions {
@@ -63,11 +63,11 @@ body {
   color: #000;
   text-align: center;
   font-family: "Segoe UI";
-  font-size: 20px;
+  font-size: 24px;
   font-style: normal;
   font-weight: 600;
   line-height: 26px; /* 130% */
-  margin: 120px 0 -120px 0; /* Adjust margin as needed */
+  margin: 80px 0 -80px 0; /* Adjust margin as needed */
 }
 
 .spe-app-main-content {
@@ -116,14 +116,14 @@ body {
 }
 
 .spe-app-content-container {
-  width: 1323px;
-  height: 701px; /* Assuming you want to adjust this height */
+  width: 1536px;
+  height: 864px;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #f4f7fa;
   border-radius: 25px;
-  box-shadow: 0px 5px 25px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 5px 25px 0px rgba(0, 0, 0, 0.05);
 }
 
 /* .spe-app-banner {
@@ -181,7 +181,7 @@ body {
   flex-direction: row;
   background: white;
   padding: 50px 5px;
-  box-shadow: 0px 5px 25px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 5px 25px 0px rgba(0, 0, 0, 0.05);
   width: 100%;
 }
 
@@ -308,6 +308,21 @@ body {
 .spe-app-header-subtitle-button {
   margin-top: 30px;
 } */
+
+/*Jobs Page*/
+.spe-job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.spe-job-header-filter {
+  display: flex;
+}
+
+.create-job-posting-button {
+  /* Ensure the button stays to the right */
+}
 
 .setup-steps li {
   margin: 20px;

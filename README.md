@@ -28,9 +28,8 @@ Variables:
 1. AZURE_SERVICEPRICIPAL_CLIENT_ID : This is an App registration created to allow the pipeline to deploy into your subscription. See Step 1.2
 2. AZURE_TENANT_ID: This is the azure tenant ID. 
 3. SHAREPOINT_ADMIN_SITE_URL : This is the SharePoint administration site. This is in the format https://<TenantName>-admin.sharepoint.com
+4. AZURE_SUBSCRIPTION_ID: This is the ID of the subscription that you want to deploy into in Azure
 
-Secret:
-1. AZURE_SUBSCRIPTION_ID: This is the ID of the subscription that you want to deploy into in Azure
 
 ## Step 1.2 Create App registration to allow for pipeline deployment
 Application management in Microsoft Entra ID (Microsoft Entra ID) is the process of securely creating, configuring, managing, and monitoring applications in the cloud. When you register your application in a Microsoft Entra tenant, you configure secure user access. We will need this in order to deploy our Github pipeline to azure

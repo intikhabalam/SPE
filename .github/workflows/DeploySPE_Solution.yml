@@ -99,9 +99,9 @@ jobs:
       - name: Azure Login
         uses: azure/login@v1
         with:
-          client-id: ${{ vars.AZURE_SERVICEPRINCIPAL_CLIENT_ID_PKSDEMO }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID_PKSDEMO }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }}
+          client-id: ${{ vars.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           allow-no-subscriptions: true
 
       - name: Check if Resource Group exists
@@ -142,6 +142,7 @@ jobs:
           # Connect to Azure using device login
           az login --use-device-code
 
+          
           # Set the app registration display name
           $appName = "${{ env.SPE_APP_NAME }}"
 
@@ -181,7 +182,7 @@ jobs:
           echo "PRIVATE_KEY=$certContent" >> $GITHUB_ENV
 
           # Create Service Principal
-          $spId = az ad sp create-for-rbac --role contributor --scopes /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }} -n ${{ env.SPE_APP_NAME }}
+          $spId = az ad sp create-for-rbac --role contributor --scopes /subscriptions/${{ vars.AZURE_SUBSCRIPTION_ID }} -n ${{ env.SPE_APP_NAME }}
 
           # Convert the JSON output to a PowerShell object
           $spObject = $spId | ConvertFrom-Json
@@ -252,15 +253,41 @@ jobs:
           $manifestPath = "$(pwd)/manifest.json"
           az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
 
+          Start-Sleep -Seconds 5
           #Grant Admin Consent to App Permissions
-          az ad app permission admin-consent --id $reactAppAzureAppId
+          echo "Granting Admin Consent to App Permissions..."
 
+          # Construct the JSON body using [pscustomobject]
+          $BodyObject = [pscustomobject]@{
+            spa = [pscustomobject]@{
+                redirectUris = @("$STATIC_WEBAPP_URL/")
+            }
+          }
+          
+              # Convert the body object to JSON
+          $body = $BodyObject | ConvertTo-Json -Depth 3
+
+          # Define the URI
+          $uri = "https://graph.microsoft.com/v1.0/applications/$objectId"
+
+          # Make the PATCH request
+          az rest --method PATCH --uri $uri --headers "Content-Type=application/json" --body $body
+          
+
+          $adminConsent = $(az ad app permission admin-consent --id $reactAppAzureAppId)
+          echo "Admin Consent Granted to App Permissions $adminConsent"
           ################################ ContainerType Creation - Start ##############################################
           # Connect to SharePoint Online
-          Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO -DeviceLogin
+          Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
+
+          # Get container type information
+          $containerType = Get-PnPContainerType
+          
+          # Store each value in a separate variable
+          $ContainerTypeId = $containerType.ContainerTypeId.Guid
+          Remove-PnPContainerType -Identity $ContainerTypeId
 
           # Your PnP PowerShell commands
-          Write-Host "Hello World"
           Write-Host "$reactAppAzureAppId"
 
           # Get container type information
@@ -288,7 +315,7 @@ jobs:
 
 
           # Extracting TenantName from SharePoint Adminsite URL
-          $originalUrl = $env:SHAREPOINT_ADMIN_SITE_URL_PKSDEMO
+          $originalUrl = $env:SHAREPOINT_ADMIN_SITE_URL
 
           # Extract the desired part using regex
           if ($originalUrl -match "https://([^-]+)-admin.sharepoint.com") {
@@ -310,22 +337,22 @@ jobs:
           az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names `
             "RegisterContainer_ClientID=$reactAppAzureAppId" `
             "RegisterContainer_ClientSecret=$reactAppAzureSecret" `
-            "RegisterContainer_ConsumingTenantId=${{ vars.AZURE_TENANT_ID_PKSDEMO }}" `
+            "RegisterContainer_ConsumingTenantId=${{ vars.AZURE_TENANT_ID }}" `
             "RegisterContainer_RootSiteUrl=https://$TenantName.sharepoint.com/" `
             "RegisterContainer_ContainerTypeId=$ContainerTypeId" `
             "RegisterContainer_TenantName=$TenantName" `
             "RegisterContainer_CertThumbprint=$certificateThumbPrint" `
             "RegisterContainer_CertPrivateKey=$certContent"
         env:
-          SHAREPOINT_ADMIN_SITE_URL_PKSDEMO: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
+          SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
 
           
       - name: Azure Login
         uses: azure/login@v1
         with:
-          client-id: ${{ vars.AZURE_SERVICEPRINCIPAL_CLIENT_ID_PKSDEMO }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID_PKSDEMO }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_PKSDEMO }}
+          client-id: ${{ vars.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           allow-no-subscriptions: true
 
       - name: Retrieve Azure Static Webapp values
@@ -350,7 +377,7 @@ jobs:
           echo "REACT_APP_CONTAINER_TYPE_ID=$CONTAINER_TYPE_ID" >> $GITHUB_ENV
           
         env:
-          SHAREPOINT_ADMIN_SITE_URL_PKSDEMO: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
+          SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
           STATIC_WEB_APP_NAME: ${{ env.STATIC_WEB_APP_NAME }}
           RESOURCE_GROUP_NAME: ${{ env.RESOURCE_GROUP_NAME }}
 
@@ -381,9 +408,9 @@ jobs:
           REACT_APP_AZURE_SERVER_APP_ID: ${{ env.REACT_APP_AZURE_APP_ID }}
           REACT_APP_AZURE_APP_ID: ${{ env.REACT_APP_AZURE_APP_ID }}
           REACT_APP_SPE_CONTAINER_TYPE_ID: ${{ env.REACT_APP_CONTAINER_TYPE_ID }}
-          REACT_APP_SP_ROOT_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL_PKSDEMO }}
+          REACT_APP_SP_ROOT_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
           REACT_APP_SAMPLE_API_URL: 'https://${{env.STATIC_WEBAPP_URL}}/api'
-          REACT_APP_TENANT_ID: '${{ vars.AZURE_TENANT_ID_PKSDEMO }}'
+          REACT_APP_TENANT_ID: '${{ vars.AZURE_TENANT_ID }}'
 
       - name: Install dependencies (backend)
         run: |
@@ -399,7 +426,7 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ env.STATIC_WEBAPP_TOKEN }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          repo_token: ${{ vars.GITHUB_TOKEN }}
           action: 'upload'
           app_location: 'react-client/build'
           api_location: 'api'

@@ -165,12 +165,6 @@ jobs:
                   Write-Output "Failed to get Object ID for app registration '$appName'."
               }
           }
-              # Get container type information
-          $containerType = Get-PnPContainerType
-          
-          # Store each value in a separate variable
-          $ContainerTypeId = $containerType.ContainerTypeId.Guid
-          Remove-PnPContainerType -Identity $ContainerTypeId
 
           # Create a certificate for the Service Principal
           $certOutput = az ad sp create-for-rbac -n ${{ env.SPE_APP_NAME }} --create-cert
@@ -258,6 +252,7 @@ jobs:
           $manifestPath = "$(pwd)/manifest.json"
           az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
 
+          Start-Sleep -Seconds 5
           #Grant Admin Consent to App Permissions
           az ad app permission admin-consent --id $reactAppAzureAppId
 
@@ -265,8 +260,14 @@ jobs:
           # Connect to SharePoint Online
           Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
 
+          # Get container type information
+          $containerType = Get-PnPContainerType
+          
+          # Store each value in a separate variable
+          $ContainerTypeId = $containerType.ContainerTypeId.Guid
+          Remove-PnPContainerType -Identity $ContainerTypeId
+
           # Your PnP PowerShell commands
-          Write-Host "Hello World"
           Write-Host "$reactAppAzureAppId"
 
           # Get container type information

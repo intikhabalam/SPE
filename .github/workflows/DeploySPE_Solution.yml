@@ -263,7 +263,9 @@ jobs:
                 redirectUris = @("$STATIC_WEBAPP_URL/")
             }
           }
-
+          
+              # Convert the body object to JSON
+          $body = $BodyObject | ConvertTo-Json -Depth 3
 
           # Define the URI
           $uri = "https://graph.microsoft.com/v1.0/applications/$objectId"

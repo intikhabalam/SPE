@@ -16,26 +16,28 @@ import {
   IColumn,
   IDetailsListStyles,
 } from "@fluentui/react/lib/DetailsList";
-
+import { TooltipHost, ITooltipHostStyles } from "@fluentui/react/lib/Tooltip";
 import { Job } from "../model/Job";
 import { getFileTypeIconProps } from "@fluentui/react-file-type-icons";
-import { Icon, Link as FluentLink } from "@fluentui/react";
+import { Icon, registerIcons, Link as FluentLink } from "@fluentui/react";
 import { CreateJobPostingButton } from "../components/CreateJobPostingButton";
-//import { mockJobs } from "../model/Job.mock";
+import { mockJobs } from "../model/Job.mock";
+import { useRef, useState, useEffect } from "react";
+import { Info20Regular } from "@fluentui/react-icons";
 
 // To Be uncommented when APIs decide to work
-export async function loader({ params }: ILoaderParams): Promise<Job[]> {
-  const jobsLite = await JobsApiProvider.instance.list();
-  const jobs = jobsLite.map(async (job) => {
-    return await JobsApiProvider.instance.get(job.id);
-  });
-  return Promise.all(jobs);
-}
+// export async function loader({ params }: ILoaderParams): Promise<Job[]> {
+//   const jobsLite = await JobsApiProvider.instance.list();
+//   const jobs = jobsLite.map(async (job) => {
+//     return await JobsApiProvider.instance.get(job.id);
+//   });
+//   return Promise.all(jobs);
+// }
 
 // To Be uncommented for Local use
-// export async function loader({ params }: ILoaderParams): Promise<IJob[]> {
-//   return mockJobs; // Return mock data directly
-// }
+export async function loader({ params }: ILoaderParams): Promise<IJob[]> {
+  return mockJobs; // Return mock data directly
+}
 
 export async function action({ params, request }: ILoaderParams) {
   const formData = await request.formData();
@@ -48,35 +50,63 @@ const detailListStyles: Partial<IDetailsListStyles> = {
   headerWrapper: { backgroundColor: "#f4f7fa !important", fontWeight: "bold" },
 };
 
+const tooltipHostStyles: Partial<ITooltipHostStyles> = {
+  root: {
+    display: "inline-block",
+    marginLeft: "8px",
+  },
+};
+
 export const Jobs: React.FunctionComponent = () => {
   const jobs = useLoaderData() as IJob[];
   const job = useActionData() as IJob | undefined;
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  const [filteredJobs, setFilteredJobs] = useState<IJob[]>(jobs);
+  const [currentFilter, setCurrentFilter] = useState<string>("all");
+
+  registerIcons({ icons: { Info20Regular: <Info20Regular /> } });
+
   if (job) {
     //navigate(`/jobs/${job.id}`);
     //window.open(`/jobs/${job.id}`);
   }
-  const selection = new Selection({
-    onSelectionChanged: () => {
-      const selectionDetails = getSelectionDetails();
-      console.log(selectionDetails);
-      // You can also update the state or perform other actions here
-    },
-  });
 
-  const getSelectionDetails = (): string => {
-    const selectionCount = selection.getSelectedCount();
-    switch (selectionCount) {
-      case 0:
-        return "No items selected";
-      case 1:
-        return (
-          "1 item selected: " +
-          (selection.getSelection()[0] as IJob).displayName
-        );
-      default:
-        return `${selectionCount} items selected`;
-    }
+  const selection = useRef(
+    new Selection({
+      onSelectionChanged: () => selectionChangedHandler(),
+    })
+  ).current;
+
+  const selectionChangedHandler = () => {
+    const currentSelectedKeys = selection
+      .getSelection()
+      .map(({ key }) => key as string);
+    setSelectedKeys(currentSelectedKeys);
   };
+
+  const handleFilterChange = (item?: PivotItem) => {
+    setCurrentFilter(item?.props.itemKey || "all");
+  };
+
+  useEffect(() => {
+    let sortedFilteredJobs = [...jobs];
+    if (currentFilter === "recent") {
+      sortedFilteredJobs.sort(
+        (a, b) =>
+          new Date(b.createdDateTime || 0).getTime() -
+          new Date(a.createdDateTime || 0).getTime()
+      );
+    } else if (currentFilter === "fulltime") {
+      sortedFilteredJobs = sortedFilteredJobs.filter(
+        (job) => job.customProperties?.employmentType.value === "Full time"
+      );
+    } else if (currentFilter === "parttime") {
+      sortedFilteredJobs = sortedFilteredJobs.filter(
+        (job) => job.customProperties?.employmentType.value === "Part time"
+      );
+    }
+    setFilteredJobs(sortedFilteredJobs);
+  }, [currentFilter, jobs]);
 
   const columns: IColumn[] = [
     {
@@ -152,7 +182,23 @@ export const Jobs: React.FunctionComponent = () => {
     },
     {
       key: "posting",
-      name: "Posting Document",
+      name: (
+        <div style={{ display: "flex", alignItems: "center" }}>
+          Posting Document
+          <TooltipHost
+            content="SharePoint Embedded contextual content displays within these tooltips"
+            id="postingTooltip"
+            calloutProps={{ gapSpace: 0 }}
+            styles={tooltipHostStyles}
+          >
+            <Icon
+              iconName="Info20Regular"
+              aria-describedby="postingTooltip"
+              style={{ fontSize: "16px", color: "red", marginLeft: "4px" }}
+            />
+          </TooltipHost>
+        </div>
+      ) as any,
       fieldName: "posting",
       minWidth: 100,
       maxWidth: 200,
@@ -190,22 +236,26 @@ export const Jobs: React.FunctionComponent = () => {
     <div>
       <div className="spe-job-header">
         <div className="spe-job-header-filter">
-          <Pivot aria-label="Filter Jobs">
+          <Pivot
+            aria-label="Filter Jobs"
+            selectedKey={currentFilter}
+            onLinkClick={handleFilterChange}
+          >
             <PivotItem headerText="All" itemKey="all" />
             <PivotItem headerText="Recent" itemKey="recent" />
             <PivotItem headerText="Full time" itemKey="fulltime" />
-            <PivotItem headerText="Part time" itemKey="parttitme" />
+            <PivotItem headerText="Part time" itemKey="parttime" />
           </Pivot>
         </div>
         <CreateJobPostingButton />
       </div>
       <MarqueeSelection selection={selection}>
         <DetailsList
-          items={jobs}
+          items={filteredJobs}
           columns={columns}
+          selection={selection}
           setKey="set"
           layoutMode={DetailsListLayoutMode.justified}
-          selection={selection}
           selectionPreservedOnEmptyClick={true}
           ariaLabelForSelectionColumn="Toggle selection"
           ariaLabelForSelectAllCheckbox="Toggle selection for all items"

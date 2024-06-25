@@ -142,6 +142,7 @@ jobs:
           # Connect to Azure using device login
           az login --use-device-code
 
+          
           # Set the app registration display name
           $appName = "${{ env.SPE_APP_NAME }}"
 
@@ -256,12 +257,13 @@ jobs:
           #Grant Admin Consent to App Permissions
           echo "Granting Admin Consent to App Permissions..."
 
-          # Construct the JSON body
-          $body = @{
-              spa = @{
-                  redirectUris = @("$STATIC_WEBAPP_URL/")
-              }
-          } | ConvertTo-Json -Compress
+          # Construct the JSON body using [pscustomobject]
+          $BodyObject = [pscustomobject]@{
+            spa = [pscustomobject]@{
+                redirectUris = @("$STATIC_WEBAPP_URL/")
+            }
+          }
+
 
           # Define the URI
           $uri = "https://graph.microsoft.com/v1.0/applications/$objectId"

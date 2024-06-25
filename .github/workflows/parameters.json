@@ -2,11 +2,8 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "resourceGroupName": {
-      "value": "SPE-Live-Rsg"
-    },
-    "staticWebAppName": {
-      "value": "SPE-Demo-StaticWebApp"
+    "resourcePrefix": {
+      "value": "SPE-Demo"
     },
     "location": {
       "value": "Central US"
@@ -28,20 +25,6 @@
     },
     "project": {
       "value": "SharePointEmbedded"
-    },
-    "sharepointAdminSiteUrl": {
-      "value": "https://pkssandbox-admin.sharepoint.com"
-    },
-    "containerTypeName": {
-      "value": "WednesdayCotainerType"
-    },
-    "owningApplicationId":
-    {
-      "value": "e385ff92-0abb-4a26-b41d-2fa18a65d580"
-    },
-    "owningAppRegName":
-    {
-      "value": "16SundayAppRegistration"
     }
   }
 }

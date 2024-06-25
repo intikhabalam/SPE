@@ -7,7 +7,13 @@ import {
   IJobClientCreateRequest,
 } from "../../../common/schemas/JobSchemas";
 import { Tag } from "@fluentui/react-components";
-import { Pivot, PivotItem } from "@fluentui/react";
+import {
+  CommandBarButton,
+  IButtonStyles,
+  IIconProps,
+  Pivot,
+  PivotItem,
+} from "@fluentui/react";
 import { MarqueeSelection } from "@fluentui/react/lib/MarqueeSelection";
 import {
   DetailsList,
@@ -21,23 +27,23 @@ import { Job } from "../model/Job";
 import { getFileTypeIconProps } from "@fluentui/react-file-type-icons";
 import { Icon, registerIcons, Link as FluentLink } from "@fluentui/react";
 import { CreateJobPostingButton } from "../components/CreateJobPostingButton";
-import { mockJobs } from "../model/Job.mock";
+// import { mockJobs } from "../model/Job.mock";
 import { useRef, useState, useEffect } from "react";
-import { Info20Regular } from "@fluentui/react-icons";
+import { Filter20Regular, Info20Regular } from "@fluentui/react-icons";
 
 // To Be uncommented when APIs decide to work
-// export async function loader({ params }: ILoaderParams): Promise<Job[]> {
-//   const jobsLite = await JobsApiProvider.instance.list();
-//   const jobs = jobsLite.map(async (job) => {
-//     return await JobsApiProvider.instance.get(job.id);
-//   });
-//   return Promise.all(jobs);
-// }
+export async function loader({ params }: ILoaderParams): Promise<Job[]> {
+  const jobsLite = await JobsApiProvider.instance.list();
+  const jobs = jobsLite.map(async (job) => {
+    return await JobsApiProvider.instance.get(job.id);
+  });
+  return Promise.all(jobs);
+}
 
 // To Be uncommented for Local use
-export async function loader({ params }: ILoaderParams): Promise<IJob[]> {
-  return mockJobs; // Return mock data directly
-}
+// export async function loader({ params }: ILoaderParams): Promise<IJob[]> {
+//   return mockJobs; // Return mock data directly
+// }
 
 export async function action({ params, request }: ILoaderParams) {
   const formData = await request.formData();
@@ -56,6 +62,18 @@ const tooltipHostStyles: Partial<ITooltipHostStyles> = {
     marginLeft: "8px",
   },
 };
+const commandButtonStyles: IButtonStyles = {
+  root: {
+    marginLeft: "10px",
+    width: "86px",
+    padding: "6px 20px",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    borderRadius: "2px",
+    border: "1px solid var(--Grey-palette-Grey110, #8A8886)",
+    background: "var(--Grey-palette-White, #FFF)",
+  },
+};
 
 export const Jobs: React.FunctionComponent = () => {
   const jobs = useLoaderData() as IJob[];
@@ -64,7 +82,16 @@ export const Jobs: React.FunctionComponent = () => {
   const [filteredJobs, setFilteredJobs] = useState<IJob[]>(jobs);
   const [currentFilter, setCurrentFilter] = useState<string>("all");
 
-  registerIcons({ icons: { Info20Regular: <Info20Regular /> } });
+  registerIcons({
+    icons: {
+      Info20Regular: <Info20Regular />,
+      Filter20Regular: <Filter20Regular />,
+    },
+  });
+  const filterIcon: IIconProps = {
+    iconName: "Filter20Regular",
+    styles: { root: { color: "black", height: "16px", width: "16px" } },
+  };
 
   if (job) {
     //navigate(`/jobs/${job.id}`);
@@ -247,22 +274,31 @@ export const Jobs: React.FunctionComponent = () => {
             <PivotItem headerText="Part time" itemKey="parttime" />
           </Pivot>
         </div>
-        <CreateJobPostingButton />
+        <div className="spe-job-header-filter">
+          <CreateJobPostingButton />
+          <CommandBarButton
+            iconProps={filterIcon}
+            text="Filter"
+            styles={commandButtonStyles}
+          />
+        </div>
       </div>
-      <MarqueeSelection selection={selection}>
-        <DetailsList
-          items={filteredJobs}
-          columns={columns}
-          selection={selection}
-          setKey="set"
-          layoutMode={DetailsListLayoutMode.justified}
-          selectionPreservedOnEmptyClick={true}
-          ariaLabelForSelectionColumn="Toggle selection"
-          ariaLabelForSelectAllCheckbox="Toggle selection for all items"
-          checkButtonAriaLabel="select row"
-          styles={detailListStyles}
-        />
-      </MarqueeSelection>
+      <div style={{ marginBottom: "20px" }}>
+        <MarqueeSelection selection={selection}>
+          <DetailsList
+            items={filteredJobs}
+            columns={columns}
+            selection={selection}
+            setKey="set"
+            layoutMode={DetailsListLayoutMode.justified}
+            selectionPreservedOnEmptyClick={true}
+            ariaLabelForSelectionColumn="Toggle selection"
+            ariaLabelForSelectAllCheckbox="Toggle selection for all items"
+            checkButtonAriaLabel="select row"
+            styles={detailListStyles}
+          />
+        </MarqueeSelection>
+      </div>
     </div>
   );
 };

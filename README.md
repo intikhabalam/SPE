@@ -1,39 +1,31 @@
-This article provides a comprehensive manual for deploying Microsoft Embedded systems. It guides you through the entire deployment process using a GitHub pipeline.
+This article provides a comprehensive manual for deploying Microsoft Embedded systems. It guides you through the entire deployment process with a focus on minimizing the use of scripts.
 
 
 Before you begin there are some Pre-Requsites that are required.
 
 1. Global Admin: SharePoint Online
 2. Global Admin: Azure
-3. Application: Github account
+3. Application: Windows Powershell
+4. Application: [PostMan](https://www.postman.com/downloads/)
 
 
-# Pipeline deployment
-While this has been automated to a high degree there are some manual steps that need to be added or completed as part of deployment process
-## Step 1: Fork the SharePoint Embedded Repo
-Create a new fork of the existing code. This will allow you to create any customisation that you want to the code will bringing over the automation pipelines for the deployment
+# Step 1: Enable SharePoint Containers on your SharePoint Online tenant
 
-Select **Fork - > Create new Fork** and create a new name
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/20e1ce24-aa51-410b-9862-2d36d824d3d9)</kbd>
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/a6d396e3-05d8-4203-bd46-14d002244104)</kbd>
+**This is now enabled by default on all tenants. You cannot see this menu unless you are the global admin of a tenant see: Pre-Requsites**
 
-Now that the we have a fork of the deployment code we will need to update some of the configuration variables. These are variables that are specific to you tenant.
+To enable SharePoint Embedded navigate to the M365 admin centre https://portal.microsoft.com and sign in with the tenant admin account
 
-Select **Settings -> Secrets and variables -> Actions**
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/0d727d84-7c2b-4f63-8c67-617005822bd0)</kbd>
+Select **Show All** at the bottom of the left-hand menu, then select **Admin Centers -> SharePoint** 
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/7899aa7d-6b36-4bde-98df-722c6bca2837)</kbd>
 
-From this menu we will now create the folowing variables and secret
+From the SharePoint Admin menu, select **Settings** from the left menu Locate and select SharePoint Embedded and review the terms of service and select Enable to enable on your tenant
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/1c60ac95-aeeb-4249-af04-bb3ee1cf175d)</kbd>
 
-Variables:
-1. AZURE_SERVICEPRICIPAL_CLIENT_ID : This is an App registration created to allow the pipeline to deploy into your subscription. See Step 1.2
-2. AZURE_TENANT_ID: This is the azure tenant ID. 
-3. SHAREPOINT_ADMIN_SITE_URL : This is the SharePoint administration site. This is in the format https://<TenantName>-admin.sharepoint.com
+If this setting is currently enabled you dont need to re-enable this.
 
-Secret:
-1. AZURE_SUBSCRIPTION_ID: This is the ID of the subscription that you want to deploy into in Azure
+# Step 2: Create App Registration
 
-## Step 1.2 Create App registration to allow for pipeline deployment
-Application management in Microsoft Entra ID (Microsoft Entra ID) is the process of securely creating, configuring, managing, and monitoring applications in the cloud. When you register your application in a Microsoft Entra tenant, you configure secure user access. We will need this in order to deploy our Github pipeline to azure
+Application management in Microsoft Entra ID (Microsoft Entra ID) is the process of securely creating, configuring, managing, and monitoring applications in the cloud. When you register your application in a Microsoft Entra tenant, you configure secure user access.
 
 Log into your Azure Subscription and navigate to **App Registrations** https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade
 
@@ -45,100 +37,209 @@ Select **New Registration**
 **Supported account types:** Accounts in this organisational dectory only(Single Tenant)
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/29ee8b00-d5c9-4b1b-bb2d-86cfd319a2cd)</kbd>
 
-After the registration has been created we will need to secure it, we do this by creating a federated credential which is a replacement for the Client Secret
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/b93640c8-15f9-4eba-bf0c-58c8f56d5117)</kbd>
+Copy down the **Application (Client) ID** & **Directory (tenant) ID** as you will need these later
 
-From here we will create a GitHub deployed action
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/87c0b0b1-6fa7-46bc-9eff-a289fe053aa8)</kbd>
+## Step 2.1: Configure Authentication
+This is the Public URL of the Embedded app and any urls that are in the app
 
-For the default values they are the following from Github.
+Select **Manage -> Authentication** from the left navigation menu
 
-**GitHub Details**
-- Orgainsation : This is the name of your repositiory
-- Respoitory : This is the name of the forked repository
-- Entity Type : Set this to Branch
-- GitHub Branch Name : Set this to main
-
-**Credential Details**
--  Name : This is a name for this credential
--  Description : Description of the credential
+On the Configure single-page application pane, set the Redirect URL to [URL of Embedded App]
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/cf2ba317-454e-40c6-82b7-e1cd88b0c13d)</kbd>
 
 
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/494c7cd2-826b-4e49-ac27-534f8f51e3d4)</kbd>
-
-Copy the application ID and set the variable AZURE_SERVICEPRICIPAL_CLIENT_ID to this value
-
-## Step 1.3 Setting the rights of the app registration
-We now need to set the permissions of the app registration to allow it to deploy out the code and set the variables and configurations needed for the applciation
-
-Navigate to your subscription and select **Access Control (IAM) -> Add -> Add Role Assignment**
-
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/3c2908d5-e251-4429-a870-96b855870ed1)</KBD>
-
-We are planning to assign the app refgistraion owner permissions at this time to allow it to complete its actions [Permissions are still being validated for least privledges] 
-
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/97de4aca-4f6a-442f-8a3d-2b3c06a11fd9)</kbd>
-
-Select **Owner** and selct **Next**
-
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/6ac42dd1-f181-473b-b21c-e97619f6a8da)</kbd>
-
-Select Members and we want to add the name of the service pricipal that wa created above in step 1.2.
-
-After the App Registration has been select **Next**. Select the Recommended "Allow user to assign all roles execpt privileged administrator roles Owner,UAA, BBAV"  
-
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/62576f31-cfef-48c5-83d1-aad5d7fc56ca)</kbd>
-
-Select **Next** and then **Review + Assign**
-
-This will allow the Github pipeline to now deploy into your azure subscription
 
 
-# Step 2: Deploy the GitHub Pipeline
-Now that you have configure the access for the Github to deploy into azure you are now ready to deploy the pipeline
 
-In Github Select Actions. And if you have not deployed a pipline before you will need to authorise and enable the pipelines
+## Step 2.2: Configure API Permissions
 
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/d6907c1d-3fe3-40f8-9fe3-fbf35bf898ca)</kbd>
+This step you need to configure the API permissions for the app. What you are setting here is the the Container permissions.
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/e3b0e62b-dd57-49e5-aa8d-3a4f7fd2ee50)</kbd>
 
-The pipeline that you need to run is the Deploy SharePoint Container Pipeline
+navigate to the **Manage -> Manifest**. The following will need to be added to the manifest
 
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/7470eba7-e6f1-4570-bcfc-a376c4b29bf7)</kbd>
+Search the minifest for the following **resourceAppID: 00000003-0000-0000-c000-000000000000** and update it so it matches the below code which sets the **FileStorageContainer.Selected** permission 
+```
+{
+  "resourceAppId": "00000003-0000-0000-c000-000000000000",
+  "resourceAccess": [
+      {
+          "id": "37f7f235-527c-4136-accd-4a02d197296e",
+          "type": "Scope"
+      },
+      {
+          "id": "14dad69e-099b-42c9-810b-d002981feec1",
+          "type": "Scope"
+      },
+      {
+          "id": "7427e0e9-2fba-42fe-b0c0-848c9e6a8182",
+          "type": "Scope"
+      },
+      {
+          "id": "085ca537-6565-41c2-aca7-db852babc212",
+          "type": "Scope"
+      },
+      {
+          "id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d",
+          "type": "Scope"
+      },
+      {
+          "id": "40dc41bc-0f7e-42ff-89bd-d9516947e474",
+          "type": "Role"
+      }
+  ]
+}
+```
 
-Select the pipeline and select the main branch and select Run workflow
+Next Search the minifest for the following **resourceAppID: 00000003-0000-0ff1-ce00-000000000000** and update it so it matches the below code which sets the **Container.Selected** permission 
+```
+{
+  "resourceAppId": "00000003-0000-0ff1-ce00-000000000000",
+  "resourceAccess": [
+      {
+          "id": "4d114b1a-3649-4764-9dfb-be1e236ff371",
+          "type": "Scope"
+      },
+      {
+          "id": "19766c1b-905b-43af-8756-06526ab42875",
+          "type": "Role"
+      },
+      {
+          "id": "640ddd16-e5b7-4d71-9690-3f4022699ee7",
+          "type": "Scope"
+      }
+  ]
+}
+],
+```
 
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/3c8f2619-756d-47da-84f7-6020e0e5a8a2)</kbd>
+When you have Set the permissions that you want you will need to approve the permissions. You would normally set the the button "Grant admin consent for {{Tenant Name}}" but due to the permissions being set not all have a name this button is not applicable 
 
-The Pipeline deployment can take upwards to 15min to fully deploy and has 3 instances where you need to manually approve an Action
+## Step 2.3: Create Client Secret 
+For the app to authenticate through Azure and M365 you will need a new client secret. you will need to note down the secret as this will only appear one time
 
-<KBD>![image](https://github.com/intikhabalam/SPE/assets/171198457/e52662d5-ebad-4fc6-ab1b-40f9226b416b)</KBD>
+Select **Manage -> Certificates and Secrets**
+{Image of Secret Menu}
 
-These steps will look like this. All 3 are covered under the "Create Service Principal and Get Credentials" step and the code will stop until you have submitted the auth codes. 
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/f41f7cef-93ab-4683-bbf3-fb534921e2a0)</kbd>
+Set the Details of the certificate
+- Description
+- Secret duration
 
-**The codes do have a time out so the pipline might fail if the code is not entered in a timely manner**
+## Step 2.4: Create container Type
+This step we need to create the container type. At th etime of writing there are no UI options to create this therefore you will need to run powershell. 
 
-# Step 2.1 : Set Defaults and expose app
-The final parts to the deploy are to configure some settings that dont have an exposed API yet.
+On your computer run powershell as administrator. You will need the Sharepoint powershell module.
 
-Under App Registration (See 1.3) There is a new App registration created by the pipeline. we need to expose the API with the container.
+If you dont have the module you can install it using the following.
+```
+Install-Module "Microsoft.Online.SharePoint.PowerShell"
+```
+or if you have it installed 
+```
+Update-Module "Microsoft.Online.SharePoint.PowerShell"
+```
 
-Select **Manage -> Expose an API**
+When this has been installed / updated you then need to run the following to create the container type.
 
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/0adeacc2-5b26-4588-b6ff-fb06dd24d9d0)</kbd>
+- {SPO_ADMIN_URL} = This is the sharepoint admin url.
+- {CONTAINER_TYPE_NAME} = This is the name of the new container. this can be anything you like
+- {AZURE_ENTRA_APP_ID} = This is the Client ID of the app created in Step 2
 
-Leave the values as they are and **Save and Continue**
+```
+Import-Module "Microsoft.Online.SharePoint.PowerShell"
+Connect-SPOService -Url "https://{{SPO_ADMIN_URL}}"
+New-SPOContainerType -TrialContainerType
+                     -ContainerTypeName "{{CONTAINER_TYPE_NAME}}"
+                     -OwningApplicationId "{{AZURE_ENTRA_APP_ID}}"
+```
 
-For the next menu we need to expose the container.manage permission via the api
+After this has been executed the output shoule be similar to the following
+```
+Container Type ID:
+===============================================================================
+ContainerTypeId     : 1e59a44b-b77e-051e-3cba-dbf83007b520
+ContainerTypeName   : MyFirstSpeContainerType
+OwningApplicationId : 520e6e65-1143-4c87-a7d3-baf242915dbb
+Classification      : Trial
+AzureSubscriptionId : 00000000-0000-0000-0000-000000000000
+ResourceGroup       :
+Region              :
+```
+Note down the container type ID as this will be required later
 
-<KBD>![image](https://github.com/intikhabalam/SPE/assets/171198457/84fcfd48-a04b-45d4-b972-b512ce34b92f)</KBD>
+## Step 2.5: Create a Self signed Certificate
+This step you will need to create a self signed certificate. this certificate is what is used for the app to securely connect with SharePoint. 
 
-# Step 2.2 Create Single Page Application
-Another setting that needs to be manually set is the Single Page Application as the there is not parameter to set this 
+On your local Desktop open a powershell window as administrator run the below powershell code updating the following 
 
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/3ac96fd3-2410-493e-8501-33a0cec57ca5)</kbd>
+- {CERT NAME} = the name of the certificate. This can be anything you like
+- {CERT_PATH} = The fully qualified path to the location of the *.cer file, such as c:\mycert.cer.
 
-the redirect URIs for the single page application is the url of the application built in the pipeline
+```
+$cert = New-SelfSignedCertificate -Subject "CN={{CERT_NAME}}" -CertStoreLocation "Cert:\CurrentUser\My" -KeyExportPolicy Exportable -KeySpec Signature -KeyLength 2048 -KeyAlgorithm RSA -HashAlgorithm SHA256
+Export-Certificate -Cert $cert -FilePath "{{CERT_PATH}}" -Force
 
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/b29e58b3-e1f0-4a08-91f4-64c909ca4107)</kbd>
+# Private key to Base64
+$privateKey = [System.Security.Cryptography.X509Certificates.RSACertificateExtensions]::GetRSAPrivateKey($cert)
+$privateKeyBytes = $privateKey.Key.Export([System.Security.Cryptography.CngKeyBlobFormat]::Pkcs8PrivateBlob)
+$privateKeyBase64 = [System.Convert]::ToBase64String($privateKeyBytes, [System.Base64FormattingOptions]::InsertLineBreaks)
+$privateKeyString = @"
+-----BEGIN PRIVATE KEY-----
+$privateKeyBase64
+-----END PRIVATE KEY-----
+"@
+
+# Print private key to output
+Write-Host $privateKeyString
+```
+
+This will save a *.cer certificate file and in the powershell window you will have the private key displayed. Copy down the private key as this will only be displayed once and you will need it later. Be sure to also copy the opening and closing tags as well "-----BEGIN PRIVATE KEY-----" and "-----END PRIVATE KEY-----"
+
+In the App Registraion from Step 2 select **Manage -> Certificates & Secrets** and Select **Certificates**
+
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/f07ac849-bf82-4f1f-8993-452e6ef46d76)</kbd>
+
+Upload the *.cer by selecting Upload certificate and navigate to the location where the *.cer is located. Make a note of the Thumbprint of certificate as this will be needed for later.
+
+# Step 3: Registering the Container Type
+These next steps are using commands to register the container type in SharePoint. There are no active menus to currently complete this so it is advised that SharePoint Rest API commands are used to complete these actions.
+
+As per the the Postman pre requsite there is a git repo with all the required Rest commands ready for you to use
+https://github.com/microsoft/SharePoint-Embedded-Samples
+
+--Add Steps to download the package and ingest into Postman--
+
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/73786d2a-8cb8-4335-99b6-af2e4fd4f3d6)</kbd>
+
+Select the Enviroments tab and add the following information
+
+- **ClientID:** This is the Secret ID created in Step 2.3
+- **ClientSecret:** This is the Secret Password created in Step 2.3
+- **ConsumingTenantId:** This is your tenant and is found in Azure when you select your subscription
+- **TenantName:** The name of your tenant. That's subdomain portion of your SharePoint Online site.
+- **RootSiteUrl:** The root URL of your tenant.
+- **ContainerTypeID:** The GUID of the Container Type created in Step 2.4
+- **CertThumbprint:** This is the thumbprint that is shown in Step 2.5
+- **CertPrivateKey:** This is teh private key of the cert which includes "-----BEGIN PRIVATE KEY-----" and "-----END PRIVATE KEY-----"
+
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/b9323b1c-a7c3-401b-9192-b0164f237bb8)</kbd>
+
+When you have set these up you then need to run the **Register ContainerType** located under **Application -> Containers**
+
+--Add Steps here on running the command and the expected result--
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

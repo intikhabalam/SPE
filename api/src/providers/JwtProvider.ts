@@ -17,7 +17,7 @@ interface Key {
 export class JwtProvider {
     public static readonly KEY_ENDPOINT = `https://login.microsoftonline.com/80133990-1076-49d7-b8ee-1d5098569f89/discovery/keys`;
     // public static readonly KEY_ENDPOINT = 'https://login.microsoftonline.com/common/discovery/keys';
-    public static readonly AUDIENCE = `api://${process.env.AZURE_CLIENT_ID}`;
+    public static readonly AUDIENCE = `api://${"1f83ba3b-1066-4946-935d-e9ac61cb3f21"}`;
 
     private static _keys: Map<string, Key> = new Map<string, Key>();
 

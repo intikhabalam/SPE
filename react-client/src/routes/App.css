@@ -3,196 +3,49 @@
 *::after {
   box-sizing: border-box;
 }
+
 body {
   margin: 0;
 }
+
 .App {
   height: 100vh;
   width: 100vw;
-  background-color: #f4f7fa;
+  background: #333;
   display: flex;
   flex-direction: column;
-}
-.spe-app-main {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100vw;
-  background-color: #eaeef1;
-  position: relative;
-}
 
-.spe-app-main-header {
-  background-color: #242424;
-  color: white;
-  padding: 0 40px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 80px;
-  width: 100%;
-  box-sizing: border-box;
-  z-index: 1000;
-}
-
-.spe-app-main-header-title {
-  color: #fff;
-  font-family: "Segoe UI";
-  font-size: 20px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 80px; /* 130% */
-}
-
-.spe-app-main-header-actions {
-  color: #fff;
-  font-family: "Segoe UI";
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 20px;
-  display: flex; /* Ensure items are displayed in a row */
-  gap: 10px; /* Adds space between the items */
-}
-
-.spe-app-main-description {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center; /* Center vertically */
-  color: #000;
-  text-align: center;
-  font-family: "Segoe UI";
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 26px; /* 130% */
-  margin: 80px 0 -80px 0; /* Adjust margin as needed */
-}
-
-.spe-app-main-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  flex: 1;
-}
-
-.show-side-panel .spe-app-main-content {
-  align-items: flex-start;
-  padding-left: 40px;
-}
-
-.show-side-panel .spe-app-main-description {
-  align-items: flex-start;
-  padding-left: 40px;
-}
-
-.custom-side-panel {
-  position: absolute;
-  top: 0;
-  right: 0;
-  height: 100%;
-  width: 600px; /* Adjust width as needed */
-  background-color: #f4f4f4; /* Example background color */
-  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1); /* Example shadow */
-  z-index: 5; /* Ensure it overlays content except header */
-  transform: translateX(100%); /* Initially off-screen */
-  transition: transform 0.3s ease-in-out; /* Smooth transition */
-  display: flex; /* Use flexbox for centering */
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
-}
-
-.side-panel-text {
-  font-size: 22px; /* Correct property name for font size */
-  font-weight: 600;
-  color: #000;
-  text-align: center; /* Center text horizontally */
-}
-
-.show-side-panel .custom-side-panel {
-  transform: translateX(0); /* Show panel by translating into view */
-}
-
-.spe-app-content-container {
-  width: 1536px;
-  height: 864px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f4f7fa;
-  border-radius: 25px;
-  box-shadow: 0px 5px 25px 0px rgba(0, 0, 0, 0.05);
-}
-
-/* .spe-app-banner {
-  background-color: #e92424;
-  color: white;
-  padding: 0 20px; 
-  display: flex;
-  align-items: center;
-  justify-content: space-between; 
-  height: 47px;
-  width: 100%;
-  box-sizing: border-box; 
-} */
-
-/* .spe-app-banner-content {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  justify-content: center; 
-} */
-
-/* .spe-app-banner-icon {
-  margin-right: 10px; 
-} */
-
-.spe-app-header-main-container {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.spe-app-content-navigation {
-  width: 225px;
-  padding: 20px;
-  height: 100%; /* Adjust height */
-  background-color: #393eb3;
-  transition: height 0.3s;
-}
-
-.spe-app-header-title {
-  margin-left: 20px;
-  margin-top: 30px;
-}
-
-.spe-app-header-container {
-  display: flex;
-  flex-direction: column;
-  flex: 1; /* Ensure it takes full height of its parent */
 }
 
 .spe-app-header {
-  justify-content: space-between;
+  flex: 0;
+  min-height: 70px;
+  height: 70px;
+  max-height: 70px;
+  justify-content: center;
   align-items: center;
+
   display: flex;
   flex-direction: row;
+
   background: white;
-  padding: 50px 5px;
-  box-shadow: 0px 5px 25px 0px rgba(0, 0, 0, 0.05);
-  width: 100%;
+
+}
+
+.spe-app-header-title {
+  flex: 1;
+  min-width: 300px;
+  padding-left: 50px;
 }
 
 .spe-app-header-search {
-  margin-left: 20px;
-  width: 344px;
-  max-width: 344px;
-  height: 38px;
+  flex: 2;
+  max-width: 400px;
+
+  position: relative;
 }
 
-/* .spe-app-search-results {
+.spe-app-search-results {
   position: absolute;
   background-color: white;
   opacity: 1;
@@ -205,14 +58,17 @@ body {
   width: 500px;
   max-height: 400px;
   overflow: auto;
-} */
+}
 
-/* .spe-app-search-results-background {
+.spe-app-search-results-background {
   background-color: white;
-} */
+}
 
-.login {
-  --login-person-avatar-size: 50px;
+.spe-app-header-actions {
+  flex: 1;
+  display: flex;
+  flex-direction: row-reverse;
+  padding-right: 25px;
 }
 
 .spe-app-content {
@@ -220,113 +76,73 @@ body {
   display: flex;
   flex-direction: row;
   height: 100%;
-  width: 100%;
+  width: 100vw;
   overflow: hidden;
-  border-radius: 25px;
+
+  background-color: #4854EE;
 }
 
-.spe-app-content-main {
+.spe-app-content-navigation {
   flex: 1;
-  flex-grow: 1;
+  padding: 25px;
+  padding-right: 50px;
+  min-width: 300px;
+  width: 225px;
+
+
+}
+
+.navigation-tabs {
+  background-color: #4854EE;
+}
+.navigation-divider {
+  padding: 10px;
+  padding-top: 25px;
+  padding-bottom: 25px;
+}
+.navigation-containers {
+  display: flex;
+  flex-direction: row;
+}
+
+
+.spe-app-content-main {
+  flex: 10;
   height: 100%;
   overflow: auto;
   display: flex;
   flex-direction: column;
 }
 
-.spe-app-side-panel {
-  flex: 0 0 300px;
-  background-color: #fff;
-  border-left: 1px solid #ccc;
-  display: none;
-  transition: display 0.3s;
-}
+.main-content-header {
+  flex: 0;
+  padding: 20px;
+  padding-left: 50px;
+  /*
+  min-height: 90px;
+  max-height: 90px;
+  height: 90px;
+  */
+  min-height: 30px;
+  max-height: 30px;
+  height: 30px;
 
-.spe-app-side-panel-icon {
-  background-color: #e92424;
-  color: white;
-  border-radius: 50px;
-  width: 28px;
-  height: 28px;
-  padding: 4px;
-  margin-right: 5px;
-}
-
-.spe-app-side-panel-content {
-  padding: 10px;
-}
-.spe-app-side-panel-divider {
-  margin: 25px 0;
-  height: 1px;
-  width: 100%;
-  border: 1px solid #d1d1d1;
-}
-
-.spe-app-banner-icon {
-  background-color: white;
-  color: #e92424;
-  border-radius: 50px;
-  width: 28px;
-  height: 28px;
-  padding: 4px;
-  margin-right: 10px;
-}
-
-.spe-app-side-panel.closed {
-  display: block;
-  height: 100vh;
-  margin: 0;
-  width: 50px;
-  padding: 10px 20px;
-  border: 1px solid #d1d1d1;
-}
-.spe-app-side-panel.open {
-  display: block;
-  height: 100vh;
-  margin: 0;
-  min-width: 300px;
-  width: 580px;
-  max-width: 580px;
-  padding: 10px 20px;
-  border: 1px solid #d1d1d1;
+  background-color: #4854EE;
 }
 
 .main-content-body {
   flex: 1;
-  flex-grow: 1;
   padding: 25px;
   border-radius: 20px 20px 0 0;
   margin-right: 25px;
-}
 
-/* Login Page
-.spe-app-header-subtitle {
-  margin-top: 10px;
-  font-size: 16px;
-  color: #fff;
-}
-.spe-app-header-subtitle-button {
-  margin-top: 30px;
-} */
-
-/*Jobs Page*/
-.spe-job-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.spe-job-header-filter {
-  display: flex;
-}
-
-.create-job-posting-button {
-  /* Ensure the button stays to the right */
+  background-color: white;
 }
 
 .setup-steps li {
   margin: 20px;
   font-size: 16px;
+
 }
 
 .edit-job {
@@ -353,8 +169,9 @@ body {
 }
 
 .posting-content iframe {
-  border: 1px solid #ccc;
+  border: 1px solid #CCC;
 }
+
 
 .spe-app-content-sidebar {
   flex: 1;
@@ -362,6 +179,7 @@ body {
   width: 350px;
   overflow: auto;
   position: relative;
+
 }
 
 .sidebar-resizer {
@@ -372,7 +190,7 @@ body {
   cursor: col-resize;
   background-color: black;
   opacity: 0;
-
+ 
   z-index: 2;
   position: absolute;
   top: 0;
@@ -390,10 +208,12 @@ body {
   width: 100%;
   overflow: auto;
 
+
   position: absolute;
   top: 0;
   left: 0;
 }
+
 
 .container-browser {
   display: flex;
@@ -441,7 +261,7 @@ body {
   min-width: 90%;
   max-width: 90%;
   width: 90%;
-
+  
   flex: 1;
 }
 
@@ -460,7 +280,7 @@ body {
 .create-job-content label {
   margin-top: 20px;
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 500;;
 }
 
 .view-job-breadcrumb {
@@ -502,11 +322,3 @@ body {
   display: block;
 }
 
-.Login {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background-color: #393eb3;
-}

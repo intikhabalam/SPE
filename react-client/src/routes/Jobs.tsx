@@ -1,304 +1,236 @@
-import "./App.css";
-import { Link, useActionData, useLoaderData } from "react-router-dom";
+import { Form, Link, useActionData, useLoaderData, useNavigate, useSubmit } from "react-router-dom";
 import { ILoaderParams } from "../common/ILoaderParams";
 import { JobsApiProvider } from "../providers/JobsApiProvider";
-import {
-  IJob,
-  IJobClientCreateRequest,
-} from "../../../common/schemas/JobSchemas";
-import { Tag } from "@fluentui/react-components";
-import {
-  CommandBarButton,
-  IButtonStyles,
-  IIconProps,
-  Pivot,
-  PivotItem,
-} from "@fluentui/react";
-import { MarqueeSelection } from "@fluentui/react/lib/MarqueeSelection";
-import {
-  DetailsList,
-  DetailsListLayoutMode,
-  Selection,
-  IColumn,
-  IDetailsListStyles,
-} from "@fluentui/react/lib/DetailsList";
-import { TooltipHost, ITooltipHostStyles } from "@fluentui/react/lib/Tooltip";
+import { IJob, IJobClientCreateRequest } from "../../../common/schemas/JobSchemas";
+import { Breadcrumb, BreadcrumbButton, BreadcrumbItem, Button, DataGrid, DataGridBody, DataGridCell, DataGridHeader, DataGridHeaderCell, DataGridRow, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle, DialogTrigger, Input, Label, TableCellLayout, TableColumnDefinition, Tag, createTableColumn } from "@fluentui/react-components";
+import { useRef, useState } from "react";
 import { Job } from "../model/Job";
 import { getFileTypeIconProps } from "@fluentui/react-file-type-icons";
-import { Icon, registerIcons, Link as FluentLink } from "@fluentui/react";
-import { CreateJobPostingButton } from "../components/CreateJobPostingButton";
-// import { mockJobs } from "../model/Job.mock";
-import { useRef, useState, useEffect } from "react";
-import { Filter20Regular, Info20Regular } from "@fluentui/react-icons";
+import { Icon, Link as FluentLink } from "@fluentui/react";
+import { Spinner } from "@microsoft/mgt-react";
 
-// To Be uncommented when APIs decide to work
 export async function loader({ params }: ILoaderParams): Promise<Job[]> {
-  const jobsLite = await JobsApiProvider.instance.list();
-  const jobs = jobsLite.map(async (job) => {
-    return await JobsApiProvider.instance.get(job.id);
-  });
-  return Promise.all(jobs);
+    const jobsLite = await JobsApiProvider.instance.list();
+    const jobs = jobsLite.map(async (job) => {
+        return await JobsApiProvider.instance.get(job.id)
+    });
+    return Promise.all(jobs);
 }
-
-// To Be uncommented for Local use
-// export async function loader({ params }: ILoaderParams): Promise<IJob[]> {
-//   return mockJobs; // Return mock data directly
-// }
 
 export async function action({ params, request }: ILoaderParams) {
-  const formData = await request.formData();
-  const job = Object.fromEntries(formData) as IJobClientCreateRequest;
-  return await JobsApiProvider.instance.create(job);
-}
-
-const detailListStyles: Partial<IDetailsListStyles> = {
-  root: { marginTop: "20px" },
-  headerWrapper: { backgroundColor: "#f4f7fa !important", fontWeight: "bold" },
-};
-
-const tooltipHostStyles: Partial<ITooltipHostStyles> = {
-  root: {
-    display: "inline-block",
-    marginLeft: "8px",
-  },
-};
-const commandButtonStyles: IButtonStyles = {
-  root: {
-    marginLeft: "10px",
-    width: "86px",
-    padding: "6px 20px",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    borderRadius: "2px",
-    border: "1px solid var(--Grey-palette-Grey110, #8A8886)",
-    background: "var(--Grey-palette-White, #FFF)",
-  },
-};
-
-export const Jobs: React.FunctionComponent = () => {
-  const jobs = useLoaderData() as IJob[];
-  const job = useActionData() as IJob | undefined;
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-  const [filteredJobs, setFilteredJobs] = useState<IJob[]>(jobs);
-  const [currentFilter, setCurrentFilter] = useState<string>("all");
-
-  registerIcons({
-    icons: {
-      Info20Regular: <Info20Regular />,
-      Filter20Regular: <Filter20Regular />,
-    },
-  });
-  const filterIcon: IIconProps = {
-    iconName: "Filter20Regular",
-    styles: { root: { color: "black", height: "16px", width: "16px" } },
-  };
-
-  if (job) {
-    //navigate(`/jobs/${job.id}`);
-    //window.open(`/jobs/${job.id}`);
+    const formData = await request.formData();
+    const job = Object.fromEntries(formData) as IJobClientCreateRequest;
+    return await JobsApiProvider.instance.create(job);
   }
 
-  const selection = useRef(
-    new Selection({
-      onSelectionChanged: () => selectionChangedHandler(),
-    })
-  ).current;
-
-  const selectionChangedHandler = () => {
-    const currentSelectedKeys = selection
-      .getSelection()
-      .map(({ key }) => key as string);
-    setSelectedKeys(currentSelectedKeys);
-  };
-
-  const handleFilterChange = (item?: PivotItem) => {
-    setCurrentFilter(item?.props.itemKey || "all");
-  };
-
-  useEffect(() => {
-    let sortedFilteredJobs = [...jobs];
-    if (currentFilter === "recent") {
-      sortedFilteredJobs.sort(
-        (a, b) =>
-          new Date(b.createdDateTime || 0).getTime() -
-          new Date(a.createdDateTime || 0).getTime()
-      );
-    } else if (currentFilter === "fulltime") {
-      sortedFilteredJobs = sortedFilteredJobs.filter(
-        (job) => job.customProperties?.employmentType.value === "Full time"
-      );
-    } else if (currentFilter === "parttime") {
-      sortedFilteredJobs = sortedFilteredJobs.filter(
-        (job) => job.customProperties?.employmentType.value === "Part time"
-      );
+export const Jobs: React.FunctionComponent = () => {
+    const [displayName, setDisplayName] = useState<string>("");
+    const [description, setDescription] = useState<string>("");
+    const [showCreateDialog, setShowCreateDialog] = useState<boolean>(false);
+    const [showCreatingSpinner, setShowCreatingSpinner] = useState<boolean>(false);
+    const navigate = useNavigate();
+    const jobs = useLoaderData() as IJob[];
+    const job = useActionData() as IJob | undefined;
+    if (job) {
+        //navigate(`/jobs/${job.id}`);
+        //window.open(`/jobs/${job.id}`);
     }
-    setFilteredJobs(sortedFilteredJobs);
-  }, [currentFilter, jobs]);
+    const submit = useSubmit();
+    
+    const submitCreateJob = async () => {
+        setShowCreatingSpinner(true);
+        const formData = new FormData();
+        formData.append("displayName", displayName);
+        formData.append("description", description);
+        await submit(formData, { method: "POST" });
+        setDisplayName("");
+        setDescription("");
+        setShowCreateDialog(false);
+        setShowCreatingSpinner(false);
+    }
 
-  const columns: IColumn[] = [
-    {
-      key: "displayName",
-      name: "Job Title",
-      fieldName: "displayName",
-      minWidth: 100,
-      maxWidth: 200,
-      isResizable: true,
-      onRender: (job: Job) => <Link to={job.id}>{job.displayName}</Link>,
-      styles: {
-        cellTitle: {
-          display: "flex",
-          alignItems: "center",
-        },
-      },
-    },
-    {
-      key: "description",
-      name: "Description",
-      fieldName: "description",
-      minWidth: 200,
-      maxWidth: 300,
-      isResizable: true,
-      onRender: (job: Job) => <span>{job.description}</span>,
-      styles: {
-        cellTitle: {
-          display: "flex",
-          alignItems: "center",
-        },
-      },
-    },
-    {
-      key: "createdDate",
-      name: "Created",
-      fieldName: "createdDate",
-      minWidth: 50,
-      maxWidth: 100,
-      isResizable: true,
-      onRender: (job: Job) => <span>{job.createdDateTime}</span>,
-      styles: {
-        cellTitle: {
-          display: "flex",
-          alignItems: "center",
-        },
-      },
-    },
-    {
-      key: "state",
-      name: "State",
-      fieldName: "state",
-      minWidth: 25,
-      maxWidth: 100,
-      isResizable: true,
-      onRender: (job: Job) => (
-        <div
-          style={{
-            display: "inline-block",
-            padding: "2px 8px",
-            background: "#E4F1FD",
-            color: "#0F6CBD",
-          }}
-        >
-          <Tag appearance="brand">{job.customProperties?.state.value}</Tag>
-        </div>
-      ),
-      styles: {
-        cellTitle: {
-          display: "flex",
-          alignItems: "center",
-        },
-      },
-    },
-    {
-      key: "posting",
-      name: (
-        <div style={{ display: "flex", alignItems: "center" }}>
-          Posting Document
-          <TooltipHost
-            content="SharePoint Embedded contextual content displays within these tooltips"
-            id="postingTooltip"
-            calloutProps={{ gapSpace: 0 }}
-            styles={tooltipHostStyles}
-          >
-            <Icon
-              iconName="Info20Regular"
-              aria-describedby="postingTooltip"
-              style={{ fontSize: "16px", color: "red", marginLeft: "4px" }}
-            />
-          </TooltipHost>
-        </div>
-      ) as any,
-      fieldName: "posting",
-      minWidth: 100,
-      maxWidth: 200,
-      isResizable: true,
-      styles: {
-        cellTitle: {
-          display: "flex",
-          alignItems: "center",
-        },
-      },
-      onRender: (job: Job) => {
-        const iconProps = getFileTypeIconProps({ extension: "docx", size: 24 });
+    const columns: TableColumnDefinition<Job>[] = [
+        createTableColumn({
+            columnId: 'displayName',
+            renderHeaderCell: () => {
+                return 'Job Title'
+            },
+            renderCell: (job) => {
+                return (
+                    <TableCellLayout>
+                        <Link to={job.id}>{job.displayName}</Link>
+                    </TableCellLayout>
+                )
+            }
+        }),
+        createTableColumn({
+            columnId: 'description',
+            renderHeaderCell: () => {
+                return 'Description'
+            },
+            renderCell: (job) => {
+                return (
+                    <TableCellLayout>
+                        {job.description}
+                    </TableCellLayout>
+                )
+            }
+        }),
+        createTableColumn({
+            columnId: 'createdDate',
+            renderHeaderCell: () => {
+                return 'Created'
+            },
+            renderCell: (job) => {
+                return (
+                    <TableCellLayout>
+                        {job.createdDateTime}
+                    </TableCellLayout>
+                )
+            }
+        }),
+        createTableColumn({
+            columnId: 'state',
+            renderHeaderCell: () => {
+                return 'State'
+            },
+            renderCell: (job) => {
+                return (
+                    <TableCellLayout>
+                        <Tag appearance="brand">{job.state}</Tag>
+                    </TableCellLayout>
+                )
+            }
+        }),
+        createTableColumn({
+            columnId: 'posting',
+            renderHeaderCell: () => {
+                return 'Posting Document'
+            },
+            renderCell: (job) => {
+                const iconProps = getFileTypeIconProps({ extension: 'docx', size: 24 });
+                return (
+                    <TableCellLayout>
+                        {job.postingDoc && job.postingDoc.name && job.postingDoc.webUrl && (<>
+                            <Icon {...iconProps} />
+                            <FluentLink href={job.postingDoc?.webUrl} target="_blank" >{job.postingDoc?.name}</FluentLink>
+                        </>)}
+                    </TableCellLayout>
+                )
+            }
+        }),
+    ];
 
-        return (
-          <>
-            {job.postingDoc && job.postingDoc.name && job.postingDoc.webUrl && (
-              <>
-                <Icon {...iconProps} />
-                <FluentLink
-                  href={job.postingDoc.webUrl}
-                  target="_blank"
-                  style={{ paddingLeft: "5px" }}
+
+    const columnSizingOptions = {
+        displayName: {
+            minWidth: 250,
+            defaultWidth: 250,
+            idealWidth: 250
+        },
+        description: {
+            minWidth: 190,
+            defaultWidth: 190
+        },
+        createdDate: {
+            minWidth: 190,
+            defaultWidth: 190
+        },
+        state: {
+            minWidth: 90,
+            defaultWidth: 90
+        },
+    };
+
+    return (
+        <div>
+            <div className="view-job-breadcrumb">
+                <Breadcrumb size='large'>
+                    <BreadcrumbItem>
+                        <BreadcrumbButton size='large' onClick={() => navigate('/jobs')}>Jobs</BreadcrumbButton>
+                    </BreadcrumbItem>
+                </Breadcrumb>
+            </div>
+            <Form>
+            <Dialog open={showCreateDialog}>
+                <DialogTrigger disableButtonEnhancement>
+                    <Button appearance="primary" onClick={() => setShowCreateDialog(true)}>Create New Job Posting</Button>
+                </DialogTrigger>
+                <DialogSurface>
+                    {!showCreatingSpinner && (
+                    <DialogBody>
+                    <DialogTitle>New Job Posting</DialogTitle>
+                    <DialogContent className="create-job-content">
+                        Create a new job posting in a draft state. You can edit the posting in the next step before you publish it. 
+                        <Label>Job title</Label>
+                        <Input
+                            placeholder="Job title"
+                            aria-label="Job title"
+                            type="text"
+                            name="displayName"
+                            value={displayName}
+                            onChange={(e) => setDisplayName(e.target.value)}
+                            />
+                        <Label>Job description</Label>
+                        <Input
+                            placeholder="Job description"
+                            aria-label="Job description"
+                            type="text"
+                            name="description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button appearance="primary" type="submit" onClick={submitCreateJob}>Create</Button>
+                        <DialogTrigger disableButtonEnhancement>
+                        <Button appearance="secondary" onClick={() => setShowCreateDialog(false)}>Cancel</Button>
+                        </DialogTrigger>
+                    </DialogActions>
+                    </DialogBody>
+                    )}
+                    {showCreatingSpinner && (<>
+                        <Spinner />
+                        <p>Creating job...</p>
+                    </>)}
+                </DialogSurface>
+                </Dialog>
+            </Form>
+            <h2>Recent</h2>
+            <DataGrid
+                items={jobs}
+                columns={columns}
+                getRowId={(item) => item.id}
+                resizableColumns
+                selectionMode="single"
+                columnSizingOptions={columnSizingOptions}
+                //selectedItems={selectedItems}
+                //onSelectionChange={onSelectionChange}
+            >
+            <DataGridHeader>
+                <DataGridRow
+                    selectionCell={{checkboxIndicator: { "aria-label": "Select row" }}}
                 >
-                  {job.postingDoc.name}
-                </FluentLink>
-              </>
-            )}
-          </>
-        );
-      },
-    },
-  ];
-
-  return (
-    <div>
-      <div className="spe-job-header">
-        <div className="spe-job-header-filter">
-          <Pivot
-            aria-label="Filter Jobs"
-            selectedKey={currentFilter}
-            onLinkClick={handleFilterChange}
-          >
-            <PivotItem headerText="All" itemKey="all" />
-            <PivotItem headerText="Recent" itemKey="recent" />
-            <PivotItem headerText="Full time" itemKey="fulltime" />
-            <PivotItem headerText="Part time" itemKey="parttime" />
-          </Pivot>
+                    {({ renderHeaderCell }) => (
+                        <DataGridHeaderCell><b>{renderHeaderCell()}</b></DataGridHeaderCell>
+                    )}
+                </DataGridRow>
+            </DataGridHeader>
+            <DataGridBody<Job>>
+                {({ item, rowId }) => (
+                    <DataGridRow<Job> 
+                        key={rowId}
+                        selectionCell={{checkboxIndicator: { "aria-label": "Select row" }}}
+                    >
+                        {({ renderCell, columnId }) => (
+                            <DataGridCell>
+                                {renderCell(item)}
+                            </DataGridCell>
+                        )}
+                    </DataGridRow>
+                )}
+            </DataGridBody>
+        </DataGrid>
         </div>
-        <div className="spe-job-header-filter">
-          <CreateJobPostingButton />
-          <CommandBarButton
-            iconProps={filterIcon}
-            text="Filter"
-            styles={commandButtonStyles}
-          />
-        </div>
-      </div>
-      <div style={{ marginBottom: "20px" }}>
-        <MarqueeSelection selection={selection}>
-          <DetailsList
-            items={filteredJobs}
-            columns={columns}
-            selection={selection}
-            setKey="set"
-            layoutMode={DetailsListLayoutMode.justified}
-            selectionPreservedOnEmptyClick={true}
-            ariaLabelForSelectionColumn="Toggle selection"
-            ariaLabelForSelectAllCheckbox="Toggle selection for all items"
-            checkButtonAriaLabel="select row"
-            styles={detailListStyles}
-          />
-        </MarqueeSelection>
-      </div>
-    </div>
-  );
-};
+    );
+}

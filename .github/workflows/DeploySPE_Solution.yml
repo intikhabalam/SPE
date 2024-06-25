@@ -165,6 +165,12 @@ jobs:
                   Write-Output "Failed to get Object ID for app registration '$appName'."
               }
           }
+              # Get container type information
+          $containerType = Get-PnPContainerType
+          
+          # Store each value in a separate variable
+          $ContainerTypeId = $containerType.ContainerTypeId.Guid
+          Remove-PnPContainerType -Identity $ContainerTypeId
 
           # Create a certificate for the Service Principal
           $certOutput = az ad sp create-for-rbac -n ${{ env.SPE_APP_NAME }} --create-cert

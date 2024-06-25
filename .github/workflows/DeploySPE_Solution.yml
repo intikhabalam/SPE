@@ -254,8 +254,24 @@ jobs:
 
           Start-Sleep -Seconds 5
           #Grant Admin Consent to App Permissions
-          az ad app permission admin-consent --id $reactAppAzureAppId
+          echo "Granting Admin Consent to App Permissions..."
 
+          # Construct the JSON body
+          $body = @{
+              spa = @{
+                  redirectUris = @("$STATIC_WEBAPP_URL/")
+              }
+          } | ConvertTo-Json -Compress
+
+          # Define the URI
+          $uri = "https://graph.microsoft.com/v1.0/applications/$objectId"
+
+          # Make the PATCH request
+          az rest --method PATCH --uri $uri --headers "Content-Type=application/json" --body $body
+          
+
+          $adminConsent = $(az ad app permission admin-consent --id $reactAppAzureAppId)
+          echo "Admin Consent Granted to App Permissions $adminConsent"
           ################################ ContainerType Creation - Start ##############################################
           # Connect to SharePoint Online
           Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin

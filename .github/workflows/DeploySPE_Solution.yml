@@ -286,23 +286,19 @@ jobs:
 
           # Get container type information
           $containerType = Get-PnPContainerType
-          
-          # Store each value in a separate variable
-          $ContainerTypeId = $containerType.ContainerTypeId.Guid
-          Remove-PnPContainerType -Identity $ContainerTypeId
+
+          # Check if container type exists
+          if ($containerType) {
+              Write-Host "Container type already exists."
+              # Store each value in a separate variable
+              $ContainerTypeId = $containerType.ContainerTypeId.Guid
+              Remove-PnPContainerType -Identity $ContainerTypeId
+          } else {
+              Write-Host "Container type does not exists."
+          }
 
           # Your PnP PowerShell commands
-          Write-Host "$reactAppAzureAppId"
-
-          # Get container type information
-          $containerType = Get-PnPContainerType
-
-          # Check if container type already exists
-          if (-not $containerType) {
-            New-PnPContainerType -TrialContainerType -ContainerTypeName ${{ env.CONTAINER_TYPE_NAME }} -OwningApplicationId $reactAppAzureAppId
-          } else {
-            Write-Host "Container type already exists."
-          }
+          New-PnPContainerType -TrialContainerType -ContainerTypeName ${{ env.CONTAINER_TYPE_NAME }} -OwningApplicationId $reactAppAzureAppId
 
           # Get container type information
           $containerType = Get-PnPContainerType
@@ -378,13 +374,14 @@ jobs:
           CONTAINER_TYPE_ID=$(echo $APPSETTINGS | jq -r '.properties.RegisterContainer_ContainerTypeId')
           CLIENT_SECRET=$(echo $APPSETTINGS | jq -r '.properties.RegisterContainer_ClientSecret')
           CERT_THUMBPRINT=$(echo $APPSETTINGS | jq -r '.properties.RegisterContainer_CertThumbprint')
-          CERT_PRIVATEKEY=$(echo $APPSETTINGS | jq -r '.properties.RegisterContainer_CertPrivateKey')
-          
+          # CERT_PRIVATEKEY=$(echo $APPSETTINGS | jq -r '.properties.RegisterContainer_CertPrivateKey' | base64 -w 0)
+          # CERT_PRIVATEKEY=$(echo $APPSETTINGS | jq -r '.properties.RegisterContainer_CertPrivateKey' | base64 -w 0)
+
           echo "REACT_APP_AZURE_APP_ID=$CLIENT_ID" >> $GITHUB_ENV
           echo "REACT_APP_AZURE_APP_CLIENT_SECRET=$CLIENT_SECRET" >> $GITHUB_ENV
           echo "REACT_APP_CONTAINER_TYPE_ID=$CONTAINER_TYPE_ID" >> $GITHUB_ENV
           echo "REACT_APP_AZURE_APP_CERT_THUMBPRINT=$CERT_THUMBPRINT" >> $GITHUB_ENV
-          echo "REACT_APP_AZURE_APP_CERT_PRIVATEKEY=$CERT_PRIVATEKEY" >> $GITHUB_ENV
+          # echo "REACT_APP_AZURE_APP_CERT_PRIVATEKEY=$CERT_PRIVATEKEY" >> $GITHUB_ENV
           
 
 

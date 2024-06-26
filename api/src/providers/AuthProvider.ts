@@ -21,7 +21,7 @@ export abstract class AuthProvider {
             };
         } else {
             // auth.clientSecret = process.env.AZURE_CLIENT_SECRET;
-            auth.clientSecret = "L-v8Q~9qIXJyvMv1BX1WJ9iSJk~~hqo-5vsPga9Q";
+             auth.clientSecret = "OXH8Q~AKCfVBMUZw~bxYpoE1GIN.iAYUJLDsLciM";
         }
         this.client = new ConfidentialClientApplication({ auth: auth });
     }

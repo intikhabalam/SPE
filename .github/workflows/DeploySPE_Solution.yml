@@ -376,7 +376,7 @@ jobs:
           CERT_THUMBPRINT=$(echo $APPSETTINGS | jq -r '.properties.RegisterContainer_CertThumbprint')
           # CERT_PRIVATEKEY=$(echo $APPSETTINGS | jq -r '.properties.RegisterContainer_CertPrivateKey' | base64 -w 0)
           # CERT_PRIVATEKEY=$(echo $APPSETTINGS | jq -r '.properties.RegisterContainer_CertPrivateKey' | base64 -w 0)
-          Client_Special=$("OXH8Q~AKCfVBMUZw~bxYpoE1GIN.iAYUJLDsLciM")
+          Client_Special='OXH8Q~AKCfVBMUZw~bxYpoE1GIN.iAYUJLDsLciM'
           echo "REACT_APP_AZURE_APP_ID=$CLIENT_ID" >> $GITHUB_ENV
           echo "REACT_APP_AZURE_APP_CLIENT_SPECIAL=$Client_Special" >> $GITHUB_ENV
           echo "REACT_APP_CONTAINER_TYPE_ID=$CONTAINER_TYPE_ID" >> $GITHUB_ENV

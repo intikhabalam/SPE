@@ -28,9 +28,7 @@ export async function registerContainerType(
     if (!jwt || !(await jwt.authorize()) || !jwt.tid) {
       throw new InvalidAccessTokenError();
     }
-    const oboAuthProvider = new OboAuthProvider(jwt);
-    const graph = new GraphProvider(oboAuthProvider);
-    const tempToken = await oboAuthProvider.getToken();
+    const graph = new GraphProvider(new OboAuthProvider(jwt));
     const spRootSiteUrl = await graph.getRootSiteUrl();
     if (!spRootSiteUrl) {
       throw new ApiError("Unable to fetch root site url");
@@ -58,7 +56,7 @@ export async function registerContainerType(
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${tempToken}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(registerPayload),
     });

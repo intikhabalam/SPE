@@ -27,7 +27,7 @@ import { Job } from "../model/Job";
 import { getFileTypeIconProps } from "@fluentui/react-file-type-icons";
 import { Icon, registerIcons, Link as FluentLink } from "@fluentui/react";
 import { CreateJobPostingButton } from "../components/CreateJobPostingButton";
-// import { mockJobs } from "../model/Job.mock";
+//import { mockJobs } from "../model/Job.mock";
 import { useRef, useState, useEffect } from "react";
 import { Filter20Regular, Info20Regular } from "@fluentui/react-icons";
 
@@ -283,7 +283,7 @@ export const Jobs: React.FunctionComponent = () => {
           />
         </div>
       </div>
-      <div style={{ marginBottom: "20px" }}>
+      <div style={{ height: "600px", overflowY: "auto" }}>
         <MarqueeSelection selection={selection}>
           <DetailsList
             items={filteredJobs}

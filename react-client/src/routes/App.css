@@ -320,9 +320,9 @@ body {
   display: flex;
 }
 
-.create-job-posting-button {
+/* .create-job-posting-button {
   /* Ensure the button stays to the right */
-}
+/* } */
 
 .setup-steps li {
   margin: 20px;
@@ -464,17 +464,20 @@ body {
 }
 
 .view-job-breadcrumb {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   margin-bottom: 40px;
 }
 
-.view-job-breadcrumb .fui-Breadcrumb {
+/* .view-job-breadcrumb .fui-Breadcrumb {
   margin-bottom: 20px;
 }
 
 .view-job-breadcrumb .fui-Breadcrumb button {
   font-size: 30px;
   font-weight: 500;
-}
+} */
 
 .edit-job button {
   margin: 5px;

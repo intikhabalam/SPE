@@ -11,6 +11,8 @@ import {
   PivotItem,
   DefaultButton,
   PrimaryButton,
+  TooltipHost,
+  ITooltipHostStyles,
 } from "@fluentui/react";
 import {
   Button,
@@ -33,6 +35,7 @@ import {
   Edit20Filled,
   ArrowSync20Regular,
   ChevronRight20Regular,
+  Info20Regular,
 } from "@fluentui/react-icons";
 import { TextField } from "@fluentui/react/lib/TextField";
 import ContainerBrowser from "../components/ContainerBrowser";
@@ -42,9 +45,11 @@ import { ViewJobApplicants } from "../components/ViewJobApplicants";
 let job: Job | undefined;
 
 // To Be uncommented when APIs decide to work
-export async function loader({ params }: ILoaderParams): Promise<Job | undefined> {
-    const jobId = params.jobId;
-    return await JobsApiProvider.instance.get(jobId);
+export async function loader({
+  params,
+}: ILoaderParams): Promise<Job | undefined> {
+  const jobId = params.jobId;
+  return await JobsApiProvider.instance.get(jobId);
 }
 
 // Uncommented for Local use
@@ -69,9 +74,18 @@ export async function action({ params, request }: ILoaderParams) {
   const formData = await request.formData();
   const fields = Object.fromEntries(formData);
   if (job && fields.createPostingDoc) {
-    await JobsApiProvider.instance.createPostingDoc(job.id);
-    job = await JobsApiProvider.instance.get(job.id);
-    window.open(job.postingDoc?.webUrl, "_blank");
+    try {
+      await JobsApiProvider.instance.createPostingDoc(job.id);
+      job = await JobsApiProvider.instance.get(job.id);
+
+      if (job.postingDoc?.webUrl) {
+        window.open(job.postingDoc.webUrl, "_blank");
+      } else {
+        console.error("Failed to retrieve postingDoc URL");
+      }
+    } catch (error) {
+      console.error("Error creating posting doc:", error);
+    }
   }
   return job;
 }
@@ -83,6 +97,13 @@ const iconClass = mergeStyles({
 const breadcrumbStyles: Partial<IBreadcrumbStyles> = {
   root: {
     FontSize: "22px",
+  },
+};
+
+const tooltipHostStyles: Partial<ITooltipHostStyles> = {
+  root: {
+    display: "inline-block",
+    marginLeft: "8px",
   },
 };
 
@@ -107,8 +128,16 @@ export const ViewJob: React.FunctionComponent = () => {
   ];
 
   registerIcons({
-    icons: { ChevronRight20Regular: <ChevronRight20Regular /> },
+    icons: {
+      ChevronRight20Regular: <ChevronRight20Regular />,
+      Info20Regular: <Info20Regular />,
+      Edit20Filled: <Edit20Filled />,
+      ArrowSync20Regular: <ArrowSync20Regular />,
+    },
   });
+
+  const editIcon = { iconName: "Edit20Filled" };
+  const refreshIcon = { iconName: "ArrowSync20Regular" };
 
   useEffect(() => {
     updatePreviewLink();
@@ -223,7 +252,7 @@ export const ViewJob: React.FunctionComponent = () => {
                   }}
                 />
 
-                {/* <>
+                <div className="view-job-posting-section">
                   {!job.postingDoc && (
                     <div className="create-posting-form">
                       <p>No job posting yet -- create one!</p>
@@ -233,36 +262,78 @@ export const ViewJob: React.FunctionComponent = () => {
                           name="createPostingDoc"
                           value="true"
                         />
-                        <Button appearance="primary" type="submit">
-                          Create Posting
-                        </Button>
+                        <PrimaryButton
+                          text="Create Posting"
+                          type="submit"
+                          style={{
+                            backgroundColor: "#393EB3",
+                            color: "white",
+                            padding: "5px",
+                            borderRadius: "5px",
+                            marginRight: "10px",
+                            marginBottom: "20px",
+                          }}
+                        />
                       </Form>
                     </div>
                   )}
                   {job.postingDoc && (
                     <div className="posting-content">
                       {postingEditLink && (
-                        <p>
-                          <Toolbar>
-                            <ToolbarButton
+                        <div
+                          style={{
+                            width: "100%",
+                            padding: "20px 10px",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <div>
+                            <TooltipHost
+                              content="SharePoint Embedded contextual content displays within these tooltips"
+                              id="postingTooltip"
+                              calloutProps={{ gapSpace: 0 }}
+                              styles={tooltipHostStyles}
+                            >
+                              <Icon
+                                iconName="Info20Regular"
+                                aria-describedby="postingTooltip"
+                                style={{
+                                  fontSize: "16px",
+                                  color: "red",
+                                  marginLeft: "4px",
+                                }}
+                              />
+                            </TooltipHost>
+                          </div>
+                          <div>
+                            <PrimaryButton
                               aria-label="Edit job posting"
-                              appearance="primary"
-                              icon={<Edit20Filled />}
+                              text="Edit"
+                              style={{
+                                backgroundColor: "#393EB3",
+                                color: "white",
+                                padding: "5px",
+                                borderRadius: "5px",
+                                marginRight: "5px",
+                              }}
+                              iconProps={editIcon}
                               onClick={() =>
                                 window.open(postingEditLink, "_blank")
                               }
-                            >
-                              Edit
-                            </ToolbarButton>
-                            <ToolbarButton
+                            />
+                            <DefaultButton
                               aria-label="Refresh"
-                              icon={<ArrowSync20Regular />}
+                              text="Refresh"
+                              iconProps={refreshIcon}
                               onClick={updatePreviewLink}
-                            >
-                              Refresh
-                            </ToolbarButton>
-                          </Toolbar>
-                        </p>
+                              style={{
+                                border: "none",
+                              }}
+                            />
+                          </div>
+                        </div>
                       )}
                       {postingPreviewLink && (
                         <iframe
@@ -273,7 +344,7 @@ export const ViewJob: React.FunctionComponent = () => {
                       )}
                     </div>
                   )}
-                </> */}
+                </div>
               </div>
             </PivotItem>
             <PivotItem headerText="Applicants">

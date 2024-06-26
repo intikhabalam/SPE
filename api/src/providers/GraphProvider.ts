@@ -24,7 +24,7 @@ export interface IDriveItemFields {
 export class GraphProvider {
     private _client: Graph.Client;
     private _authProvider: AuthProvider;
-    private _containerTypeId: string = process.env.SPE_CONTAINER_TYPE_ID!;
+    private _containerTypeId: string = "d1b32f75-3f3e-0fa9-1932-479d8becdae4"!;
 
     public constructor(authProvider: AuthProvider) {
         this._authProvider = authProvider;

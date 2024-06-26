@@ -320,9 +320,9 @@ body {
   display: flex;
 }
 
-.create-job-posting-button {
+/* .create-job-posting-button {
   /* Ensure the button stays to the right */
-}
+/* } */
 
 .setup-steps li {
   margin: 20px;
@@ -464,17 +464,20 @@ body {
 }
 
 .view-job-breadcrumb {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   margin-bottom: 40px;
 }
 
-.view-job-breadcrumb .fui-Breadcrumb {
+/* .view-job-breadcrumb .fui-Breadcrumb {
   margin-bottom: 20px;
 }
 
 .view-job-breadcrumb .fui-Breadcrumb button {
   font-size: 30px;
   font-weight: 500;
-}
+} */
 
 .edit-job button {
   margin: 5px;
@@ -485,20 +488,33 @@ body {
 }
 
 .view-job-form-input {
-  margin: 10px;
+  margin: 10px 0;
+  padding: 5px;
+  color: rgb(84, 79, 79);
+  border-radius: 4px;
+  width: 241px;
+}
+
+.view-job-form-textarea {
+  margin: 10px 0;
+  padding: 5px;
+  color: rgb(84, 79, 79);
+  border-radius: 4px;
+  width: 663px;
+  display: block;
 }
 
 .view-job-form-input input {
   padding: 5px;
   color: rgb(84, 79, 79);
   border-radius: 4px;
-  width: 250px;
+  width: 241px;
 }
 .view-job-form-input textarea {
   padding: 5px;
   color: rgb(84, 79, 79);
   border-radius: 4px;
-  width: 250px;
+  width: 663px;
   display: block;
 }
 

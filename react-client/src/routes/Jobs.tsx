@@ -27,7 +27,7 @@ import { Job } from "../model/Job";
 import { getFileTypeIconProps } from "@fluentui/react-file-type-icons";
 import { Icon, registerIcons, Link as FluentLink } from "@fluentui/react";
 import { CreateJobPostingButton } from "../components/CreateJobPostingButton";
-// import { mockJobs } from "../model/Job.mock";
+//import { mockJobs } from "../model/Job.mock";
 import { useRef, useState, useEffect } from "react";
 import { Filter20Regular, Info20Regular } from "@fluentui/react-icons";
 
@@ -123,14 +123,14 @@ export const Jobs: React.FunctionComponent = () => {
           new Date(b.createdDateTime || 0).getTime() -
           new Date(a.createdDateTime || 0).getTime()
       );
-    } else if (currentFilter === "fulltime") {
-      sortedFilteredJobs = sortedFilteredJobs.filter(
-        (job) => job.customProperties?.employmentType.value === "Full time"
-      );
-    } else if (currentFilter === "parttime") {
-      sortedFilteredJobs = sortedFilteredJobs.filter(
-        (job) => job.customProperties?.employmentType.value === "Part time"
-      );
+      // } else if (currentFilter === "fulltime") {
+      //   sortedFilteredJobs = sortedFilteredJobs.filter(
+      //     (job) => job.customProperties?.employmentType.value === "Full time"
+      //   );
+      // } else if (currentFilter === "parttime") {
+      //   sortedFilteredJobs = sortedFilteredJobs.filter(
+      //     (job) => job.customProperties?.employmentType.value === "Part time"
+      //   );
     }
     setFilteredJobs(sortedFilteredJobs);
   }, [currentFilter, jobs]);
@@ -197,7 +197,7 @@ export const Jobs: React.FunctionComponent = () => {
             color: "#0F6CBD",
           }}
         >
-          <Tag appearance="brand">{job.customProperties?.state.value}</Tag>
+          <Tag appearance="brand">{job.state}</Tag>
         </div>
       ),
       styles: {
@@ -283,7 +283,7 @@ export const Jobs: React.FunctionComponent = () => {
           />
         </div>
       </div>
-      <div style={{ marginBottom: "20px" }}>
+      <div style={{ height: "600px", overflowY: "auto" }}>
         <MarqueeSelection selection={selection}>
           <DetailsList
             items={filteredJobs}

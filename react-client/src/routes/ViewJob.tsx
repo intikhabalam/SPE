@@ -1,267 +1,290 @@
-import { Form, Outlet, useHref, useLoaderData, useNavigate } from "react-router-dom";
-import { IJob, IJobUpdateRequest } from "../../../common/schemas/JobSchemas";
+import { Form, useLoaderData, useNavigate } from "react-router-dom";
 import { ILoaderParams } from "../common/ILoaderParams";
 import { JobsApiProvider } from "../providers/JobsApiProvider";
 import { Job } from "../model/Job";
 import { useEffect, useState } from "react";
 import { GraphProvider } from "../providers/GraphProvider";
-import { Avatar, Body1, Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem, Button, Caption1, Card, CardFooter, CardHeader, CardPreview, Dialog, DialogActions, DialogContent, DialogSurface, DialogTitle, DialogTrigger, Divider, Input, Label, Tab, TabList, Tag, Textarea, Title1, Title2, Toolbar, ToolbarButton, makeStyles, shorthands } from "@fluentui/react-components";
-import { Edit20Filled, ArrowSync20Regular, ArrowReplyRegular, ShareRegular, ContentView16Regular, Note16Regular, MegaphoneLoud16Regular, Pen16Regular } from "@fluentui/react-icons";
-import { Panel } from "@fluentui/react";
+import {
+  Icon,
+  registerIcons,
+  Pivot,
+  PivotItem,
+  DefaultButton,
+  PrimaryButton,
+} from "@fluentui/react";
+import {
+  Button,
+  Divider,
+  Input,
+  Label,
+  Tag,
+  Toolbar,
+  ToolbarButton,
+} from "@fluentui/react-components";
+import {
+  Breadcrumb,
+  IBreadcrumbItem,
+  IBreadcrumbStyles,
+  IDividerAsProps,
+} from "@fluentui/react/lib/Breadcrumb";
+
+import { mergeStyles } from "@fluentui/react/lib/Styling";
+import {
+  Edit20Filled,
+  ArrowSync20Regular,
+  ChevronRight20Regular,
+} from "@fluentui/react-icons";
+import { TextField } from "@fluentui/react/lib/TextField";
 import ContainerBrowser from "../components/ContainerBrowser";
+//import { mockJobs } from "../model/Job.mock";
+import { ViewJobApplicants } from "../components/ViewJobApplicants";
 
 let job: Job | undefined;
 
+// To Be uncommented when APIs decide to work
 export async function loader({ params }: ILoaderParams): Promise<Job | undefined> {
     const jobId = params.jobId;
     return await JobsApiProvider.instance.get(jobId);
 }
 
+// Uncommented for Local use
+// export async function loader({
+//   params,
+// }: ILoaderParams): Promise<Job | undefined> {
+//   const jobId = params.jobId;
+//   console.log("Loader called with jobId:", jobId);
+//   // Search for the job in mockJobs
+//   const mockJob = mockJobs.find((job) => job.id === jobId);
+
+//   if (mockJob) {
+//     console.log("Job found:", mockJob);
+//     return new Job(mockJob);
+//   }
+
+//   console.log("No job found for jobId:", jobId);
+//   return undefined;
+// }
+
 export async function action({ params, request }: ILoaderParams) {
-    const formData = await request.formData();
-    const fields = Object.fromEntries(formData);
-    if (job && fields.createPostingDoc) {
-        await JobsApiProvider.instance.createPostingDoc(job.id);
-        job = await JobsApiProvider.instance.get(job.id);
-        window.open(job.postingDoc?.webUrl, '_blank');
-    }
-    return job;
+  const formData = await request.formData();
+  const fields = Object.fromEntries(formData);
+  if (job && fields.createPostingDoc) {
+    await JobsApiProvider.instance.createPostingDoc(job.id);
+    job = await JobsApiProvider.instance.get(job.id);
+    window.open(job.postingDoc?.webUrl, "_blank");
+  }
+  return job;
 }
 
-const useStyles = makeStyles({
-    card: {
-      ...shorthands.margin("20px"),
-      width: "720px",
-      maxWidth: "100%",
-    },
-  });
+const iconClass = mergeStyles({
+  margin: "5px 0 0 0",
+});
+
+const breadcrumbStyles: Partial<IBreadcrumbStyles> = {
+  root: {
+    FontSize: "22px",
+  },
+};
 
 export const ViewJob: React.FunctionComponent = () => {
-    job = useLoaderData() as Job | undefined;
-    const [selectedTab, setSelectedTab] = useState<string>('details');
-    const [postingEditLink, setPostingEditLink] = useState<string | undefined>(undefined);
-    const [postingPreviewLink, setPostingPreviewLink] = useState<string | undefined>(undefined);
-    const [showOfferDialog, setShowOfferDialog] = useState<boolean>(false);
-    const navigate = useNavigate();
+  job = useLoaderData() as Job | undefined;
+  const [postingEditLink, setPostingEditLink] = useState<string | undefined>(
+    undefined
+  );
+  const [postingPreviewLink, setPostingPreviewLink] = useState<
+    string | undefined
+  >(undefined);
+  const [isReadOnly, setIsReadOnly] = useState(true);
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        updatePreviewLink();
-    }, [job]);
+  const itemsWithHref: IBreadcrumbItem[] = [
+    { text: "Jobs", key: "Jobs", href: "/hiring" },
+    {
+      text: job ? job.displayName : "",
+      key: "f1",
+      href: "",
+    },
+  ];
 
-    const updatePreviewLink = () => {
-        if (job && job.postingDoc) {
-            setPostingEditLink(job.postingDoc.webUrl);
-            GraphProvider.instance.getPreviewUrl(job.id, job.postingDoc.id).then((url: URL) => {
-                setPostingPreviewLink(url.href);
-            });
-        }
+  registerIcons({
+    icons: { ChevronRight20Regular: <ChevronRight20Regular /> },
+  });
+
+  useEffect(() => {
+    updatePreviewLink();
+  }, []);
+
+  const updatePreviewLink = () => {
+    if (job && job.postingDoc) {
+      setPostingEditLink(job.postingDoc.webUrl);
+      GraphProvider.instance
+        .getPreviewUrl(job.id, job.postingDoc.id)
+        .then((url: URL) => {
+          setPostingPreviewLink(url.href);
+        });
     }
+  };
 
-    const deleteJob = async () => {
-        if (job) {
-            await JobsApiProvider.instance.deleteJob(job.id);
-            navigate('/jobs');
-        }
+  const deleteJob = async () => {
+    if (job) {
+      await JobsApiProvider.instance.deleteJob(job.id);
+      navigate("/jobs");
     }
+  };
 
-    const previewResume = async () => {
-        const name = 'resume.pdf';
-        const items = await GraphProvider.instance.listItems(job?.id!);
-        const item = items.find((item) => item.name === name);
-        if (item) {
-            const url = await GraphProvider.instance.getPreviewUrl(job?.id!, item.id);
-            window.open(url, '_blank');
-        }
-    }
+  function _getCustomDivider(dividerProps: IDividerAsProps): JSX.Element {
+    return <Icon iconName="ChevronRight20Regular" className={iconClass} />;
+  }
 
-    const editInterviewNotes = async () => {
-        const name = 'notes.docx';
-        const items = await GraphProvider.instance.listItems(job?.id!);
-        const item = items.find((item) => item.name === name);
-        if (item) {
-            window.open(item.webUrl, '_blank');
-        }     
-    }
-
-    const styles = useStyles();
-    return (
-        <>
-        { job && (
+  return (
+    <>
+      {job && (
         <div className="view-job">
-            <div className="view-job-breadcrumb">
-                <Breadcrumb size='large'>
-                    <BreadcrumbItem>
-                        <BreadcrumbButton size='large' onClick={() => navigate('/jobs')}>Jobs</BreadcrumbButton>
-                    </BreadcrumbItem>
-                    <BreadcrumbDivider />
-                    <BreadcrumbItem>
-                        <BreadcrumbButton size='large'>{job.displayName}</BreadcrumbButton>
-                        <Tag appearance="brand">{job.state}</Tag>
-                    </BreadcrumbItem>
-                </Breadcrumb>
+          <div className="view-job-breadcrumb">
+            <Breadcrumb
+              items={itemsWithHref}
+              maxDisplayedItems={2}
+              dividerAs={_getCustomDivider}
+              styles={breadcrumbStyles}
+            />
+            <div
+              style={{
+                display: "inline-block",
+                padding: "2px 8px",
+                background: "#E4F1FD",
+                color: "#0F6CBD",
+              }}
+            >
+              <Tag appearance="brand">{job.state}</Tag>
             </div>
-            <TabList className="view-job-tabs" selectedValue={selectedTab}>
-                <Tab value="details" onClick={() => setSelectedTab('details')}>Details</Tab>
-                <Tab value="applicants" onClick={() => setSelectedTab('applicants')}>Applicants</Tab>
-                <Tab value="settings" onClick={() => setSelectedTab('settings')}>Settings</Tab>
-            </TabList>
-
-            {selectedTab === 'details' && (
-            <div>
+          </div>
+          <Pivot>
+            <PivotItem headerText="Details">
+              {" "}
+              <div>
                 <Form className="edit-job" action="patch">
-                    <div className="view-job-form-input">
-                        <Label htmlFor="displayName" size="large">Job Title: </Label>
-                        <Input className="view-job-displayName" type="text" disabled={true} name="displayName" placeholder="Job Title" defaultValue={job.displayName} />
-                    </div>
-                    <div className="view-job-form-input">
-                        <Label htmlFor="description" size="large">Description: </Label>
-                        <Input className="view-job-description" disabled={true} name="description" placeholder="Description" defaultValue={job.description} />
-                    </div>
-                    <div className="view-job-form-input">
-                        <Label htmlFor="createdDate" size="large">Created: </Label>
-                        <Input className="view-job-createdDate" disabled={true} name="createdDate" placeholder="Created" defaultValue={job.createdDateTime} />
-                    </div>
-                    <Button appearance="secondary" size="large">Edit Details</Button>
-                    {!job.isPublished && (<Button appearance="primary" size="large">Publish</Button>)}
-                    {job.isPublished && (<Button appearance="secondary" size="large">Unpublish</Button>)}
-                    <Button appearance="secondary" size="large" onClick={deleteJob}>Delete</Button>
+                  <TextField
+                    className="view-job-form-input"
+                    label="Job Title"
+                    readOnly={isReadOnly}
+                    defaultValue={job.displayName}
+                  />
+                  <TextField
+                    className="view-job-form-textarea"
+                    label="Description"
+                    multiline
+                    rows={3}
+                    readOnly={isReadOnly}
+                    defaultValue={job.description}
+                  />
+                  <TextField
+                    className="view-job-form-input"
+                    label="Created"
+                    readOnly={isReadOnly}
+                    defaultValue={job.createdDateTime}
+                  />
                 </Form>
-
-                <Divider />
-                
-                <>
-                { !job.postingDoc && (
-                <div className="create-posting-form">
-                    <p>No job posting yet -- create one!</p>
-                    <Form method="post">
-                        <input type="hidden" name="createPostingDoc" value="true" />
-                        <Button appearance="primary" type="submit">Create Posting</Button>
-                    </Form>
-                </div>
+                <div
+                  style={{
+                    margin: "25px 0",
+                    height: "1px",
+                    width: "100%",
+                    border: "1px solid #d1d1d1",
+                  }}
+                />
+                <DefaultButton
+                  text="Edit Details"
+                  onClick={() => setIsReadOnly(false)}
+                  style={{
+                    padding: "5px",
+                    borderRadius: "5px",
+                    marginRight: "10px",
+                  }}
+                />
+                {!job.isPublished && (
+                  <PrimaryButton
+                    text="Publish"
+                    onClick={() => setIsReadOnly(true)}
+                    style={{
+                      backgroundColor: "#393EB3",
+                      color: "white",
+                      padding: "5px",
+                      borderRadius: "5px",
+                      marginRight: "10px",
+                    }}
+                  />
                 )}
-                { job.postingDoc && (
-                <div className="posting-content">
-                    { postingEditLink && (
-                    <p>
-                        <Toolbar>
+                <DefaultButton
+                  text="Delete"
+                  onClick={deleteJob}
+                  style={{
+                    padding: "5px",
+                    borderRadius: "5px",
+                  }}
+                />
+
+                {/* <>
+                  {!job.postingDoc && (
+                    <div className="create-posting-form">
+                      <p>No job posting yet -- create one!</p>
+                      <Form method="post">
+                        <input
+                          type="hidden"
+                          name="createPostingDoc"
+                          value="true"
+                        />
+                        <Button appearance="primary" type="submit">
+                          Create Posting
+                        </Button>
+                      </Form>
+                    </div>
+                  )}
+                  {job.postingDoc && (
+                    <div className="posting-content">
+                      {postingEditLink && (
+                        <p>
+                          <Toolbar>
                             <ToolbarButton
-                            aria-label="Edit job posting"
-                            appearance="primary"
-                            icon={<Edit20Filled />}
-                            onClick={() => window.open(postingEditLink, '_blank')}
+                              aria-label="Edit job posting"
+                              appearance="primary"
+                              icon={<Edit20Filled />}
+                              onClick={() =>
+                                window.open(postingEditLink, "_blank")
+                              }
                             >
-                                Edit
+                              Edit
                             </ToolbarButton>
                             <ToolbarButton
-                            aria-label="Refresh"
-                            icon={<ArrowSync20Regular />}
-                            onClick={updatePreviewLink}
+                              aria-label="Refresh"
+                              icon={<ArrowSync20Regular />}
+                              onClick={updatePreviewLink}
                             >
-                                Refresh
+                              Refresh
                             </ToolbarButton>
-                        </Toolbar>
-                    </p>
-                    )}
-                    { postingPreviewLink && (
-                        <iframe title={job.displayName} src={postingPreviewLink} style={{ width: '75%', height: '600px' }}></iframe>
-                    )}
-                </div>
-                )}
-                </>
-            </div>
-            )}
-
-            {selectedTab === 'applicants' && (
-            <div style={{padding: "20px" }}>
-                <Card className={styles.card}>
-                    <CardHeader
-                        header={
-                            <Body1>
-                                <b>Alex Wilber</b> applied about 4 weeks ago
-                            </Body1>                            
-                        }
-                        description={<Caption1>Status: <Tag appearance="brand" size="extra-small">Ready for offer</Tag></Caption1>}
-                    >
-                    </CardHeader>
-                    <CardFooter>
-                        <Button onClick={() => setShowOfferDialog(true)} appearance="primary" size="small" icon={<MegaphoneLoud16Regular />}>Send Offer</Button>
-                        <Button onClick={() => editInterviewNotes()} size="small" icon={<Note16Regular />}>View Interview Notes</Button>
-                        <Button onClick={() => previewResume()} size="small" icon={<ContentView16Regular />}>View Resume</Button>
-                        <Button size="small" icon={<ArrowReplyRegular fontSize={16} />}>Contact</Button>
-                    </CardFooter>
-                </Card>
-
-                <Dialog open={showOfferDialog}>
-                    <DialogSurface>
-                        <DialogTitle>Offer Sent</DialogTitle>
-                        <DialogContent>
-                            <p>Offer letter has been sent to Alex Wilber.</p>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button appearance="primary">OK</Button>
-                        </DialogActions>
-                    </DialogSurface>
-                </Dialog>
-                
-                <Card className={styles.card}>
-                    <CardHeader
-                        header={
-                            <Body1>
-                                <b>Nestor Wilke</b> applied about 4 weeks ago
-                            </Body1>                            
-                        }
-                        description={<Caption1>Status: <Tag appearance="brand" size="extra-small">Interviewed</Tag></Caption1>}
-                    >
-                    </CardHeader>
-                    <CardFooter>
-                        <Button size="small" icon={<Pen16Regular />}>Create Offer</Button>
-                        <Button size="small" icon={<Note16Regular />}>View Interview Notes</Button>
-                        <Button size="small" icon={<ContentView16Regular />}>View Resume</Button>
-                        <Button size="small" icon={<ArrowReplyRegular fontSize={16} />}>Contact</Button>
-                    </CardFooter>
-                </Card>
-                
-                <Card className={styles.card}>
-                    <CardHeader
-                        header={
-                            <Body1>
-                                <b>Lynne Robbins</b> applied about 2 weeks ago
-                            </Body1>                            
-                        }
-                        description={<Caption1>Status: <Tag appearance="brand" size="extra-small">Rejected</Tag></Caption1>}
-                    >
-                    </CardHeader>
-                    <CardFooter>
-                        <Button size="small" icon={<ContentView16Regular />}>View Resume</Button>
-                        <Button size="small" icon={<ArrowReplyRegular fontSize={16} />}>Contact</Button>
-                    </CardFooter>
-                </Card>
-                
-                <Card className={styles.card}>
-                    <CardHeader
-                        header={
-                            <Body1>
-                                <b>Lee Gu</b> applied about 5 days ago
-                            </Body1>                            
-                        }
-                        description={<Caption1>Status: <Tag appearance="brand" size="extra-small">Applied</Tag></Caption1>}
-                    >
-                    </CardHeader>
-                    <CardFooter>
-                        <Button size="small" icon={<ContentView16Regular />}>View Resume</Button>
-                        <Button size="small" icon={<ArrowReplyRegular fontSize={16} />}>Contact</Button>
-                    </CardFooter>
-                </Card>
-            </div>
-            )}
-
-            {selectedTab === 'settings' && (
-                <ContainerBrowser />
-            )}
-
-
+                          </Toolbar>
+                        </p>
+                      )}
+                      {postingPreviewLink && (
+                        <iframe
+                          title={job.displayName}
+                          src={postingPreviewLink}
+                          style={{ width: "75%", height: "600px" }}
+                        ></iframe>
+                      )}
+                    </div>
+                  )}
+                </> */}
+              </div>
+            </PivotItem>
+            <PivotItem headerText="Applicants">
+              <ViewJobApplicants job={job} />
+            </PivotItem>
+            <PivotItem headerText="Setting">
+              <ContainerBrowser />
+            </PivotItem>
+          </Pivot>
         </div>
-        )}
-        </>
-    );
-}
+      )}
+    </>
+  );
+};

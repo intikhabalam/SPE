@@ -15,7 +15,7 @@ interface Key {
 }
 
 export class JwtProvider {
-    public static readonly KEY_ENDPOINT = `https://login.microsoftonline.com/${process.env.TENANT_ID}/discovery/keys`;
+    public static readonly KEY_ENDPOINT = `https://login.microsoftonline.com/${process.env.REACT_APP_TENANT_ID}/discovery/keys`;
     // public static readonly KEY_ENDPOINT = 'https://login.microsoftonline.com/common/discovery/keys';
     public static readonly AUDIENCE = `api://${process.env.AZURE_CLIENT_ID}`;
 
@@ -41,7 +41,7 @@ export class JwtProvider {
     }
 
     public get tid(): string | null {
-        return '${process.env.TENANT_ID}';
+        return `${process.env.REACT_APP_TENANT_ID}`;
         const payload = this.decoded?.payload as jwt.JwtPayload;
         if (payload && payload.tid) {
             return payload.tid;

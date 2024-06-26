@@ -37,7 +37,7 @@ export async function registerContainerType(
     }
     const authProvider = new AppAuthProvider(jwt.tid, spRootSiteUrl);
     const token = await authProvider.getToken();
-    const containerTypeId = "d1b32f75-3f3e-0fa9-1932-479d8becdae4"!;
+    const containerTypeId = process.env.SPE_CONTAINER_TYPE_ID!;
     const registerApi = `${spRootSiteUrl}/_api/v2.1/storageContainerTypes/${containerTypeId}/applicationPermissions`;
     const registerPayload = {
       value: [

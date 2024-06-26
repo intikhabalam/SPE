@@ -20,8 +20,8 @@ export abstract class AuthProvider {
                 privateKey: process.env.AZURE_CLIENT_CERT_PRIVATE_KEY
             };
         } else {
-            // auth.clientSecret = process.env.AZURE_CLIENT_SECRET;
-             auth.clientSecret = "OXH8Q~AKCfVBMUZw~bxYpoE1GIN.iAYUJLDsLciM";
+             auth.clientSecret = process.env.AZURE_CLIENT_SECRET;
+            // auth.clientSecret = "OXH8Q~AKCfVBMUZw~bxYpoE1GIN.iAYUJLDsLciM";
         }
         this.client = new ConfidentialClientApplication({ auth: auth });
     }

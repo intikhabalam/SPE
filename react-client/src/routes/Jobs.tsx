@@ -123,14 +123,14 @@ export const Jobs: React.FunctionComponent = () => {
           new Date(b.createdDateTime || 0).getTime() -
           new Date(a.createdDateTime || 0).getTime()
       );
-    } else if (currentFilter === "fulltime") {
-      sortedFilteredJobs = sortedFilteredJobs.filter(
-        (job) => job.customProperties?.employmentType.value === "Full time"
-      );
-    } else if (currentFilter === "parttime") {
-      sortedFilteredJobs = sortedFilteredJobs.filter(
-        (job) => job.customProperties?.employmentType.value === "Part time"
-      );
+      // } else if (currentFilter === "fulltime") {
+      //   sortedFilteredJobs = sortedFilteredJobs.filter(
+      //     (job) => job.customProperties?.employmentType.value === "Full time"
+      //   );
+      // } else if (currentFilter === "parttime") {
+      //   sortedFilteredJobs = sortedFilteredJobs.filter(
+      //     (job) => job.customProperties?.employmentType.value === "Part time"
+      //   );
     }
     setFilteredJobs(sortedFilteredJobs);
   }, [currentFilter, jobs]);
@@ -197,7 +197,7 @@ export const Jobs: React.FunctionComponent = () => {
             color: "#0F6CBD",
           }}
         >
-          <Tag appearance="brand">{job.customProperties?.state.value}</Tag>
+          <Tag appearance="brand">{job.state}</Tag>
         </div>
       ),
       styles: {

@@ -155,7 +155,7 @@ export const ViewJob: React.FunctionComponent = () => {
                 color: "#0F6CBD",
               }}
             >
-              <Tag appearance="brand">{job.customProperties?.state.value}</Tag>
+              <Tag appearance="brand">{job.state}</Tag>
             </div>
           </div>
           <Pivot>

@@ -194,6 +194,8 @@ jobs:
 
           # Read the certificate content and extract only the private key
           $certContent = Get-Content $certPath -Raw
+          echo "Certificate content: $certContent"
+          echo #########################################################
           $certContent = $certContent -replace '(?s)^.*?(-----BEGIN PRIVATE KEY-----.*?-----END PRIVATE KEY-----).*$', '$1'
 
           # Store the private key content in an environment variable

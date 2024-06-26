@@ -293,6 +293,8 @@ jobs:
               # Store each value in a separate variable
               $ContainerTypeId = $containerType.ContainerTypeId.Guid
               Remove-PnPContainerType -Identity $ContainerTypeId
+              Write-Host "Deleting existing container type."
+
           } else {
               Write-Host "Container type does not exists."
           }
@@ -331,17 +333,18 @@ jobs:
           az login --use-device-code
 
           # Update the Azure Static Webapp Settings
-          az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names "REACT_APP_SPE_CONTAINER_TYPE_ID=$ContainerTypeId" "AZURE_CLIENT_SECRET=$reactAppAzureSecret" "AZURE_CLIENT_ID=$reactAppAzureAppId"
+          az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names "SPE_CONTAINER_TYPE_ID=$ContainerTypeId" "AZURE_CLIENT_SECRET=$reactAppAzureSecret" "AZURE_CLIENT_ID=$reactAppAzureAppId"
 
           # Update the Azure Static Webapp Settings with Contain
           az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names `
             "REACT_APP_AZURE_APP_ID=$reactAppAzureAppId" `
+            "REACT_APP_SPE_CONTAINER_TYPE_ID=$ContainerTypeId" `
             "AZURE_CLIENT_SECRET=$reactAppAzureSecret" `
             "REACT_APP_TENANT_ID=${{ vars.AZURE_TENANT_ID }}" `
             "RegisterContainer_RootSiteUrl=https://$TenantName.sharepoint.com/" `
             "RegisterContainer_TenantName=$TenantName" `
             "AZURE_CLIENT_CERT_THUMBPRINT1=$certificateThumbPrint" `
-            "AZURE_CLIENT_CERT_PRIVATE_KEY=$certContent"
+            "AZURE_CLIENT_CERT_PRIVATE_KEY1=$certContent"
         env:
           SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
 
@@ -375,14 +378,14 @@ jobs:
           
           CLIENT_SECRET=$(echo $APPSETTINGS | jq -r '.properties.AZURE_CLIENT_SECRET')
           AZURE_CLIENT_CERT_THUMBPRINT1=$(echo $APPSETTINGS | jq -r '.properties.AZURE_CLIENT_CERT_THUMBPRINT1')
-          AZURE_CLIENT_CERT_PRIVATE_KEY=$(echo $APPSETTINGS | jq -r '.properties.AZURE_CLIENT_CERT_PRIVATE_KEY' | base64 -w 0)
+          AZURE_CLIENT_CERT_PRIVATE_KEY1=$(echo $APPSETTINGS | jq -r '.properties.AZURE_CLIENT_CERT_PRIVATE_KEY1' | base64 -w 0)
           Client_Special=$CLIENT_SECRET
           echo "REACT_APP_AZURE_APP_ID=$CLIENT_ID" >> $GITHUB_ENV
           echo "REACT_APP_TENANT_ID=$REACT_APP_TENANT_ID" >> $GITHUB_ENV
           echo "AZURE_CLIENT_SECRET=$Client_Special" >> $GITHUB_ENV
           echo "REACT_APP_CONTAINER_TYPE_ID=$CONTAINER_TYPE_ID" >> $GITHUB_ENV
           echo "AZURE_CLIENT_CERT_THUMBPRINT1=$AZURE_CLIENT_CERT_THUMBPRINT1" >> $GITHUB_ENV
-          echo "AZURE_CLIENT_CERT_PRIVATE_KEY=$AZURE_CLIENT_CERT_PRIVATE_KEY" >> $GITHUB_ENV
+          echo "AZURE_CLIENT_CERT_PRIVATE_KEY1=$AZURE_CLIENT_CERT_PRIVATE_KEY1" >> $GITHUB_ENV
           
 
 
@@ -422,7 +425,7 @@ jobs:
           echo "REACT_APP_TENANT_ID=$REACT_APP_TENANT_ID"
           echo "AZURE_CLIENT_SECRET=$AZURE_CLIENT_SECRET"
           echo "AZURE_CLIENT_CERT_THUMBPRINT1=$AZURE_CLIENT_CERT_THUMBPRINT1"
-          echo "AZURE_CLIENT_CERT_PRIVATE_KEY=$AZURE_CLIENT_CERT_PRIVATE_KEY"
+          echo "AZURE_CLIENT_CERT_PRIVATE_KEY1=$AZURE_CLIENT_CERT_PRIVATE_KEY1"
 
 
         env:
@@ -434,7 +437,7 @@ jobs:
           REACT_APP_TENANT_ID: '${{ vars.AZURE_TENANT_ID }}'
           AZURE_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
           AZURE_CLIENT_CERT_THUMBPRINT1: ${{ env.AZURE_CLIENT_CERT_THUMBPRINT1 }}
-          AZURE_CLIENT_CERT_PRIVATE_KEY: ${{ env.AZURE_CLIENT_CERT_PRIVATE_KEY }}
+          AZURE_CLIENT_CERT_PRIVATE_KEY1: ${{ env.AZURE_CLIENT_CERT_PRIVATE_KEY1 }}
       - name: Install dependencies (backend)
         run: |
           cd api

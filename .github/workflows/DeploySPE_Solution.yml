@@ -167,23 +167,23 @@ jobs:
           # Find the app registration
           $app = az ad app list --display-name $appName --query "[?displayName=='$appName']" | ConvertFrom-Json
 
-          # if ($app.Count -eq 0) {
-          #     Write-Output "App registration '$appName' does not exist."
-          # } else {
-          #     $appId = $app[0].appId
-          #     Write-Output "App registration '$appName' exists with App ID: $appId"
+          if ($app.Count -eq 0) {
+              Write-Output "App registration '$appName' does not exist."
+          } else {
+              $appId = $app[0].appId
+              Write-Output "App registration '$appName' exists with App ID: $appId"
 
-          #     # Get the objectId of the app registration
-          #     $objectId = az ad app show --id $appId --query "id" -o tsv
+              # Get the objectId of the app registration
+              $objectId = az ad app show --id $appId --query "id" -o tsv
 
-          #     if ($null -ne $objectId) {
-          #         Write-Output "Deleting app registration with Object ID: $objectId"
-          #         az ad app delete --id $objectId
-          #         Write-Output "App registration '$appName' has been deleted."
-          #     } else {
-          #         Write-Output "Failed to get Object ID for app registration '$appName'."
-          #     }
-          # }
+              if ($null -ne $objectId) {
+                  Write-Output "Deleting app registration with Object ID: $objectId"
+                  az ad app delete --id $objectId
+                  Write-Output "App registration '$appName' has been deleted."
+              } else {
+                  Write-Output "Failed to get Object ID for app registration '$appName'."
+              }
+          }
 
           # Create a certificate for the Service Principal
           $certOutput = az ad sp create-for-rbac -n ${{ env.SPE_APP_NAME }} --create-cert
@@ -282,12 +282,12 @@ jobs:
           # Connect to SharePoint Online
           Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
 
-          # # Get container type information
-          # $containerType = Get-PnPContainerType
+          # Get container type information
+          $containerType = Get-PnPContainerType
           
-          # # Store each value in a separate variable
-          # $ContainerTypeId = $containerType.ContainerTypeId.Guid
-          # Remove-PnPContainerType -Identity $ContainerTypeId
+          # Store each value in a separate variable
+          $ContainerTypeId = $containerType.ContainerTypeId.Guid
+          Remove-PnPContainerType -Identity $ContainerTypeId
 
           # Your PnP PowerShell commands
           Write-Host "$reactAppAzureAppId"

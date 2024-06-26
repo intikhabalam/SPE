@@ -132,14 +132,14 @@ const toggleStyles: Partial<IToggleStyles> = {
 function App() {
   const containerTypeId = Constants.SPE_CONTAINER_TYPE_ID;
   const baseSearchQuery = `ContainerTypeId:${containerTypeId} AND Title:'[Job Posting]*'`;
-  const [searchQuery, setSearchQuery] = useState<string>(baseSearchQuery);
-  const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
+  //const [searchQuery, setSearchQuery] = useState<string>(baseSearchQuery);
+  // const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
   const loginRef = React.useRef(null);
   const onSearchTermChanged = useCallback(
     (e: CustomEvent<string>) => {
       const term = e.detail;
       const termQuery = term ? `'${term}'` : "";
-      setSearchQuery(`${termQuery} ${baseSearchQuery}`);
+      // setSearchQuery(`${termQuery} ${baseSearchQuery}`);
       console.log(`${termQuery} ${baseSearchQuery}`);
     },
     [baseSearchQuery]
@@ -327,13 +327,13 @@ function App() {
                       <SearchBox
                         placeholder="Search"
                         onSearch={onSearchTermChanged}
-                        onFocus={() => setShowSearchResults(true)}
-                        onBlur={() =>
-                          setTimeout(
-                            setShowSearchResults.bind(null, false),
-                            200
-                          )
-                        }
+                        //  onFocus={() => setShowSearchResults(true)}
+                        // onBlur={() =>
+                        //   setTimeout(
+                        //     setShowSearchResults.bind(null, false),
+                        //     200
+                        //   )
+                        // }
                         iconProps={searchIcon}
                         styles={searchBoxStyles}
                       />

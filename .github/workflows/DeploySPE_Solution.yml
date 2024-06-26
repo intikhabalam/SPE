@@ -25,6 +25,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2        
           
+      # - name: Create Service Principal, ContainerType and Get Credentials
+      #   id: create_service_principal_container_type2
+      #   shell: pwsh
+      #   run: |
+      #     # Connect to Azure using device login
+      #     az login --use-device-code
+
+      #     $body = @{
+      #       spa = @{
+      #         redirectUris = @("${{ env.STATIC_WEBAPP_URL }}/")
+      #       }
+      #     } | ConvertTo-Json -Compress
+          
+      #     az rest --method PATCH `
+      #             --uri "https://graph.microsoft.com/v1.0/applications/${{ secrets.OBJECT_ID }}" `
+      #             --headers "Content-Type=application/json" `
+      #             --body "$body"
+
+
       - name: Install jq
         run: sudo apt-get install jq
 
@@ -142,7 +161,6 @@ jobs:
           # Connect to Azure using device login
           az login --use-device-code
 
-          
           # Set the app registration display name
           $appName = "${{ env.SPE_APP_NAME }}"
 
@@ -176,6 +194,8 @@ jobs:
 
           # Read the certificate content and extract only the private key
           $certContent = Get-Content $certPath -Raw
+          echo "Certificate content: $certContent"
+          echo "#########################################################"
           $certContent = $certContent -replace '(?s)^.*?(-----BEGIN PRIVATE KEY-----.*?-----END PRIVATE KEY-----).*$', '$1'
 
           # Store the private key content in an environment variable
@@ -255,50 +275,32 @@ jobs:
 
           Start-Sleep -Seconds 5
           #Grant Admin Consent to App Permissions
-          echo "Granting Admin Consent to App Permissions..."
+          # echo "Granting Admin Consent to App Permissions..."
+          # az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/$objectId" --headers "Content-Type=application/json" --body '{\"spa\":{\"redirectUris\":[\"$STATIC_WEBAPP_URL/\"]}}'
 
-          # Construct the JSON body using [pscustomobject]
-          $BodyObject = [pscustomobject]@{
-            spa = [pscustomobject]@{
-                redirectUris = @("$STATIC_WEBAPP_URL/")
-            }
-          }
-          
-              # Convert the body object to JSON
-          $body = $BodyObject | ConvertTo-Json -Depth 3
+          az ad app permission admin-consent --id $reactAppAzureAppId
 
-          # Define the URI
-          $uri = "https://graph.microsoft.com/v1.0/applications/$objectId"
-
-          # Make the PATCH request
-          az rest --method PATCH --uri $uri --headers "Content-Type=application/json" --body $body
-          
-
-          $adminConsent = $(az ad app permission admin-consent --id $reactAppAzureAppId)
-          echo "Admin Consent Granted to App Permissions $adminConsent"
           ################################ ContainerType Creation - Start ##############################################
           # Connect to SharePoint Online
           Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
 
           # Get container type information
           $containerType = Get-PnPContainerType
-          
-          # Store each value in a separate variable
-          $ContainerTypeId = $containerType.ContainerTypeId.Guid
-          Remove-PnPContainerType -Identity $ContainerTypeId
+
+          # Check if container type exists
+          if ($containerType) {
+              Write-Host "Container type already exists."
+              # Store each value in a separate variable
+              $ContainerTypeId = $containerType.ContainerTypeId.Guid
+              Remove-PnPContainerType -Identity $ContainerTypeId
+              Write-Host "Deleting existing container type."
+
+          } else {
+              Write-Host "Container type does not exists."
+          }
 
           # Your PnP PowerShell commands
-          Write-Host "$reactAppAzureAppId"
-
-          # Get container type information
-          $containerType = Get-PnPContainerType
-
-          # Check if container type already exists
-          if (-not $containerType) {
-            New-PnPContainerType -TrialContainerType -ContainerTypeName ${{ env.CONTAINER_TYPE_NAME }} -OwningApplicationId $reactAppAzureAppId
-          } else {
-            Write-Host "Container type already exists."
-          }
+          New-PnPContainerType -TrialContainerType -ContainerTypeName ${{ env.CONTAINER_TYPE_NAME }} -OwningApplicationId $reactAppAzureAppId
 
           # Get container type information
           $containerType = Get-PnPContainerType
@@ -335,14 +337,14 @@ jobs:
 
           # Update the Azure Static Webapp Settings with Contain
           az staticwebapp appsettings set --name ${{ env.STATIC_WEB_APP_NAME }} --setting-names `
-            "RegisterContainer_ClientID=$reactAppAzureAppId" `
-            "RegisterContainer_ClientSecret=$reactAppAzureSecret" `
-            "RegisterContainer_ConsumingTenantId=${{ vars.AZURE_TENANT_ID }}" `
+            "REACT_APP_AZURE_APP_ID=$reactAppAzureAppId" `
+            "REACT_APP_SPE_CONTAINER_TYPE_ID=$ContainerTypeId" `
+            "AZURE_CLIENT_SECRET=$reactAppAzureSecret" `
+            "REACT_APP_TENANT_ID=${{ vars.AZURE_TENANT_ID }}" `
             "RegisterContainer_RootSiteUrl=https://$TenantName.sharepoint.com/" `
-            "RegisterContainer_ContainerTypeId=$ContainerTypeId" `
             "RegisterContainer_TenantName=$TenantName" `
-            "RegisterContainer_CertThumbprint=$certificateThumbPrint" `
-            "RegisterContainer_CertPrivateKey=$certContent"
+            "AZURE_CLIENT_CERT_THUMBPRINT1=$certificateThumbPrint" `
+            "AZURE_CLIENT_CERT_PRIVATE_KEY1=$certContent"
         env:
           SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
 
@@ -358,7 +360,7 @@ jobs:
       - name: Retrieve Azure Static Webapp values
         id: retrieve_static_webapp_values
         run: |
-          APP_ID=$(az staticwebapp appsettings list --name ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "[?name=='RegisterContainer_ClientID'].value" -o tsv)
+          APP_ID=$(az staticwebapp appsettings list --name ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "[?name=='REACT_APP_AZURE_APP_ID'].value" -o tsv)
 
           CONTAINERTYPE_ID=$(az staticwebapp appsettings list --name ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "[?name=='RegisterContainer_ContainerTypeId'].value" -o tsv)
 
@@ -370,12 +372,23 @@ jobs:
           echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
           
           APPSETTINGS=$(az staticwebapp appsettings list --name SPE-Demo-StaticWebApp --resource-group SPE-Demo-ResGrp -o json)
-          CLIENT_ID=$(echo $APPSETTINGS | jq -r '.properties.RegisterContainer_ClientID')
+          CLIENT_ID=$(echo $APPSETTINGS | jq -r '.properties.REACT_APP_AZURE_APP_ID')
           CONTAINER_TYPE_ID=$(echo $APPSETTINGS | jq -r '.properties.RegisterContainer_ContainerTypeId')
+          REACT_APP_TENANT_ID=$(echo $APPSETTINGS | jq -r '.properties.REACT_APP_TENANT_ID')
           
+          CLIENT_SECRET=$(echo $APPSETTINGS | jq -r '.properties.AZURE_CLIENT_SECRET')
+          AZURE_CLIENT_CERT_THUMBPRINT1=$(echo $APPSETTINGS | jq -r '.properties.AZURE_CLIENT_CERT_THUMBPRINT1')
+          AZURE_CLIENT_CERT_PRIVATE_KEY1=$(echo $APPSETTINGS | jq -r '.properties.AZURE_CLIENT_CERT_PRIVATE_KEY1' | base64 -w 0)
+          Client_Special=$CLIENT_SECRET
           echo "REACT_APP_AZURE_APP_ID=$CLIENT_ID" >> $GITHUB_ENV
+          echo "REACT_APP_TENANT_ID=$REACT_APP_TENANT_ID" >> $GITHUB_ENV
+          echo "AZURE_CLIENT_SECRET=$Client_Special" >> $GITHUB_ENV
           echo "REACT_APP_CONTAINER_TYPE_ID=$CONTAINER_TYPE_ID" >> $GITHUB_ENV
+          echo "AZURE_CLIENT_CERT_THUMBPRINT1=$AZURE_CLIENT_CERT_THUMBPRINT1" >> $GITHUB_ENV
+          echo "AZURE_CLIENT_CERT_PRIVATE_KEY1=$AZURE_CLIENT_CERT_PRIVATE_KEY1" >> $GITHUB_ENV
           
+
+
         env:
           SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
           STATIC_WEB_APP_NAME: ${{ env.STATIC_WEB_APP_NAME }}
@@ -404,14 +417,27 @@ jobs:
           cd react-client
           CI=false npm run build # Set CI=false to avoid treating warnings as errors
 
+          echo "REACT_APP_AZURE_APP_ID=$REACT_APP_AZURE_SERVER_APP_ID"
+          echo "AZURE_CLIENT_SECRET=$AZURE_CLIENT_SECRET"
+          echo "REACT_APP_CONTAINER_TYPE_ID=$REACT_APP_"
+          echo "REACT_APP_SP_ROOT_SITE_URL=$REACT_APP_SP_ROOT_SITE_URL"
+          echo "REACT_APP_SAMPLE_API_URL=$REACT_APP_SAMPLE_API_URL"
+          echo "REACT_APP_TENANT_ID=$REACT_APP_TENANT_ID"
+          echo "AZURE_CLIENT_SECRET=$AZURE_CLIENT_SECRET"
+          echo "AZURE_CLIENT_CERT_THUMBPRINT1=$AZURE_CLIENT_CERT_THUMBPRINT1"
+          echo "AZURE_CLIENT_CERT_PRIVATE_KEY1=$AZURE_CLIENT_CERT_PRIVATE_KEY1"
+
+
         env:
           REACT_APP_AZURE_SERVER_APP_ID: ${{ env.REACT_APP_AZURE_APP_ID }}
           REACT_APP_AZURE_APP_ID: ${{ env.REACT_APP_AZURE_APP_ID }}
-          REACT_APP_SPE_CONTAINER_TYPE_ID: ${{ env.REACT_APP_CONTAINER_TYPE_ID }}
+          REACT_APP_: ${{ env.REACT_APP_CONTAINER_TYPE_ID }}
           REACT_APP_SP_ROOT_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
           REACT_APP_SAMPLE_API_URL: 'https://${{env.STATIC_WEBAPP_URL}}/api'
           REACT_APP_TENANT_ID: '${{ vars.AZURE_TENANT_ID }}'
-
+          AZURE_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
+          AZURE_CLIENT_CERT_THUMBPRINT1: ${{ env.AZURE_CLIENT_CERT_THUMBPRINT1 }}
+          AZURE_CLIENT_CERT_PRIVATE_KEY1: ${{ env.AZURE_CLIENT_CERT_PRIVATE_KEY1 }}
       - name: Install dependencies (backend)
         run: |
           cd api

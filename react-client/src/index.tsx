@@ -61,7 +61,7 @@ const router = createBrowserRouter([
         action: createJobAction,
       },
       {
-        path: "/jobs/:jobId",
+        path: "/hiring/:jobId",
         element: <ViewJob />,
         loader: jobLoader,
         action: updateJobAction,

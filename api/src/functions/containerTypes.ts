@@ -30,14 +30,14 @@ export async function registerContainerType(
     }
     const oboAuthProvider = new OboAuthProvider(jwt);
     const graph = new GraphProvider(oboAuthProvider);
-    const tempToken = await oboAuthProvider.getToken();
+    // const tempToken = await oboAuthProvider.getToken();
     const spRootSiteUrl = await graph.getRootSiteUrl();
     if (!spRootSiteUrl) {
       throw new ApiError("Unable to fetch root site url");
     }
     const authProvider = new AppAuthProvider(jwt.tid, spRootSiteUrl);
     const token = await authProvider.getToken();
-    const containerTypeId = "9f9083ab-0010-0091-2bb3-f4fcf99da0a8"!;
+    const containerTypeId = process.env.SPE_CONTAINER_TYPE_ID!;
     const registerApi = `${spRootSiteUrl}/_api/v2.1/storageContainerTypes/${containerTypeId}/applicationPermissions`;
     const registerPayload = {
       value: [
@@ -58,7 +58,7 @@ export async function registerContainerType(
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${tempToken}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(registerPayload),
     });

@@ -4,14 +4,19 @@ import { JobsApiProvider } from "../providers/JobsApiProvider";
 import { Job } from "../model/Job";
 import { useEffect, useState } from "react";
 import { GraphProvider } from "../providers/GraphProvider";
-import { Icon, registerIcons } from "@fluentui/react";
+import {
+  Icon,
+  registerIcons,
+  Pivot,
+  PivotItem,
+  DefaultButton,
+  PrimaryButton,
+} from "@fluentui/react";
 import {
   Button,
   Divider,
   Input,
   Label,
-  Tab,
-  TabList,
   Tag,
   Toolbar,
   ToolbarButton,
@@ -22,12 +27,14 @@ import {
   IBreadcrumbStyles,
   IDividerAsProps,
 } from "@fluentui/react/lib/Breadcrumb";
+
 import { mergeStyles } from "@fluentui/react/lib/Styling";
 import {
   Edit20Filled,
   ArrowSync20Regular,
   ChevronRight20Regular,
 } from "@fluentui/react-icons";
+import { TextField } from "@fluentui/react/lib/TextField";
 import ContainerBrowser from "../components/ContainerBrowser";
 //import { mockJobs } from "../model/Job.mock";
 import { ViewJobApplicants } from "../components/ViewJobApplicants";
@@ -45,16 +52,16 @@ export async function loader({ params }: ILoaderParams): Promise<Job | undefined
 //   params,
 // }: ILoaderParams): Promise<Job | undefined> {
 //   const jobId = params.jobId;
-//   console.log("Loader called with jobId:", jobId); // Debugging log
+//   console.log("Loader called with jobId:", jobId);
 //   // Search for the job in mockJobs
 //   const mockJob = mockJobs.find((job) => job.id === jobId);
-//   // If job is found, return an instance of the Job class
+
 //   if (mockJob) {
-//     console.log("Job found:", mockJob); // Debugging log
+//     console.log("Job found:", mockJob);
 //     return new Job(mockJob);
 //   }
-//   // If no job is found, return undefined
-//   console.log("No job found for jobId:", jobId); // Debugging log
+
+//   console.log("No job found for jobId:", jobId);
 //   return undefined;
 // }
 
@@ -81,14 +88,13 @@ const breadcrumbStyles: Partial<IBreadcrumbStyles> = {
 
 export const ViewJob: React.FunctionComponent = () => {
   job = useLoaderData() as Job | undefined;
-  const [selectedTab, setSelectedTab] = useState<string>("details");
   const [postingEditLink, setPostingEditLink] = useState<string | undefined>(
     undefined
   );
   const [postingPreviewLink, setPostingPreviewLink] = useState<
     string | undefined
   >(undefined);
-
+  const [isReadOnly, setIsReadOnly] = useState(true);
   const navigate = useNavigate();
 
   const itemsWithHref: IBreadcrumbItem[] = [
@@ -152,137 +158,131 @@ export const ViewJob: React.FunctionComponent = () => {
               <Tag appearance="brand">{job.customProperties?.state.value}</Tag>
             </div>
           </div>
-          <TabList className="view-job-tabs" selectedValue={selectedTab}>
-            <Tab value="details" onClick={() => setSelectedTab("details")}>
-              Details
-            </Tab>
-            <Tab
-              value="applicants"
-              onClick={() => setSelectedTab("applicants")}
-            >
-              Applicants
-            </Tab>
-            <Tab value="settings" onClick={() => setSelectedTab("settings")}>
-              Settings
-            </Tab>
-          </TabList>
-
-          {selectedTab === "details" && (
-            <div>
-              <Form className="edit-job" action="patch">
-                <div className="view-job-form-input">
-                  <Label htmlFor="displayName" size="large">
-                    Job Title:{" "}
-                  </Label>
-                  <Input
-                    className="view-job-displayName"
-                    type="text"
-                    disabled={true}
-                    name="displayName"
-                    placeholder="Job Title"
+          <Pivot>
+            <PivotItem headerText="Details">
+              {" "}
+              <div>
+                <Form className="edit-job" action="patch">
+                  <TextField
+                    className="view-job-form-input"
+                    label="Job Title"
+                    readOnly={isReadOnly}
                     defaultValue={job.displayName}
                   />
-                </div>
-                <div className="view-job-form-input">
-                  <Label htmlFor="description" size="large">
-                    Description:{" "}
-                  </Label>
-                  <Input
-                    className="view-job-description"
-                    disabled={true}
-                    name="description"
-                    placeholder="Description"
+                  <TextField
+                    className="view-job-form-textarea"
+                    label="Description"
+                    multiline
+                    rows={3}
+                    readOnly={isReadOnly}
                     defaultValue={job.description}
                   />
-                </div>
-                <div className="view-job-form-input">
-                  <Label htmlFor="createdDate" size="large">
-                    Created:{" "}
-                  </Label>
-                  <Input
-                    className="view-job-createdDate"
-                    disabled={true}
-                    name="createdDate"
-                    placeholder="Created"
+                  <TextField
+                    className="view-job-form-input"
+                    label="Created"
+                    readOnly={isReadOnly}
                     defaultValue={job.createdDateTime}
                   />
-                </div>
-                <Button appearance="secondary" size="large">
-                  Edit Details
-                </Button>
+                </Form>
+                <div
+                  style={{
+                    margin: "25px 0",
+                    height: "1px",
+                    width: "100%",
+                    border: "1px solid #d1d1d1",
+                  }}
+                />
+                <DefaultButton
+                  text="Edit Details"
+                  onClick={() => setIsReadOnly(false)}
+                  style={{
+                    padding: "5px",
+                    borderRadius: "5px",
+                    marginRight: "10px",
+                  }}
+                />
                 {!job.isPublished && (
-                  <Button appearance="primary" size="large">
-                    Publish
-                  </Button>
+                  <PrimaryButton
+                    text="Publish"
+                    onClick={() => setIsReadOnly(true)}
+                    style={{
+                      backgroundColor: "#393EB3",
+                      color: "white",
+                      padding: "5px",
+                      borderRadius: "5px",
+                      marginRight: "10px",
+                    }}
+                  />
                 )}
-                {job.isPublished && (
-                  <Button appearance="secondary" size="large">
-                    Unpublish
-                  </Button>
-                )}
-                <Button appearance="secondary" size="large" onClick={deleteJob}>
-                  Delete
-                </Button>
-              </Form>
+                <DefaultButton
+                  text="Delete"
+                  onClick={deleteJob}
+                  style={{
+                    padding: "5px",
+                    borderRadius: "5px",
+                  }}
+                />
 
-              <Divider />
-
-              <>
-                {!job.postingDoc && (
-                  <div className="create-posting-form">
-                    <p>No job posting yet -- create one!</p>
-                    <Form method="post">
-                      <input
-                        type="hidden"
-                        name="createPostingDoc"
-                        value="true"
-                      />
-                      <Button appearance="primary" type="submit">
-                        Create Posting
-                      </Button>
-                    </Form>
-                  </div>
-                )}
-                {job.postingDoc && (
-                  <div className="posting-content">
-                    {postingEditLink && (
-                      <p>
-                        <Toolbar>
-                          <ToolbarButton
-                            aria-label="Edit job posting"
-                            appearance="primary"
-                            icon={<Edit20Filled />}
-                            onClick={() =>
-                              window.open(postingEditLink, "_blank")
-                            }
-                          >
-                            Edit
-                          </ToolbarButton>
-                          <ToolbarButton
-                            aria-label="Refresh"
-                            icon={<ArrowSync20Regular />}
-                            onClick={updatePreviewLink}
-                          >
-                            Refresh
-                          </ToolbarButton>
-                        </Toolbar>
-                      </p>
-                    )}
-                    {postingPreviewLink && (
-                      <iframe
-                        title={job.displayName}
-                        src={postingPreviewLink}
-                        style={{ width: "75%", height: "600px" }}
-                      ></iframe>
-                    )}
-                  </div>
-                )}
-              </>
-            </div>
-          )}
-
-          {selectedTab === "applicants" && <ViewJobApplicants job={job} />}
-          {selectedTab === "settings" && <ContainerBrowser />}
+                {/* <>
+                  {!job.postingDoc && (
+                    <div className="create-posting-form">
+                      <p>No job posting yet -- create one!</p>
+                      <Form method="post">
+                        <input
+                          type="hidden"
+                          name="createPostingDoc"
+                          value="true"
+                        />
+                        <Button appearance="primary" type="submit">
+                          Create Posting
+                        </Button>
+                      </Form>
+                    </div>
+                  )}
+                  {job.postingDoc && (
+                    <div className="posting-content">
+                      {postingEditLink && (
+                        <p>
+                          <Toolbar>
+                            <ToolbarButton
+                              aria-label="Edit job posting"
+                              appearance="primary"
+                              icon={<Edit20Filled />}
+                              onClick={() =>
+                                window.open(postingEditLink, "_blank")
+                              }
+                            >
+                              Edit
+                            </ToolbarButton>
+                            <ToolbarButton
+                              aria-label="Refresh"
+                              icon={<ArrowSync20Regular />}
+                              onClick={updatePreviewLink}
+                            >
+                              Refresh
+                            </ToolbarButton>
+                          </Toolbar>
+                        </p>
+                      )}
+                      {postingPreviewLink && (
+                        <iframe
+                          title={job.displayName}
+                          src={postingPreviewLink}
+                          style={{ width: "75%", height: "600px" }}
+                        ></iframe>
+                      )}
+                    </div>
+                  )}
+                </> */}
+              </div>
+            </PivotItem>
+            <PivotItem headerText="Applicants">
+              <ViewJobApplicants job={job} />
+            </PivotItem>
+            <PivotItem headerText="Setting">
+              <ContainerBrowser />
+            </PivotItem>
+          </Pivot>
         </div>
       )}
     </>

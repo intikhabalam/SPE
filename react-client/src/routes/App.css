@@ -102,6 +102,8 @@ body {
   display: flex; /* Use flexbox for centering */
   justify-content: center; /* Center horizontally */
   align-items: center; /* Center vertically */
+  padding: 120px 10px 10px 10px;
+  overflow-x: hidden;
 }
 
 .side-panel-text {

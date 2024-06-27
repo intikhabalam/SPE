@@ -43,6 +43,7 @@ import {
 import { useConst } from "@fluentui/react-hooks";
 import * as Constants from "../common/Constants";
 import { Outlet } from "react-router-dom";
+import CodeDisplay from "../components/CodeDisplay";
 
 const navStyles: Partial<INavStyles> = {
   root: {
@@ -387,7 +388,7 @@ function App() {
           {/* Custom Side Panel */}
           {showSidePanel && (
             <div className="custom-side-panel">
-              <h2 className="side-panel-text">Place to Show Code</h2>
+              <CodeDisplay />
             </div>
           )}
         </div>

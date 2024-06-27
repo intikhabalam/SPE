@@ -273,7 +273,7 @@ jobs:
           $manifestPath = "$(pwd)/manifest.json"
           az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
 
-          Start-Sleep -Seconds 10
+          Start-Sleep -Seconds 15
           #Grant Admin Consent to App Permissions
           # echo "Granting Admin Consent to App Permissions..."
           # az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/$objectId" --headers "Content-Type=application/json" --body '{\"spa\":{\"redirectUris\":[\"$STATIC_WEBAPP_URL/\"]}}'

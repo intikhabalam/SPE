@@ -139,12 +139,59 @@ jobs:
                   Write-Host "ID: $($container.ContainerId) - Name: $($container.ContainerName)"
                   Remove-PnPContainer -Identity $container.ContainerId
                   Write-Host "Deleted Container ID: $($container.ContainerId)"
-                  Clear-PnPRecycleBinItem -All
+                  Clear-PnPRecycleBinItem -All -Force
               }
           }
           ################################ ContainerType Creation - End ##############################################
         env:
           SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
+
+      - name: Install and Import SharePoint Online Management Shell
+        shell: pwsh
+        run: |
+          Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber
+          Import-Module -Name /path/to/module/Microsoft.Online.SharePoint.PowerShell -Force
+
+      - name: Manage Containers and Container Types
+        id: manageContainersAndTypes
+        shell: pwsh
+        run: |
+          # Connect to SharePoint Online
+          Connect-SPOService -Url $env:SHAREPOINT_ADMIN_SITE_URL -Credential $env:SP_USERNAME
+      
+          # Check if the container type already exists
+          $containerType = Get-SPOContainerType -ContainerTypeName "SPE-Demo-ContainerType"
+      
+          if ($containerType) {
+              Write-Host "Container type already exists."
+      
+              # Get the list of containers
+              $containers = Get-SPOContainer -OwningApplicationId "c2d42be2-fdc2-4400-ab24-76136985b59d"
+      
+              # Check if containers were retrieved
+              if ($containers -eq $null) {
+                  Write-Host "No containers found for OwningApplicationId: "c2d42be2-fdc2-4400-ab24-76136985b59d"
+              } else {
+                  # Print and delete each container
+                  Write-Host "List of Containers:"
+                  foreach ($container in $containers) {
+                      Write-Host "ID: $($container.Id) - Name: $($container.Name)"
+                      Remove-SPOContainer -Identity $container.Id
+                      Write-Host "Deleted Container ID: $($container.Id)"
+                  }
+              }
+      
+              # Delete existing container type
+              Remove-SPOContainerType -Identity $containerType.Id
+              Write-Host "Deleting existing container type."
+      
+          } else {
+              Write-Host "Container type does not exist."
+          }
+
+        env:
+          SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}        
+
 
 
       - name: Azure Login

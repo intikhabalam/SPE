@@ -295,7 +295,7 @@ jobs:
               echo "ContainerTypeId $ContainerTypeId"
             
               # Get the list of containers
-              $containers = $(Get-PnPContainer -OwningApplicationId $OwningAppId)
+              #$containers = $(Get-PnPContainer -OwningApplicationId $OwningAppId)
 
 
               try {

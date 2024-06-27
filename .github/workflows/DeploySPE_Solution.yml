@@ -313,11 +313,25 @@ jobs:
                   Remove-PnPContainer -Identity $container.ContainerId
                   echo "Deleted Container ID: $($container.ContainerId)"
               }
-              echo "SharePoint admin center has Deleted containers. File storage containers are retained for 93 days and then permanently deleted."
-              echo "Please access the URL $env:SHAREPOINT_ADMIN_SITE_URL/_layouts/15/online/AdminHome.aspx#/deletedContainers and Permanently delete these containers."
 
+              echo ""
+              echo ""
+              echo ""
+              echo "########################################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` #################################################"
+              echo "########################################``` ``` ``` ``` ``` ``` WARNING ``` ``` ``` ``` ``` ``` #################################################"
+              echo "########################################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` #################################################"
+              echo "SharePoint admin center has Deleted containers. File storage containers are retained for 93 days and then permanently deleted."
+              echo ""
+              echo "Please access the URL $env:SHAREPOINT_ADMIN_SITE_URL/_layouts/15/online/AdminHome.aspx#/deletedContainers and Permanently delete these containers."
+              echo ""
+              echo ""
+              echo ""
               echo "`e[1m`e[4m`e[31mSharePoint admin center has Deleted containers. File storage containers are retained for 93 days and then permanently deleted.`e[0m"
+              echo ""
               echo "`e[1m`e[4m`e[31mPlease access the URL $env:SHAREPOINT_ADMIN_SITE_URL/_layouts/15/online/AdminHome.aspx#/deletedContainers and Permanently delete these containers.`e[0m"
+              echo "########################################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` #################################################"
+              echo "########################################``` ``` ``` ``` ``` ``` WARNING ``` ``` ``` ``` ``` ``` #################################################"
+              echo "########################################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` #################################################"
       
               # Exit the script to break the pipeline
               exit 1

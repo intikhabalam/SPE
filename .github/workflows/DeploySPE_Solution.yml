@@ -108,43 +108,43 @@ jobs:
       #     cat manifest.json
       #     echo "Path to manifest.json: $(pwd)/manifest.json"
 
-      - name: Install new PnP PowerShell module
-        run: |
-          Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force -AllowPrerelease -SkipPublisherCheck
-          # Validate installation
-          Get-Module -Name PnP.PowerShell -ListAvailable
-        shell: pwsh
+      # - name: Install new PnP PowerShell module
+      #   run: |
+      #     Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force -AllowPrerelease -SkipPublisherCheck
+      #     # Validate installation
+      #     Get-Module -Name PnP.PowerShell -ListAvailable
+      #   shell: pwsh
         
-      - name: List and Delete PnP Containers
-        id: listAndDeletePnPContainers
-        shell: pwsh
-        run: |
-          ################################ ContainerType Creation - Start ##############################################
-          # Connect to SharePoint Online
-          Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
+      # - name: List and Delete PnP Containers
+      #   id: listAndDeletePnPContainers
+      #   shell: pwsh
+      #   run: |
+      #     ################################ ContainerType Creation - Start ##############################################
+      #     # Connect to SharePoint Online
+      #     Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
 
-          # Define the OwningApplicationId (replace with your actual application ID)
-          $owningApplicationId = "c2d42be2-fdc2-4400-ab24-76136985b59d"
+      #     # Define the OwningApplicationId (replace with your actual application ID)
+      #     $owningApplicationId = "c2d42be2-fdc2-4400-ab24-76136985b59d"
 
-          # Get the list of containers
-          $containers = Get-PnPContainer -OwningApplicationId $owningApplicationId
+      #     # Get the list of containers
+      #     $containers = Get-PnPContainer -OwningApplicationId $owningApplicationId
 
-          # Check if containers were retrieved
-          if ($containers -eq $null) {
-              Write-Host "No containers found for OwningApplicationId: $owningApplicationId"
-          } else {
-              # Print the list of containers
-              Write-Host "List of Containers:"
-              foreach ($container in $containers) {
-                  Write-Host "ID: $($container.ContainerId) - Name: $($container.ContainerName)"
-                  Remove-PnPContainer -Identity $container.ContainerId
-                  Write-Host "Deleted Container ID: $($container.ContainerId)"
-                  Clear-PnPRecycleBinItem -All -Force
-              }
-          }
-          ################################ ContainerType Creation - End ##############################################
-        env:
-          SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
+      #     # Check if containers were retrieved
+      #     if ($containers -eq $null) {
+      #         Write-Host "No containers found for OwningApplicationId: $owningApplicationId"
+      #     } else {
+      #         # Print the list of containers
+      #         Write-Host "List of Containers:"
+      #         foreach ($container in $containers) {
+      #             Write-Host "ID: $($container.ContainerId) - Name: $($container.ContainerName)"
+      #             Remove-PnPContainer -Identity $container.ContainerId
+      #             Write-Host "Deleted Container ID: $($container.ContainerId)"
+      #             Clear-PnPRecycleBinItem -All -Force
+      #         }
+      #     }
+      #     ################################ ContainerType Creation - End ##############################################
+      #   env:
+      #     SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
 
       - name: Install and Import SharePoint Online Management Shell
         shell: pwsh

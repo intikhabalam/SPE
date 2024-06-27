@@ -139,7 +139,8 @@ jobs:
                   Write-Host "ID: $($container.ContainerId) - Name: $($container.ContainerName)"
                   Remove-PnPContainer -Identity $container.ContainerId
                   Write-Host "Deleted Container ID: $($container.ContainerId)"
-                  Remove-PnPDeletedContainer -Identity $container.ContainerId
+                  Clear-PnPRecycleBinItem -Identity $container.ContainerId
+                  Clear-PnPRecycleBinItem -All
               }
           }
           ################################ ContainerType Creation - End ##############################################

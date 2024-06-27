@@ -273,7 +273,7 @@ jobs:
           $manifestPath = "$(pwd)/manifest.json"
           az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
 
-          Start-Sleep -Seconds 30
+          Start-Sleep -Seconds 3
           #Grant Admin Consent to App Permissions
           # echo "Granting Admin Consent to App Permissions..."
           # az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/$objectId" --headers "Content-Type=application/json" --body '{\"spa\":{\"redirectUris\":[\"$STATIC_WEBAPP_URL/\"]}}'
@@ -286,12 +286,14 @@ jobs:
 
           # Get container type information
           $containerType = Get-PnPContainerType
-
+          echo "Container Type $containerType"
           # Check if container type exists
           if ($containerType) {
               $OwningApplicationId = $containerType.OwningApplicationId.Guid
+              echo "OwningApplicationId $OwningApplicationId"
               $ContainerTypeId = $containerType.ContainerTypeId.Guid
-
+              echo "ContainerTypeId $ContainerTypeId"
+            
               # Get the list of containers
               $containers = Get-PnPContainer -OwningApplicationId $OwningApplicationId
 

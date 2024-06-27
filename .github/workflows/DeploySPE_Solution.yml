@@ -273,7 +273,7 @@ jobs:
           $manifestPath = "$(pwd)/manifest.json"
           az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
 
-          Start-Sleep -Seconds 30
+          Start-Sleep -Seconds 10
           #Grant Admin Consent to App Permissions
           # echo "Granting Admin Consent to App Permissions..."
           # az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/$objectId" --headers "Content-Type=application/json" --body '{\"spa\":{\"redirectUris\":[\"$STATIC_WEBAPP_URL/\"]}}'
@@ -336,6 +336,7 @@ jobs:
               }
           } else {
               echo "Container type does not exist."
+          }
               echo "Creating new container type."
               New-PnPContainerType -TrialContainerType -ContainerTypeName ${{ env.CONTAINER_TYPE_NAME }} -OwningApplicationId $reactAppAzureAppId
               # Get container type information
@@ -350,7 +351,6 @@ jobs:
               $ContainerTypeName = $containerType.ContainerTypeName
               $OwningApplicationId = $reactAppAzureAppId
               $Classification = $containerType.Classification
-          }
 
           # Extracting TenantName from SharePoint Adminsite URL
           $originalUrl = $env:SHAREPOINT_ADMIN_SITE_URL

@@ -114,94 +114,37 @@ jobs:
           # Validate installation
           Get-Module -Name PnP.PowerShell -ListAvailable
         shell: pwsh
-
-      - name: Install SharePoint Online Management Shell
+        
+      - name: List and Delete PnP Containers
+        id: listAndDeletePnPContainers
         shell: pwsh
         run: |
-          Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber
-          Import-Module Microsoft.Online.SharePoint.PowerShell -Force
-
-      - name: Manage Containers and Container Types
-        id: manageContainersAndTypes
-        shell: pwsh
-        run: |
+          ################################ ContainerType Creation - Start ##############################################
           # Connect to SharePoint Online
-          Connect-SPOService -Url $env:SHAREPOINT_ADMIN_SITE_URL -Credential $env:SP_USERNAME
-      
-          # Check if the container type already exists
-          $containerType = Get-SPOContainerType -ContainerTypeName "SPE-Demo-ContainerType"
-      
-          if ($containerType) {
-              Write-Host "Container type already exists."
-      
-              # Get the list of containers
-              $containers = Get-SPOContainer -OwningApplicationId $appId
-      
-              # Check if containers were retrieved
-              if ($containers -eq $null) {
-                  Write-Host "No containers found for OwningApplicationId: $appId"
-              } else {
-                  # Print and delete each container
-                  Write-Host "List of Containers:"
-                  foreach ($container in $containers) {
-                      Write-Host "ID: $($container.Id) - Name: $($container.Name)"
-                      Remove-SPOContainer -Identity $container.Id
-                      Write-Host "Deleted Container ID: $($container.Id)"
-                  }
-              }
-      
-              # Delete existing container type
-              Remove-SPOContainerType -Identity $containerType.Id
-              Write-Host "Deleting existing container type."
-      
+          Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
+
+          # Define the OwningApplicationId (replace with your actual application ID)
+          $owningApplicationId = "c2d42be2-fdc2-4400-ab24-76136985b59d"
+
+          # Get the list of containers
+          $containers = Get-PnPContainer -OwningApplicationId $owningApplicationId
+
+          # Check if containers were retrieved
+          if ($containers -eq $null) {
+              Write-Host "No containers found for OwningApplicationId: $owningApplicationId"
           } else {
-              Write-Host "Container type does not exist."
+              # Print the list of containers
+              Write-Host "List of Containers:"
+              foreach ($container in $containers) {
+                  Write-Host "ID: $($container.ContainerId) - Name: $($container.ContainerName)"
+                  Remove-PnPContainer -Identity $container.ContainerId
+                  Write-Host "Deleted Container ID: $($container.ContainerId)"
+                  Remove-PnPDeletedContainer -Identity $container.ContainerId
+              }
           }
-      
-          # Create a new container type
-          New-SPOContainerType -TrialContainerType -ContainerTypeName "SPE-Demo-ContainerType" -OwningApplicationId $reactAppAzureAppId
-      
-          # Get the new container type information
-          $newContainerType = Get-SPOContainerType -ContainerTypeName "SPE-Demo-ContainerType"
-      
-          # Store information in environment variables
-          $ContainerTypeId = $newContainerType.Id
-          echo "CONTAINER_TYPE_ID=$ContainerTypeId" >> $env:GITHUB_ENV
-          echo "CONTAINER_TYPE_NAME=$($newContainerType.ContainerTypeName)" >> $env:GITHUB_ENV
-          echo "REACT_APP_AZURE_APP_ID=$reactAppAzureAppId" >> $env:GITHUB_ENV
+          ################################ ContainerType Creation - End ##############################################
         env:
           SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
-      
-        
-      # - name: List and Delete PnP Containers
-      #   id: listAndDeletePnPContainers
-      #   shell: pwsh
-      #   run: |
-      #     ################################ ContainerType Creation - Start ##############################################
-      #     # Connect to SharePoint Online
-      #     Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
-
-      #     # Define the OwningApplicationId (replace with your actual application ID)
-      #     $owningApplicationId = "c2d42be2-fdc2-4400-ab24-76136985b59d"
-
-      #     # Get the list of containers
-      #     $containers = Get-PnPContainer -OwningApplicationId $owningApplicationId
-
-      #     # Check if containers were retrieved
-      #     if ($containers -eq $null) {
-      #         Write-Host "No containers found for OwningApplicationId: $owningApplicationId"
-      #     } else {
-      #         # Print the list of containers
-      #         Write-Host "List of Containers:"
-      #         foreach ($container in $containers) {
-      #             Write-Host "ID: $($container.ContainerId) - Name: $($container.ContainerName)"
-      #             Remove-PnPContainer -Identity $container.ContainerId
-      #             Write-Host "Deleted Container ID: $($container.ContainerId)"
-      #         }
-      #     }
-      #     ################################ ContainerType Creation - End ##############################################
-      #   env:
-      #     SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
 
 
       - name: Azure Login
@@ -369,8 +312,6 @@ jobs:
 
           az ad app permission admin-consent --id $reactAppAzureAppId
 
-
-
           ################################ ContainerType Creation - Start ##############################################
           # Connect to SharePoint Online
           Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
@@ -383,11 +324,11 @@ jobs:
               Write-Host "Container type already exists."
 
               # Get the list of containers
-              $containers = Get-PnPContainer -OwningApplicationId $appId
+              $containers = Get-PnPContainer -OwningApplicationId $owningApplicationId
 
               # Check if containers were retrieved
               if ($containers -eq $null) {
-                  Write-Host "No containers found for OwningApplicationId: $appId"
+                  Write-Host "No containers found for OwningApplicationId: $owningApplicationId"
               } else {
                   # Print the list of containers
                   Write-Host "List of Containers:"

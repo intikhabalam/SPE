@@ -128,6 +128,8 @@ jobs:
 
           # Get the list of containers
           $containers = Get-PnPContainer -OwningApplicationId $owningApplicationId
+          echo "containers"
+          echo $containers
 
           # Print the list of containers
           Write-Host "List of Containers:"
@@ -143,7 +145,7 @@ jobs:
           ################################ ContainerType Creation - End ##############################################
         env:
           SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
-          
+
       - name: Azure Login
         uses: azure/login@v1
         with:

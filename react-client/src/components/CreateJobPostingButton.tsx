@@ -1,12 +1,17 @@
 import React from "react";
 import { useState } from "react";
 import { useSubmit } from "react-router-dom";
-import { TextField } from "@fluentui/react";
-import { Button } from "@fluentui/react-components";
+import { IIconProps, TextField, registerIcons } from "@fluentui/react";
 import { Dialog, DialogType, DialogFooter } from "@fluentui/react/lib/Dialog";
 import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
-import { PrimaryButton, DefaultButton } from "@fluentui/react/lib/Button";
+import {
+  PrimaryButton,
+  DefaultButton,
+  CommandBarButton,
+  IButtonStyles,
+} from "@fluentui/react/lib/Button";
 import { useBoolean } from "@fluentui/react-hooks";
+import { Add20Regular } from "@fluentui/react-icons";
 
 const dialogContentProps = {
   type: DialogType.largeHeader,
@@ -15,11 +20,32 @@ const dialogContentProps = {
     "Create a new job posting in a draft state. You can edit the posting in the next step before you publish it.",
 };
 
+const commandButtonStyles: IButtonStyles = {
+  root: {
+    padding: "10px 20px",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    borderRadius: "2px",
+    border: "1px solid var(--Grey-palette-Grey110, #8A8886)",
+    background: "var(--Grey-palette-White, #FFF)",
+  },
+};
+
 export const CreateJobPostingButton: React.FC = () => {
   const [hideDialog, { toggle: toggleHideDialog }] = useBoolean(true);
   const [displayName, setDisplayName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [saving, setSaving] = React.useState(false);
+
+  registerIcons({
+    icons: {
+      Add20Regular: <Add20Regular />,
+    },
+  });
+  const addIcon: IIconProps = {
+    iconName: "Add20Regular",
+    styles: { root: { color: "black", height: "16px", width: "16px" } },
+  };
 
   const handleDisplayNameChange = (
     event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -40,13 +66,18 @@ export const CreateJobPostingButton: React.FC = () => {
   const submitCreateJob = async () => {
     if (!displayName || !description) return;
     setSaving(true);
-    const formData = new FormData();
-    formData.append("displayName", displayName);
-    formData.append("description", description);
-    await submit(formData, { method: "POST" });
-    setDisplayName("");
-    setDescription("");
-    setSaving(false);
+    try {
+      const formData = new FormData();
+      formData.append("displayName", displayName);
+      formData.append("description", description);
+      await submit(formData, { method: "POST" });
+      setDisplayName("");
+      setDescription("");
+      toggleHideDialog();
+    } catch (error) {
+    } finally {
+      setSaving(false);
+    }
   };
 
   const modalProps = {
@@ -66,9 +97,13 @@ export const CreateJobPostingButton: React.FC = () => {
 
   return (
     <>
-      <Button appearance="primary" onClick={toggleHideDialog}>
-        + Create New Job Posting
-      </Button>
+      <CommandBarButton
+        text="Create New Job Posting"
+        iconProps={addIcon}
+        onClick={toggleHideDialog}
+        styles={commandButtonStyles}
+      />
+
       <Dialog
         hidden={hideDialog}
         onDismiss={toggleHideDialog}
@@ -94,7 +129,7 @@ export const CreateJobPostingButton: React.FC = () => {
         {saving && (
           <Spinner
             size={SpinnerSize.medium}
-            label="Creating storage Container..."
+            label="Creating Job..."
             labelPosition="right"
             style={{ marginTop: "10px" }}
           />

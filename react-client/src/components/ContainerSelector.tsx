@@ -17,7 +17,7 @@ const useStyles = makeStyles({
 export type IContainerSelectorProps = {
   selectedContainerId?: string;
   onContainerSelected?: (container: IContainer) => void;
-  refreshTime?: string;
+  refreshKey?: number; // Changed from refreshTime to refreshKey
 };
 
 export const ContainerSelector: React.FunctionComponent<
@@ -31,15 +31,13 @@ export const ContainerSelector: React.FunctionComponent<
   const containerSelector = useId("containerSelector");
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      containersApi
-        .list()
-        .then(setContainers)
-        .catch(console.error)
-        .finally(() => setLoading(false));
-    })();
-  }, [props.refreshTime]);
+    setLoading(true);
+    containersApi
+      .list()
+      .then(setContainers)
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [props.refreshKey]); // Use refreshKey instead of refreshTime
 
   const onContainerDropdownChange = (
     event: React.FormEvent<HTMLDivElement>,

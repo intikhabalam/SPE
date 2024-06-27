@@ -22,7 +22,7 @@ Now that the we have a fork of the deployment code we will need to update some o
 Select **Settings -> Secrets and variables -> Actions**
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/0d727d84-7c2b-4f63-8c67-617005822bd0)</kbd>
 
-From this menu we will now create the folowing variables and secret
+From this menu we will now create the folowing variables
 
 Variables:
 1. AZURE_SERVICEPRICIPAL_CLIENT_ID : This is an App registration created to allow the pipeline to deploy into your subscription. See Step 1.2

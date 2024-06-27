@@ -1,7 +1,7 @@
-import graphNetListenerConsumer from "../context/GraphNetListener";
+import GraphNetListenerConsumer from "../context/GraphNetListener";
 
 export default function CodeDisplay() {
-  const { apiRequests } = graphNetListenerConsumer();
+  const { apiRequests } = GraphNetListenerConsumer();
   console.log(`this is the apiRequests ${JSON.stringify(apiRequests)}`);
   return (
     <div style={{ width: "100%", height: "100%", overflowX: "scroll" }}>

@@ -150,7 +150,7 @@ jobs:
         shell: pwsh
         run: |
           Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber
-          Import-Module -Name /path/to/module/Microsoft.Online.SharePoint.PowerShell -Force
+          Import-Module -Name Microsoft.Online.SharePoint.PowerShell -Force
 
       - name: Manage Containers and Container Types
         id: manageContainersAndTypes

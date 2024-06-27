@@ -115,6 +115,11 @@ jobs:
           Get-Module -Name PnP.PowerShell -ListAvailable
         shell: pwsh
 
+      - name: Install SharePoint Online Management Shell
+        shell: pwsh
+        run: |
+          Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber
+
       - name: Manage Containers and Container Types
         id: manageContainersAndTypes
         shell: pwsh

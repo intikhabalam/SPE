@@ -24,7 +24,57 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2        
-          
+
+      - name: Create Service Principal, ContainerType and Get Credentials
+        id: create_service_principal_container_type2
+        shell: pwsh
+        run: |
+          ################################ ContainerType Creation - Start ##############################################
+          # Connect to SharePoint Online
+          Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
+
+          # Get container type information
+          $containerType = Get-PnPContainerType
+          echo "Container Type $containerType"
+          # Check if container type exists
+          if ($containerType) {
+              $OwningApplicationId = $containerType.OwningApplicationId
+              echo "OwningApplicationId $OwningApplicationId"
+              $ContainerTypeId = $containerType.ContainerTypeId
+              echo "ContainerTypeId $ContainerTypeId"
+            
+              # Get the list of containers
+              $containers = Get-PnPContainer -OwningApplicationId $app[0].appId
+
+              # Check if containers were retrieved
+              if ($containers -eq $null -or $containers.Count -eq 0) {
+                  echo "No containers found for OwningApplicationId: $app[0].appId"
+
+                  # Delete the container type
+                  Remove-PnPContainerType -Identity $ContainerTypeId
+                  echo "Deleting existing container type."
+
+              } else {
+                  # Print and delete the list of containers
+                  echo "List of Containers:"
+                  foreach ($container in $containers) {
+                      echo "ID: $($container.ContainerId) - Name: $($container.ContainerName)"
+                      Remove-PnPContainer -Identity $container.ContainerId
+                      echo "Deleted Container ID: $($container.ContainerId)"
+                  }
+                  
+                  echo ""
+                  echo "######################################## WARNING ########################################"
+                  echo "SharePoint admin center has Deleted containers. File storage containers are retained for 93 days and then permanently deleted."
+                  echo "Please access the URL $env:SHAREPOINT_ADMIN_SITE_URL/_layouts/15/online/AdminHome.aspx#/deletedContainers and Permanently delete these containers."
+                  echo "#########################################################################################"
+
+                  # Exit the script to break the pipeline
+                  exit 1
+              }
+          } else {
+              echo "Container type does not exist."
+          }
       # - name: Create Service Principal, ContainerType and Get Credentials
       #   id: create_service_principal_container_type2
       #   shell: pwsh
@@ -160,7 +210,52 @@ jobs:
         run: |
           # Connect to Azure using device login
           az login --use-device-code
+          ################################ ContainerType Creation - Start ##############################################
+          # Connect to SharePoint Online
+          Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
 
+          # Get container type information
+          $containerType = Get-PnPContainerType
+          echo "Container Type $containerType"
+          # Check if container type exists
+          if ($containerType) {
+              $OwningApplicationId = $containerType.OwningApplicationId
+              echo "OwningApplicationId $OwningApplicationId"
+              $ContainerTypeId = $containerType.ContainerTypeId
+              echo "ContainerTypeId $ContainerTypeId"
+            
+              # Get the list of containers
+              $containers = Get-PnPContainer -OwningApplicationId $app[0].appId
+
+              # Check if containers were retrieved
+              if ($containers -eq $null -or $containers.Count -eq 0) {
+                  echo "No containers found for OwningApplicationId: $app[0].appId"
+
+                  # Delete the container type
+                  Remove-PnPContainerType -Identity $ContainerTypeId
+                  echo "Deleting existing container type."
+
+              } else {
+                  # Print and delete the list of containers
+                  echo "List of Containers:"
+                  foreach ($container in $containers) {
+                      echo "ID: $($container.ContainerId) - Name: $($container.ContainerName)"
+                      Remove-PnPContainer -Identity $container.ContainerId
+                      echo "Deleted Container ID: $($container.ContainerId)"
+                  }
+                  
+                  echo ""
+                  echo "######################################## WARNING ########################################"
+                  echo "SharePoint admin center has Deleted containers. File storage containers are retained for 93 days and then permanently deleted."
+                  echo "Please access the URL $env:SHAREPOINT_ADMIN_SITE_URL/_layouts/15/online/AdminHome.aspx#/deletedContainers and Permanently delete these containers."
+                  echo "#########################################################################################"
+
+                  # Exit the script to break the pipeline
+                  exit 1
+              }
+          } else {
+              echo "Container type does not exist."
+          }
           # Set the app registration display name
           $appName = "${{ env.SPE_APP_NAME }}"
 

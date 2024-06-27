@@ -82,6 +82,9 @@ jobs:
           } else {
               echo "Container type does not exist."
           }
+        env:
+          SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
+
       # - name: Create Service Principal, ContainerType and Get Credentials
       #   id: create_service_principal_container_type2
       #   shell: pwsh

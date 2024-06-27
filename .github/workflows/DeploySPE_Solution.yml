@@ -151,6 +151,9 @@ jobs:
         run: |
           Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber
           Import-Module -Name Microsoft.Online.SharePoint.PowerShell -Force
+          Get-Module -Name Microsoft.Online.SharePoint.PowerShell -ListAvailable
+          Get-Command -Module Microsoft.Online.SharePoint.PowerShell | Where-Object { $_.Name -like 'Connect-SPOService' }
+
 
       - name: Manage Containers and Container Types
         id: manageContainersAndTypes

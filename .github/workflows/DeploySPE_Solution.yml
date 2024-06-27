@@ -289,9 +289,9 @@ jobs:
           echo "Container Type $containerType"
           # Check if container type exists
           if ($containerType) {
-              $OwningApplicationId = $containerType.OwningApplicationId.Guid
+              $OwningApplicationId = $containerType.OwningApplicationId
               echo "OwningApplicationId $OwningApplicationId"
-              $ContainerTypeId = $containerType.ContainerTypeId.Guid
+              $ContainerTypeId = $containerType.ContainerTypeId
               echo "ContainerTypeId $ContainerTypeId"
             
               # Get the list of containers

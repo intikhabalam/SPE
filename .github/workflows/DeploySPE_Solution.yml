@@ -128,23 +128,23 @@ jobs:
 
           # Get the list of containers
           $containers = Get-PnPContainer -OwningApplicationId $owningApplicationId
-          echo "containers"
-          echo $containers
 
-          # Print the list of containers
-          Write-Host "List of Containers:"
-          $containers | ForEach-Object {
-              Write-Host "ID: $($_.Identity) - Name: $($_.Name)"
-          }
-
-          # Delete each container
-          $containers | ForEach-Object {
-              Remove-PnPContainer -Identity $_.Identity -Force
-              Write-Host "Deleted Container ID: $($_.Identity)"
+          # Check if containers were retrieved
+          if ($containers -eq $null) {
+              Write-Host "No containers found for OwningApplicationId: $owningApplicationId"
+          } else {
+              # Print the list of containers
+              Write-Host "List of Containers:"
+              foreach ($container in $containers) {
+                  Write-Host "ID: $($container.ContainerId) - Name: $($container.ContainerName)"
+                  Remove-PnPContainer -Identity $container.ContainerId
+                  Write-Host "Deleted Container ID: $($container.ContainerId)"
+              }
           }
           ################################ ContainerType Creation - End ##############################################
         env:
           SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
+
 
       - name: Azure Login
         uses: azure/login@v1

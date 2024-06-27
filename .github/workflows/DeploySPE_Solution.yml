@@ -295,11 +295,11 @@ jobs:
               echo "ContainerTypeId $ContainerTypeId"
             
               # Get the list of containers
-              $containers = Get-PnPContainer -OwningApplicationId $OwningApplicationId
+              $containers = Get-PnPContainer -OwningApplicationId $app[0].appId
 
               # Check if containers were retrieved
               if ($containers -eq $null -or $containers.Count -eq 0) {
-                  echo "No containers found for OwningApplicationId: $OwningApplicationId"
+                  echo "No containers found for OwningApplicationId: $app[0].appId"
 
                   # Delete the container type
                   Remove-PnPContainerType -Identity $ContainerTypeId

@@ -157,7 +157,7 @@ jobs:
         shell: pwsh
         run: |
           # Connect to SharePoint Online
-          Connect-SPOService -Url $env:SHAREPOINT_ADMIN_SITE_URL -Credential $env:SP_USERNAME
+          Connect-SPOService -Url $env:SHAREPOINT_ADMIN_SITE_URL
       
           # Check if the container type already exists
           $containerType = Get-SPOContainerType

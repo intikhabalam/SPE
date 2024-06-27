@@ -44,155 +44,77 @@ jobs:
       #             --body "$body"
 
 
-      # - name: Install jq
-      #   run: sudo apt-get install jq
+      - name: Install jq
+        run: sudo apt-get install jq
 
-      # - name: Install Azure CLI
-      #   run: |
-      #     curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+      - name: Install Azure CLI
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-      # - name: Install Az module
-      #   run: |
-      #     Install-Module -Name Az -Scope CurrentUser -Force
-      #     Get-Module -Name Az -ListAvailable
-      #   shell: pwsh
+      - name: Install Az module
+        run: |
+          Install-Module -Name Az -Scope CurrentUser -Force
+          Get-Module -Name Az -ListAvailable
+        shell: pwsh
 
-      # - name: Extract variables from Parameters JSON file
-      #   id: extract_parameters2
-      #   run: |
-      #     RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourcePrefix.value' .github/workflows/parameters.json)
-      #     LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
+      - name: Extract variables from Parameters JSON file
+        id: extract_parameters2
+        run: |
+          RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourcePrefix.value' .github/workflows/parameters.json)
+          LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
 
-      #     echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME-ResGrp" >> $GITHUB_ENV
-      #     echo "STATIC_WEB_APP_NAME=$RESOURCE_GROUP_NAME-StaticWebApp" >> $GITHUB_ENV
-      #     echo "SPE_APP_NAME=$RESOURCE_GROUP_NAME-Spe_App_Reg" >> $GITHUB_ENV         
-      #     echo "LOCATION=$LOCATION" >> $GITHUB_ENV
-      #     echo "CONTAINER_TYPE_NAME=$RESOURCE_GROUP_NAME-ContainerType" >> $GITHUB_ENV        
+          echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME-ResGrp" >> $GITHUB_ENV
+          echo "STATIC_WEB_APP_NAME=$RESOURCE_GROUP_NAME-StaticWebApp" >> $GITHUB_ENV
+          echo "SPE_APP_NAME=$RESOURCE_GROUP_NAME-Spe_App_Reg" >> $GITHUB_ENV         
+          echo "LOCATION=$LOCATION" >> $GITHUB_ENV
+          echo "CONTAINER_TYPE_NAME=$RESOURCE_GROUP_NAME-ContainerType" >> $GITHUB_ENV        
 
-      #     echo $RESOURCE_GROUP_NAME
-      #     echo $STATIC_WEB_APP_NAME
-      #     echo $SPE_APP_NAME
-      #     echo $CONTAINER_TYPE_NAME
-      #     echo $LOCATION
-      #     echo "##########################################################################"
+          echo $RESOURCE_GROUP_NAME
+          echo $STATIC_WEB_APP_NAME
+          echo $SPE_APP_NAME
+          echo $CONTAINER_TYPE_NAME
+          echo $LOCATION
+          echo "##########################################################################"
 
-      # - name: Create API permissions manifest file
-      #   run: |
-      #     echo '[
-      #       {
-      #         "resourceAppId": "00000003-0000-0000-c000-000000000000",
-      #         "resourceAccess": [
-      #           {"id": "37f7f235-527c-4136-accd-4a02d197296e", "type": "Scope"},
-      #           {"id": "14dad69e-099b-42c9-810b-d002981feec1", "type": "Scope"},
-      #           {"id": "7427e0e9-2fba-42fe-b0c0-848c9e6a8182", "type": "Scope"},
-      #           {"id": "085ca537-6565-41c2-aca7-db852babc212", "type": "Scope"},
-      #           {"id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d", "type": "Scope"},
-      #           {"id": "40dc41bc-0f7e-42ff-89bd-d9516947e474", "type": "Role"}
-      #         ]
-      #       },
-      #       {
-      #         "resourceAppId": "00000003-0000-0ff1-ce00-000000000000",
-      #         "resourceAccess": [
-      #           {"id": "4d114b1a-3649-4764-9dfb-be1e236ff371", "type": "Scope"},
-      #           {"id": "19766c1b-905b-43af-8756-06526ab42875", "type": "Role"},
-      #           {"id": "640ddd16-e5b7-4d71-9690-3f4022699ee7", "type": "Scope"}
-      #         ]
-      #       }
-      #     ]' > manifest.json
+      - name: Create API permissions manifest file
+        run: |
+          echo '[
+            {
+              "resourceAppId": "00000003-0000-0000-c000-000000000000",
+              "resourceAccess": [
+                {"id": "37f7f235-527c-4136-accd-4a02d197296e", "type": "Scope"},
+                {"id": "14dad69e-099b-42c9-810b-d002981feec1", "type": "Scope"},
+                {"id": "7427e0e9-2fba-42fe-b0c0-848c9e6a8182", "type": "Scope"},
+                {"id": "085ca537-6565-41c2-aca7-db852babc212", "type": "Scope"},
+                {"id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d", "type": "Scope"},
+                {"id": "40dc41bc-0f7e-42ff-89bd-d9516947e474", "type": "Role"}
+              ]
+            },
+            {
+              "resourceAppId": "00000003-0000-0ff1-ce00-000000000000",
+              "resourceAccess": [
+                {"id": "4d114b1a-3649-4764-9dfb-be1e236ff371", "type": "Scope"},
+                {"id": "19766c1b-905b-43af-8756-06526ab42875", "type": "Role"},
+                {"id": "640ddd16-e5b7-4d71-9690-3f4022699ee7", "type": "Scope"}
+              ]
+            }
+          ]' > manifest.json
 
-      #     echo "API permissions manifest file created"
+          echo "API permissions manifest file created"
 
-      # - name: Print manifest.json file and path
-      #   run: |
-      #     echo "Contents of manifest.json:"
-      #     cat manifest.json
-      #     echo "Path to manifest.json: $(pwd)/manifest.json"
+      - name: Print manifest.json file and path
+        run: |
+          echo "Contents of manifest.json:"
+          cat manifest.json
+          echo "Path to manifest.json: $(pwd)/manifest.json"
 
-      # - name: Install new PnP PowerShell module
-      #   run: |
-      #     Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force -AllowPrerelease -SkipPublisherCheck
-      #     # Validate installation
-      #     Get-Module -Name PnP.PowerShell -ListAvailable
-      #   shell: pwsh
+      - name: Install new PnP PowerShell module
+        run: |
+          Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force -AllowPrerelease -SkipPublisherCheck
+          # Validate installation
+          Get-Module -Name PnP.PowerShell -ListAvailable
+        shell: pwsh
         
-      # - name: List and Delete PnP Containers
-      #   id: listAndDeletePnPContainers
-      #   shell: pwsh
-      #   run: |
-      #     ################################ ContainerType Creation - Start ##############################################
-      #     # Connect to SharePoint Online
-      #     Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
-
-      #     # Define the OwningApplicationId (replace with your actual application ID)
-      #     $owningApplicationId = "c2d42be2-fdc2-4400-ab24-76136985b59d"
-
-      #     # Get the list of containers
-      #     $containers = Get-PnPContainer -OwningApplicationId $owningApplicationId
-
-      #     # Check if containers were retrieved
-      #     if ($containers -eq $null) {
-      #         Write-Host "No containers found for OwningApplicationId: $owningApplicationId"
-      #     } else {
-      #         # Print the list of containers
-      #         Write-Host "List of Containers:"
-      #         foreach ($container in $containers) {
-      #             Write-Host "ID: $($container.ContainerId) - Name: $($container.ContainerName)"
-      #             Remove-PnPContainer -Identity $container.ContainerId
-      #             Write-Host "Deleted Container ID: $($container.ContainerId)"
-      #             Clear-PnPRecycleBinItem -All -Force
-      #         }
-      #     }
-      #     ################################ ContainerType Creation - End ##############################################
-      #   env:
-      #     SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
-
-      - name: Install and Import SharePoint Online Management Shell
-        shell: pwsh
-        run: |
-          Install-Module -Name Microsoft.Online.SharePoint.PowerShell -Force -AllowClobber
-          Import-Module -Name Microsoft.Online.SharePoint.PowerShell -Force
-          Get-Module -Name Microsoft.Online.SharePoint.PowerShell -ListAvailable
-          Get-Command -Module Microsoft.Online.SharePoint.PowerShell | Where-Object { $_.Name -like 'Connect-SPOService' }
-
-
-      - name: Manage Containers and Container Types
-        id: manageContainersAndTypes
-        shell: pwsh
-        run: |
-          # Connect to SharePoint Online
-          Connect-SPOService -Url $env:SHAREPOINT_ADMIN_SITE_URL
-      
-          # Check if the container type already exists
-          $containerType = Get-SPOContainerType
-
-          if ($containerType) {
-              echo 'Container type already exists.'
-
-              # Get the list of containers
-              $containers = Get-SPOContainer -OwningApplicationId "c2d42be2-fdc2-4400-ab24-76136985b59d"
-
-              # Check if containers were retrieved
-              if ($containers -eq $null) {
-                  echo 'No containers found for OwningApplicationId: "c2d42be2-fdc2-4400-ab24-76136985b59d"'
-              } else {
-                  # Print and delete each container
-                  echo 'List of Containers:'
-                  foreach ($container in $containers) {
-                      echo "ID: $($container.Id) - Name: $($container.Name)"
-                      Remove-SPOContainer -Identity $container.Id
-                      echo "Deleted Container ID: $($container.Id)"
-                  }
-              }
-              # Delete existing container type
-              Remove-SPOContainerType -Identity $containerType.Id
-              echo 'Deleting existing container type.'
-          } else {
-              echo 'Container type does not exist.'
-          }
-        env:
-          SHAREPOINT_ADMIN_SITE_URL: ${{ secrets.SHAREPOINT_ADMIN_SITE_URL }}
-
-
       - name: Azure Login
         uses: azure/login@v1
         with:
@@ -351,7 +273,7 @@ jobs:
           $manifestPath = "$(pwd)/manifest.json"
           az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
 
-          Start-Sleep -Seconds 5
+          Start-Sleep -Seconds 30
           #Grant Admin Consent to App Permissions
           # echo "Granting Admin Consent to App Permissions..."
           # az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/$objectId" --headers "Content-Type=application/json" --body '{\"spa\":{\"redirectUris\":[\"$STATIC_WEBAPP_URL/\"]}}'
@@ -362,37 +284,45 @@ jobs:
           # Connect to SharePoint Online
           Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
 
-          # Get container type information
-          $containerType = Get-PnPContainerType
+          # Get the list of containers
+          $containers = Get-PnPContainer -OwningApplicationId $appId
 
-          # Check if container type exists
-          if ($containerType) {
-              Write-Host "Container type already exists."
+          # Check if containers were retrieved
+          if ($containers -eq $null) {
+              Write-Host "No containers found for OwningApplicationId: $appId"
+              # Get container type information
+              $containerType = Get-PnPContainerType
 
-              # Get the list of containers
-              $containers = Get-PnPContainer -OwningApplicationId $owningApplicationId
+              # Check if container type exists
+              if ($containerType) {
+                  echo "Container type already exists."
+                  # Store each value in a separate variable
+                  $ContainerTypeId = $containerType.ContainerTypeId.Guid
+                  Remove-PnPContainerType -Identity $ContainerTypeId
+                  echo "Deleting existing container type."
 
-              # Check if containers were retrieved
-              if ($containers -eq $null) {
-                  Write-Host "No containers found for OwningApplicationId: $owningApplicationId"
               } else {
-                  # Print the list of containers
-                  Write-Host "List of Containers:"
-                  foreach ($container in $containers) {
-                      Write-Host "ID: $($container.ContainerId) - Name: $($container.ContainerName)"
-                      Remove-PnPContainer -Identity $container.ContainerId
-                      Write-Host "Deleted Container ID: $($container.ContainerId)"
-                  }
+                  echo "Container type does not exist."
               }
 
-              # Store each value in a separate variable
-              $ContainerTypeId = $containerType.ContainerTypeId.Guid
-              Remove-PnPContainerType -Identity $ContainerTypeId
-              Write-Host "Deleting existing container type."
-
           } else {
-              Write-Host "Container type does not exists."
+              # Print the list of containers
+              echo "List of Containers:"
+              foreach ($container in $containers) {
+                  echo "ID: $($container.ContainerId) - Name: $($container.ContainerName)"
+                  Remove-PnPContainer -Identity $container.ContainerId
+                  echo "Deleted Container ID: $($container.ContainerId)"
+              }
+              echo "SharePoint admin center has Deleted containers. File storage containers are retained for 93 days and then permanently deleted."
+              echo "Please access the URL $env:SHAREPOINT_ADMIN_SITE_URL/_layouts/15/online/AdminHome.aspx#/deletedContainers and Permanently delete these containers."
+
+              echo "`e[1m`e[4m`e[31mSharePoint admin center has Deleted containers. File storage containers are retained for 93 days and then permanently deleted.`e[0m"
+              echo "`e[1m`e[4m`e[31mPlease access the URL $env:SHAREPOINT_ADMIN_SITE_URL/_layouts/15/online/AdminHome.aspx#/deletedContainers and Permanently delete these containers.`e[0m"
+      
+              # Exit the script to break the pipeline
+              exit 1
           }
+
 
           # Your PnP PowerShell commands
           New-PnPContainerType -TrialContainerType -ContainerTypeName ${{ env.CONTAINER_TYPE_NAME }} -OwningApplicationId $reactAppAzureAppId

@@ -27,7 +27,7 @@ From this menu we will now create the folowing variables
 Variables:
 1. AZURE_SERVICEPRICIPAL_CLIENT_ID : This is an App registration created to allow the pipeline to deploy into your subscription. See Step 1.2
 2. AZURE_TENANT_ID: This is the azure tenant ID. 
-3. SHAREPOINT_ADMIN_SITE_URL : This is the SharePoint administration site. This is in the format https://'<TenantName>'-admin.sharepoint.com eg https://contoso-admin.sharepoint.com 
+3. SHAREPOINT_ADMIN_SITE_URL : This is the SharePoint administration site. This is in the format https://{TenantName}-admin.sharepoint.com eg https://contoso-admin.sharepoint.com 
 4. AZURE_SUBSCRIPTION_ID: This is the ID of the subscription that you want to deploy into in Azure
 
 

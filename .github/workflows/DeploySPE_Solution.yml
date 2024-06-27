@@ -141,7 +141,9 @@ jobs:
               Write-Host "Deleted Container ID: $($_.Identity)"
           }
           ################################ ContainerType Creation - End ##############################################
-
+        env:
+          SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
+          
       - name: Azure Login
         uses: azure/login@v1
         with:

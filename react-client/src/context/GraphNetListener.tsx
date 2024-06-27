@@ -36,6 +36,6 @@ export function GraphNetListenerProvider({
   );
 }
 
-export default function graphNetListenerConsumer() {
+export default function GraphNetListenerConsumer() {
   return useContext(GraphNetListenerContext);
 }

@@ -295,7 +295,18 @@ jobs:
               echo "ContainerTypeId $ContainerTypeId"
             
               # Get the list of containers
-              $containers = Get-PnPContainer -OwningApplicationId $OwningAppId
+              $containers = $(Get-PnPContainer -OwningApplicationId $OwningAppId)
+
+
+              try {
+                  # Attempt to get the list of containers
+                  $containers = Get-PnPContainer -OwningApplicationId $OwningApplicationId
+              } catch {
+                  echo "An error occurred while retrieving containers for OwningApplicationId: $OwningApplicationId"
+                  echo "Assuming no containers exist for OwningApplicationId: $OwningApplicationId"
+                  $containers = @()
+              }
+
               # Check if containers were retrieved
               if ($containers -eq $null -or $containers.Count -eq 0) {
                   echo "No containers found for OwningApplicationId: $OwningAppId"

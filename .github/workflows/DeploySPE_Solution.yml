@@ -284,57 +284,45 @@ jobs:
           # Connect to SharePoint Online
           Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
 
-          # Get the list of containers
-          $containers = Get-PnPContainer -OwningApplicationId $appId
+          # Get container type information
+          $containerType = Get-PnPContainerType
 
-          # Check if containers were retrieved
-          if ($containers -eq $null) {
-              Write-Host "No containers found for OwningApplicationId: $appId"
-              # Get container type information
-              $containerType = Get-PnPContainerType
+          # Check if container type exists
+          if ($containerType) {
+              $OwningApplicationId = $containerType.OwningApplicationId.Guid
+              $ContainerTypeId = $containerType.ContainerTypeId.Guid
 
-              # Check if container type exists
-              if ($containerType) {
-                  echo "Container type already exists."
-                  # Store each value in a separate variable
-                  $ContainerTypeId = $containerType.ContainerTypeId.Guid
+              # Get the list of containers
+              $containers = Get-PnPContainer -OwningApplicationId $OwningApplicationId
+
+              # Check if containers were retrieved
+              if ($containers -eq $null -or $containers.Count -eq 0) {
+                  echo "No containers found for OwningApplicationId: $OwningApplicationId"
+
+                  # Delete the container type
                   Remove-PnPContainerType -Identity $ContainerTypeId
                   echo "Deleting existing container type."
 
               } else {
-                  echo "Container type does not exist."
-              }
+                  # Print and delete the list of containers
+                  echo "List of Containers:"
+                  foreach ($container in $containers) {
+                      echo "ID: $($container.ContainerId) - Name: $($container.ContainerName)"
+                      Remove-PnPContainer -Identity $container.ContainerId
+                      echo "Deleted Container ID: $($container.ContainerId)"
+                  }
+                  
+                  echo ""
+                  echo "######################################## WARNING ########################################"
+                  echo "SharePoint admin center has Deleted containers. File storage containers are retained for 93 days and then permanently deleted."
+                  echo "Please access the URL $env:SHAREPOINT_ADMIN_SITE_URL/_layouts/15/online/AdminHome.aspx#/deletedContainers and Permanently delete these containers."
+                  echo "#########################################################################################"
 
+                  # Exit the script to break the pipeline
+                  exit 1
+              }
           } else {
-              # Print the list of containers
-              echo "List of Containers:"
-              foreach ($container in $containers) {
-                  echo "ID: $($container.ContainerId) - Name: $($container.ContainerName)"
-                  Remove-PnPContainer -Identity $container.ContainerId
-                  echo "Deleted Container ID: $($container.ContainerId)"
-              }
-
-              echo ""
-              echo ""
-              echo ""
-              echo "########################################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` #################################################"
-              echo "########################################``` ``` ``` ``` ``` ``` WARNING ``` ``` ``` ``` ``` ``` #################################################"
-              echo "########################################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` #################################################"
-              echo "SharePoint admin center has Deleted containers. File storage containers are retained for 93 days and then permanently deleted."
-              echo ""
-              echo "Please access the URL $env:SHAREPOINT_ADMIN_SITE_URL/_layouts/15/online/AdminHome.aspx#/deletedContainers and Permanently delete these containers."
-              echo ""
-              echo ""
-              echo ""
-              echo "`e[1m`e[4m`e[31mSharePoint admin center has Deleted containers. File storage containers are retained for 93 days and then permanently deleted.`e[0m"
-              echo ""
-              echo "`e[1m`e[4m`e[31mPlease access the URL $env:SHAREPOINT_ADMIN_SITE_URL/_layouts/15/online/AdminHome.aspx#/deletedContainers and Permanently delete these containers.`e[0m"
-              echo "########################################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` #################################################"
-              echo "########################################``` ``` ``` ``` ``` ``` WARNING ``` ``` ``` ``` ``` ``` #################################################"
-              echo "########################################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` #################################################"
-      
-              # Exit the script to break the pipeline
-              exit 1
+              echo "Container type does not exist."
           }
 
 

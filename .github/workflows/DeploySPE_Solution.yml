@@ -300,10 +300,10 @@ jobs:
 
               try {
                   # Attempt to get the list of containers
-                  $containers = Get-PnPContainer -OwningApplicationId $OwningApplicationId
+                  $containers = Get-PnPContainer -OwningApplicationId $OwningAppId
               } catch {
-                  echo "An error occurred while retrieving containers for OwningApplicationId: $OwningApplicationId"
-                  echo "Assuming no containers exist for OwningApplicationId: $OwningApplicationId"
+                  echo "An error occurred while retrieving containers for OwningApplicationId: $OwningAppId"
+                  echo "Assuming no containers exist for OwningApplicationId: $OwningAppId"
                   $containers = @()
               }
 

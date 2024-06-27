@@ -248,12 +248,24 @@ function App() {
     items: [
       {
         key: "link1",
-        text: "Link 1",
-        href: "",
+        text: "About this Demo",
+        href: "https://learn.microsoft.com/en-us/sharepoint/dev/embedded/overview",
       },
-      { key: "link2", text: "Link 2", href: "" },
-      { key: "link3", text: "Link 3", href: "" },
-      { key: "link4", text: "Link 4", href: "" },
+      {
+        key: "link2",
+        text: "Sample Code",
+        href: "https://github.com/microsoft/SharePoint-Embedded-Samples",
+      },
+      {
+        key: "link3",
+        text: "SharePoint Embedded YouTube",
+        href: "https://aka.ms/spe-playlist",
+      },
+      {
+        key: "link4",
+        text: "Custom Copilot Demo",
+        href: "https://aka.ms/spe-copilot",
+      },
     ],
   }));
 
@@ -266,14 +278,13 @@ function App() {
               SharePoint Embedded Demo app
             </div>
             <div className="spe-app-main-header-actions">
-              <Link
+              {/* <DefaultButton
+                text="About this Demo"
                 href={"https://www.youtube.com/watch?v=G76IufvQLnM"}
-                styles={linkStyles}
-              >
-                About this Demo
-              </Link>
+                styles={contextMenuStyles}
+              /> */}
               <DefaultButton
-                text="Learn & How to"
+                text="Learn More"
                 menuProps={menuProps}
                 styles={contextMenuStyles}
               />

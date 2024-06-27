@@ -28,6 +28,11 @@ export const Home: React.FunctionComponent = () => {
   const isSignedIn = useIsSignedIn();
   const [registering, setRegistering] = useState<boolean>(false);
   const [registerResult, setRegisterResult] = useState<any>();
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleContainerCreated = () => {
+    setRefreshKey((prevKey) => prevKey + 1); // Increment the refresh key
+  };
 
   let tenantId = "";
   let adminConsentLink = "";
@@ -56,9 +61,29 @@ export const Home: React.FunctionComponent = () => {
         )}
         {isSignedIn && (
           <li>
-            <FluentLink href={adminConsentLink}>
+            <span>Grant </span>
+            <Button
+              appearance="primary"
+              disabled={registering}
+              style={{
+                backgroundColor: "#393EB3",
+                color: "white",
+                padding: "5px 10px",
+                borderRadius: "5px",
+              }}
+            >
+              <Link
+                to={adminConsentLink}
+                style={{ color: "white", textDecoration: "none" }}
+              >
+                Admin Consent
+              </Link>
+            </Button>
+            <span> to this demo app</span>
+
+            {/* <FluentLink href={adminConsentLink}>
               Grant admin consent to this demo app
-            </FluentLink>
+            </FluentLink> */}
           </li>
         )}
         {isSignedIn && (
@@ -96,9 +121,11 @@ export const Home: React.FunctionComponent = () => {
         {isSignedIn && (
           <li>
             <div style={{ display: "flex", alignItems: "center" }}>
-              <ContainerSelector />
+              <ContainerSelector refreshKey={refreshKey} />
               <span style={{ margin: "0 5px" }}> or </span>
-              <CreateContainerButton />
+              <CreateContainerButton
+                onContainerCreated={handleContainerCreated}
+              />
               <span style={{ marginLeft: "5px" }}>
                 {" "}
                 this app's Container on your tenant.
@@ -108,7 +135,25 @@ export const Home: React.FunctionComponent = () => {
         )}
         {isSignedIn && (
           <li>
-            Visit the <Link to="/hiring">Hiring</Link> page to use the demo app
+            <Button
+              appearance="primary"
+              disabled={registering}
+              style={{
+                backgroundColor: "#393EB3",
+                color: "white",
+                padding: "5px 10px",
+                borderRadius: "5px",
+              }}
+            >
+              <Link
+                to="/hiring"
+                style={{ color: "white", textDecoration: "none" }}
+              >
+                Get Started
+              </Link>
+            </Button>
+            <span> with your Sharepoint Embedded Demo</span>
+            {/* Visit the <Link to="/hiring">Hiring</Link> page to use the demo app */}
           </li>
         )}
       </ol>

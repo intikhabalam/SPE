@@ -341,7 +341,7 @@ body {
   align-items: center;
   width: 100%;
   height: 100%;
-  padding-top: 10%;
+  padding-top: 10px;
 }
 .posting-content {
   display: flex;
@@ -463,6 +463,10 @@ body {
   font-weight: 500;
 }
 
+.view-job {
+  width: 1254px;
+}
+
 .view-job-breadcrumb {
   display: flex;
   flex-direction: row;
@@ -516,6 +520,13 @@ body {
   border-radius: 4px;
   width: 663px;
   display: block;
+}
+
+.view-job-posting-section {
+  background-color: white;
+  width: 1254px;
+  margin-top: 20px;
+  height: 100%;
 }
 
 .Login {

@@ -161,34 +161,33 @@ jobs:
       
           # Check if the container type already exists
           $containerType = Get-SPOContainerType
-      
+
           if ($containerType) {
-              Write-Host "Container type already exists."
-      
+              echo 'Container type already exists.'
+
               # Get the list of containers
               $containers = Get-SPOContainer -OwningApplicationId "c2d42be2-fdc2-4400-ab24-76136985b59d"
-      
+
               # Check if containers were retrieved
               if ($containers -eq $null) {
-                  Write-Host "No containers found for OwningApplicationId: "c2d42be2-fdc2-4400-ab24-76136985b59d"
+                  echo 'No containers found for OwningApplicationId: "c2d42be2-fdc2-4400-ab24-76136985b59d"'
               } else {
                   # Print and delete each container
-                  Write-Host "List of Containers:"
+                  echo 'List of Containers:'
                   foreach ($container in $containers) {
-                      Write-Host "ID: $($container.Id) - Name: $($container.Name)"
+                      echo "ID: $($container.Id) - Name: $($container.Name)"
                       Remove-SPOContainer -Identity $container.Id
-                      Write-Host "Deleted Container ID: $($container.Id)"
+                      echo "Deleted Container ID: $($container.Id)"
                   }
               }
               # Delete existing container type
               Remove-SPOContainerType -Identity $containerType.Id
-              Write-Host "Deleting existing container type."
+              echo 'Deleting existing container type.'
           } else {
-              Write-Host "Container type does not exist."
+              echo 'Container type does not exist.'
           }
         env:
-          SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}        
-
+          SHAREPOINT_ADMIN_SITE_URL: ${{ secrets.SHAREPOINT_ADMIN_SITE_URL }}
 
 
       - name: Azure Login

@@ -7,13 +7,7 @@ import {
   IJobClientCreateRequest,
 } from "../../../common/schemas/JobSchemas";
 import { Tag } from "@fluentui/react-components";
-import {
-  CommandBarButton,
-  IButtonStyles,
-  IIconProps,
-  Pivot,
-  PivotItem,
-} from "@fluentui/react";
+import { IIconProps, Pivot, PivotItem } from "@fluentui/react";
 import { MarqueeSelection } from "@fluentui/react/lib/MarqueeSelection";
 import {
   DetailsList,
@@ -60,18 +54,6 @@ const tooltipHostStyles: Partial<ITooltipHostStyles> = {
   root: {
     display: "inline-block",
     marginLeft: "8px",
-  },
-};
-const commandButtonStyles: IButtonStyles = {
-  root: {
-    marginLeft: "10px",
-    width: "86px",
-    padding: "6px 20px",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    borderRadius: "2px",
-    border: "1px solid var(--Grey-palette-Grey110, #8A8886)",
-    background: "var(--Grey-palette-White, #FFF)",
   },
 };
 
@@ -173,7 +155,11 @@ export const Jobs: React.FunctionComponent = () => {
       minWidth: 50,
       maxWidth: 100,
       isResizable: true,
-      onRender: (job: Job) => <span>{job.createdDateTime}</span>,
+      onRender: (job: Job) => {
+        const date = new Date(job.createdDateTime ?? 0);
+        const formattedDate = date.toLocaleDateString(); 
+        return <span>{formattedDate}</span>;
+      },
       styles: {
         cellTitle: {
           display: "flex",
@@ -270,17 +256,10 @@ export const Jobs: React.FunctionComponent = () => {
           >
             <PivotItem headerText="All" itemKey="all" />
             <PivotItem headerText="Recent" itemKey="recent" />
-            <PivotItem headerText="Full time" itemKey="fulltime" />
-            <PivotItem headerText="Part time" itemKey="parttime" />
           </Pivot>
         </div>
         <div className="spe-job-header-filter">
           <CreateJobPostingButton />
-          <CommandBarButton
-            iconProps={filterIcon}
-            text="Filter"
-            styles={commandButtonStyles}
-          />
         </div>
       </div>
       <div style={{ height: "600px", overflowY: "auto" }}>

@@ -119,7 +119,7 @@ export const ViewJob: React.FunctionComponent = () => {
   const navigate = useNavigate();
 
   const itemsWithHref: IBreadcrumbItem[] = [
-    { text: "Jobs", key: "Jobs", href: "/hiring" },
+    { text: "Hiring", key: "f0", href: "/hiring" },
     {
       text: job ? job.displayName : "",
       key: "f1",
@@ -164,6 +164,14 @@ export const ViewJob: React.FunctionComponent = () => {
   function _getCustomDivider(dividerProps: IDividerAsProps): JSX.Element {
     return <Icon iconName="ChevronRight20Regular" className={iconClass} />;
   }
+
+  const formatDate = (dateString: string | number | Date | undefined) => {
+    if (!dateString) {
+      return "";
+    }
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
 
   return (
     <>
@@ -210,7 +218,7 @@ export const ViewJob: React.FunctionComponent = () => {
                     className="view-job-form-input"
                     label="Created"
                     readOnly={isReadOnly}
-                    defaultValue={job.createdDateTime}
+                    defaultValue={formatDate(job.createdDateTime)}
                   />
                 </Form>
                 <div

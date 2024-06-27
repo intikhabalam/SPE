@@ -250,12 +250,12 @@ function App() {
       {
         key: "link1",
         text: "About this Demo",
-        href: "https://learn.microsoft.com/en-us/sharepoint/dev/embedded/overview",
+        href: "https://aka.ms/start-spe",
       },
       {
         key: "link2",
         text: "Sample Code",
-        href: "https://github.com/microsoft/SharePoint-Embedded-Samples",
+        href: "https://aka.ms/spe-sample",
       },
       {
         key: "link3",
@@ -279,11 +279,11 @@ function App() {
               SharePoint Embedded Demo app
             </div>
             <div className="spe-app-main-header-actions">
-              {/* <DefaultButton
+              <DefaultButton
                 text="About this Demo"
-                href={"https://www.youtube.com/watch?v=G76IufvQLnM"}
+                href={"https://aka.ms/spe-playlist"}
                 styles={contextMenuStyles}
-              /> */}
+              />
               <DefaultButton
                 text="Learn More"
                 menuProps={menuProps}

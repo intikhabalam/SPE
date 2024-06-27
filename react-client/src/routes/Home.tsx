@@ -88,6 +88,7 @@ export const Home: React.FunctionComponent = () => {
         )}
         {isSignedIn && (
           <li>
+            <span>Register. </span>
             <Button
               appearance="primary"
               disabled={registering}
@@ -101,14 +102,7 @@ export const Home: React.FunctionComponent = () => {
             >
               Register
             </Button>
-            <span>
-              {" "}
-              this app's Container Type on your tenant. You may need to ensure
-              to enable SPE in the SharePoint Admin center. Sometimes this
-              registration will fail on the first try. If that happens, sign out
-              of this app, sign in again, redo admin consent, and retry this
-              registration.{" "}
-            </span>
+            <span> the Container Type with your SharePoint instance</span>
             {registering && <p>Registering...</p>}
             {!registering && (
               <p>
@@ -121,15 +115,14 @@ export const Home: React.FunctionComponent = () => {
         {isSignedIn && (
           <li>
             <div style={{ display: "flex", alignItems: "center" }}>
-              <ContainerSelector refreshKey={refreshKey} />
-              <span style={{ margin: "0 5px" }}> or </span>
               <CreateContainerButton
                 onContainerCreated={handleContainerCreated}
               />
-              <span style={{ marginLeft: "5px" }}>
+              <span style={{ margin: "0 5px" }}>
                 {" "}
-                this app's Container on your tenant.
+                your first job posting or{" "}
               </span>
+              <ContainerSelector refreshKey={refreshKey} />
             </div>
           </li>
         )}

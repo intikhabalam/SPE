@@ -23,6 +23,7 @@ import {
 } from "./routes/ViewJob";
 import { Home } from "./routes/Home";
 import { LoginPage } from "./routes/Login";
+import { GraphNetListenerProvider } from "./context/GraphNetListener";
 
 // Register icons and pull the fonts from the default Microsoft Fluent CDN:
 initializeFileTypeIcons();
@@ -75,7 +76,9 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <GraphNetListenerProvider>
+      <RouterProvider router={router} />
+    </GraphNetListenerProvider>
   </React.StrictMode>
 );
 

@@ -160,7 +160,7 @@ jobs:
           Connect-SPOService -Url $env:SHAREPOINT_ADMIN_SITE_URL -Credential $env:SP_USERNAME
       
           # Check if the container type already exists
-          $containerType = Get-SPOContainerType -ContainerTypeName "SPE-Demo-ContainerType"
+          $containerType = Get-SPOContainerType
       
           if ($containerType) {
               Write-Host "Container type already exists."
@@ -180,15 +180,12 @@ jobs:
                       Write-Host "Deleted Container ID: $($container.Id)"
                   }
               }
-      
               # Delete existing container type
               Remove-SPOContainerType -Identity $containerType.Id
               Write-Host "Deleting existing container type."
-      
           } else {
               Write-Host "Container type does not exist."
           }
-
         env:
           SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}        
 

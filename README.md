@@ -142,9 +142,9 @@ The final configuration step is to register this container type you will need to
 4. Import the SharePoint Embedded collection can be found at https://github.com/microsoft/SharePoint-Embedded-Samples/blob/main/Postman/SharePoint%20Embedded.postman_collection.json
 5. Navagate to **SharePoint Embedded -> Application -> Containers -> PUT Register ContainerType**
 6. Select the environment that was imported in step 2
-<kbd>![image]![Select Enviroment](https://github.com/intikhabalam/SPE/assets/5308600/892708e0-de0d-4f59-b785-b63a4eca98ec) </kbd>
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/5308600/892708e0-de0d-4f59-b785-b63a4eca98ec) </kbd>
 7.  Click send
-<kbd>![image]![Postman](https://github.com/intikhabalam/SPE/assets/5308600/b8ebea1d-986e-41a3-9533-8f3c682e1854)</kbd>
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/5308600/b8ebea1d-986e-41a3-9533-8f3c682e1854)</kbd>
 
 
 

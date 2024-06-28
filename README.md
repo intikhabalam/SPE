@@ -128,20 +128,23 @@ the redirect URIs for the single page application is the url of the application 
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/b29e58b3-e1f0-4a08-91f4-64c909ca4107)</kbd>
 
 # Step 3 Register Container Type
+The final configuration step is to register this container type you will need to use VS Code and Postman for this. 
 
-# Step 3.1 VSCode SharePoint Embedded Extension - Export Enviroment Settings File
-1. Install the SahrePoint Embedded Extension in VS Code https://learn.microsoft.com/en-us/sharepoint/dev/embedded/getting-started/spembedded-for-vscode
+# Step 3.1 VSCode SharePoint Embedded Extension - Export Environment Settings File
+1. Install the SharePoint Embedded Extension in VS Code https://learn.microsoft.com/en-us/sharepoint/dev/embedded/getting-started/spembedded-for-vscode
 2. Sign into the Microsoft 365 tenant with the Account that you have been using to consent the deployment tasks
-3. Export the enviroment settings
+3. Export the environment settings
 
 # Step 3.2 PostMan - Registering the Container Type
-1. Navigate to enviroments in Postman
+1. Navigate to environment in Postman
 2. Import the File that was exported from the SharePoint Embedded Extension
 3. Navigate to Collections
 4. Import the SharePoint Embedded collection can be found at https://github.com/microsoft/SharePoint-Embedded-Samples/blob/main/Postman/SharePoint%20Embedded.postman_collection.json
 5. Navagate to **SharePoint Embedded -> Application -> Containers -> PUT Register ContainerType**
-6. Select the enviroment that was imported on step 2
+6. Select the environment that was imported in step 2
 <kbd>![image]![Select Enviroment](https://github.com/intikhabalam/SPE/assets/5308600/892708e0-de0d-4f59-b785-b63a4eca98ec) </kbd>
-7.  
+7.  Click send
+<kbd>![image]![Postman](https://github.com/intikhabalam/SPE/assets/5308600/b8ebea1d-986e-41a3-9533-8f3c682e1854)</kbd>
+
 
 

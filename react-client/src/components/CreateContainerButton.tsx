@@ -3,16 +3,25 @@ import { Button } from "@fluentui/react-components";
 import { Dialog, DialogType, DialogFooter } from "@fluentui/react/lib/Dialog";
 import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
 import { PrimaryButton, DefaultButton } from "@fluentui/react/lib/Button";
+import { TextField } from "@fluentui/react";
+import { useBoolean } from "@fluentui/react-hooks";
 
 import {
   IContainer,
   IContainerClientCreateRequest,
 } from "../../../common/schemas/ContainerSchemas";
 import { ContainersApiProvider } from "../providers/ContainersApiProvider";
-import { useBoolean } from "@fluentui/react-hooks";
-import { TextField } from "@fluentui/react";
+import { ILoaderParams } from "../common/ILoaderParams";
 
 const containersApi = ContainersApiProvider.instance;
+
+export async function loader({ params }: ILoaderParams): Promise<IContainer[]> {
+  const contatinersLite = await ContainersApiProvider.instance.list();
+  const containers = contatinersLite.map(async (container) => {
+    return await ContainersApiProvider.instance.get(container.id);
+  });
+  return Promise.all(containers);
+}
 
 export type ICreateContainerButtonProps = {
   isOpen?: boolean;
@@ -32,6 +41,7 @@ export const CreateContainerButton: React.FunctionComponent<
   const [description, setDescription] = React.useState("");
   const [saving, setSaving] = React.useState(false);
   const [hideDialog, { toggle: toggleHideDialog }] = useBoolean(true);
+  const [containerCount, setContainerCount] = React.useState(0);
 
   const modalProps = {
     isBlocking: false,
@@ -47,6 +57,16 @@ export const CreateContainerButton: React.FunctionComponent<
       },
     },
   };
+
+  React.useEffect(() => {
+    const fetchContainerCount = async () => {
+      const containers = await ContainersApiProvider.instance.list();
+      console.log(containers);
+      setContainerCount(containers.length);
+    };
+
+    fetchContainerCount();
+  }, []);
 
   const handleDisplayNameChange = (
     event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -77,6 +97,7 @@ export const CreateContainerButton: React.FunctionComponent<
       toggleHideDialog();
       setDisplayName("");
       setDescription("");
+      setContainerCount(containerCount + 1);
     } catch (error) {
     } finally {
       setSaving(false);
@@ -94,6 +115,7 @@ export const CreateContainerButton: React.FunctionComponent<
           padding: "5px",
           borderRadius: "5px",
         }}
+        disabled={containerCount >= 5}
       >
         Create
       </Button>

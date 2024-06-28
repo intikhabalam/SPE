@@ -131,9 +131,41 @@ the redirect URIs for the single page application is the url of the application 
 The final configuration step is to register this container type you will need to use VS Code and Postman for this. 
 
 # Step 3.1 VSCode SharePoint Embedded Extension - Export Environment Settings File
-1. Install the SharePoint Embedded Extension in VS Code https://learn.microsoft.com/en-us/sharepoint/dev/embedded/getting-started/spembedded-for-vscode
-2. Sign into the Microsoft 365 tenant with the Account that you have been using to consent the deployment tasks
-3. Export the environment settings following the steps below
+Install the SharePoint Embedded Extension in VS Code https://learn.microsoft.com/en-us/sharepoint/dev/embedded/getting-started/spembedded-for-vscode
+
+Sign into the Microsoft 365 tenant with the Account that you have been using to consent the deployment tasks
+![Screenshot 2024-06-28 144736](https://github.com/hamishhill/SPE-Hamish/assets/1449800/8b1bae81-6621-43ed-870b-0fc1598e63ff)
+
+Expand the ‘Development’ section 
+
+Select ‘Container types’ 
+
+Select ‘SPE-Demo-ContainerType' 
+
+![Screenshot 2024-06-28 152143](https://github.com/hamishhill/SPE-Hamish/assets/1449800/46367cbb-c38c-40b8-b677-e8a5d8b51b3f)
+
+Right click SPE-Demo-SPE_App_Reg 
+
+Select ‘Setup Postman collection’ 
+
+Select ‘Export environment settings file’ 
+![Screenshot 2024-06-28 152323](https://github.com/hamishhill/SPE-Hamish/assets/1449800/5e1ddada-517f-4c04-ad9e-d39f44e42f4e)
+The following prompts will be presented 
+
+No Client secret was found. Would you like to create one for this app? 
+
+   Click: Ok 
+
+No certificate was found. Would you like to create one for this app? 
+
+	Click: OK 
+
+This will put your app's secret and other settings in a plain text Postman environment file on your local machine. Are you sure you want to continue? 
+
+   Click OK 
+
+
+Choose a location to save the environment details. 
 
 
 # Step 3.2 PostMan - Registering the Container Type

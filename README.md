@@ -131,20 +131,86 @@ the redirect URIs for the single page application is the url of the application 
 The final configuration step is to register this container type you will need to use VS Code and Postman for this. 
 
 # Step 3.1 VSCode SharePoint Embedded Extension - Export Environment Settings File
-1. Install the SharePoint Embedded Extension in VS Code https://learn.microsoft.com/en-us/sharepoint/dev/embedded/getting-started/spembedded-for-vscode
-2. Sign into the Microsoft 365 tenant with the Account that you have been using to consent the deployment tasks
-3. Export the environment settings
+Install the SharePoint Embedded Extension in VS Code https://learn.microsoft.com/en-us/sharepoint/dev/embedded/getting-started/spembedded-for-vscode
+
+Sign into the Microsoft 365 tenant with the Account that you have been using to consent the deployment tasks
+![Screenshot 2024-06-28 144736](https://github.com/hamishhill/SPE-Hamish/assets/1449800/8b1bae81-6621-43ed-870b-0fc1598e63ff)
+
+Expand the ‘Development’ section 
+
+Select ‘Container types’ 
+
+Select ‘SPE-Demo-ContainerType' 
+
+![Screenshot 2024-06-28 152143](https://github.com/hamishhill/SPE-Hamish/assets/1449800/46367cbb-c38c-40b8-b677-e8a5d8b51b3f)
+
+Right click SPE-Demo-SPE_App_Reg 
+
+Select ‘Setup Postman collection’ 
+
+Select ‘Export environment settings file’ 
+![Screenshot 2024-06-28 152323](https://github.com/hamishhill/SPE-Hamish/assets/1449800/5e1ddada-517f-4c04-ad9e-d39f44e42f4e)
+The following prompts will be presented 
+
+No Client secret was found. Would you like to create one for this app? 
+
+   Click: Ok 
+
+No certificate was found. Would you like to create one for this app? 
+
+	Click: OK 
+
+This will put your app's secret and other settings in a plain text Postman environment file on your local machine. Are you sure you want to continue? 
+
+   Click OK 
+
+
+Choose a location to save the environment details. 
+
 
 # Step 3.2 PostMan - Registering the Container Type
-1. Navigate to environment in Postman
-2. Import the File that was exported from the SharePoint Embedded Extension
-3. Navigate to Collections
-4. Import the SharePoint Embedded collection can be found at https://github.com/microsoft/SharePoint-Embedded-Samples/blob/main/Postman/SharePoint%20Embedded.postman_collection.json
-5. Navagate to **SharePoint Embedded -> Application -> Containers -> PUT Register ContainerType**
-6. Select the environment that was imported in step 2
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/5308600/892708e0-de0d-4f59-b785-b63a4eca98ec) </kbd>
-7.  Click send
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/5308600/b8ebea1d-986e-41a3-9533-8f3c682e1854)</kbd>
+Import the SharePoint Embedded collection can be found at https://github.com/microsoft/SharePoint-Embedded-Samples/blob/main/Postman/SharePoint%20Embedded.postman_collection.json
+
+Select ‘Environments’ in the left navigation
+
+Select 'Import'
+   ![Screenshot 2024-06-28 155045](https://github.com/hamishhill/SPE-Hamish/assets/1449800/bdd54953-c474-4ef0-904f-16fe44683fb8)
+
+Select 'files'
+
+Navigate to the file location you selected in VS Code
+
+Select the file
+
+Click 'Open'
+ ![Screenshot 2024-06-28 155248](https://github.com/hamishhill/SPE-Hamish/assets/1449800/70aab4bf-6147-496f-b58b-e3d73862c1b8)
+
+You will now see the ‘SPE-Demo-ContainerType' environment listed. 
+
+A grey tick indicates that this environment is active
+
+![Screenshot 2024-06-28 155453](https://github.com/hamishhill/SPE-Hamish/assets/1449800/d70485b2-8888-4ed9-b3c4-8295659ce95c)
+
+Select ‘Collections’ from the left navigation
+
+Expand SharePoint Embedded 
+
+Expand Application 
+
+Expand Containers 
+
+Select ' PUT Register ContainerType
+![Postman-SPE-conttype-reg](https://github.com/hamishhill/SPE-Hamish/assets/1449800/30e4a5f1-dcb2-4937-bda8-3fec12291eee)
+
+Conftirm the right environment is selected in the top right
+
+Click 'Send'
+
+You will see ‘200 OK’ if successful. 
+
+Now your container registration is complete, return to the demo application. 
+![Screenshot 2024-06-28 160352](https://github.com/hamishhill/SPE-Hamish/assets/1449800/fe586396-5872-46ef-a9ad-2344e3fe902b)
+
 
 
 

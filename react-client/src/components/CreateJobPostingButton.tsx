@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { useSubmit } from "react-router-dom";
 import { IIconProps, TextField, registerIcons } from "@fluentui/react";
@@ -31,11 +31,22 @@ const commandButtonStyles: IButtonStyles = {
   },
 };
 
-export const CreateJobPostingButton: React.FC = () => {
-  const [hideDialog, { toggle: toggleHideDialog }] = useBoolean(true);
+export const CreateJobPostingButton: React.FC<{
+  hideDialog: boolean;
+  setHideDialog: React.Dispatch<React.SetStateAction<boolean>>;
+  saving: boolean;
+  setSaving: React.Dispatch<React.SetStateAction<boolean>>;
+  formResetTrigger: number;
+}> = ({ hideDialog, setHideDialog, saving, setSaving, formResetTrigger }) => {
   const [displayName, setDisplayName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [saving, setSaving] = React.useState(false);
+
+  useEffect(() => {
+    if (hideDialog) {
+      setDisplayName("");
+      setDescription("");
+    }
+  }, [hideDialog, formResetTrigger]);
 
   registerIcons({
     icons: {
@@ -63,7 +74,7 @@ export const CreateJobPostingButton: React.FC = () => {
 
   const submit = useSubmit();
 
-  const submitCreateJob = async () => {
+  const submitCreateJob = async (): Promise<void> => {
     if (!displayName || !description) return;
     setSaving(true);
     try {
@@ -71,12 +82,8 @@ export const CreateJobPostingButton: React.FC = () => {
       formData.append("displayName", displayName);
       formData.append("description", description);
       await submit(formData, { method: "POST" });
-      setDisplayName("");
-      setDescription("");
-      toggleHideDialog();
     } catch (error) {
-    } finally {
-      setSaving(false);
+      console.error(error);
     }
   };
 
@@ -100,13 +107,13 @@ export const CreateJobPostingButton: React.FC = () => {
       <CommandBarButton
         text="Create New Job Posting"
         iconProps={addIcon}
-        onClick={toggleHideDialog}
+        onClick={() => setHideDialog(false)}
         styles={commandButtonStyles}
       />
 
       <Dialog
         hidden={hideDialog}
-        onDismiss={toggleHideDialog}
+        onDismiss={() => setHideDialog(true)}
         dialogContentProps={dialogContentProps}
         modalProps={modalProps}
       >
@@ -136,7 +143,9 @@ export const CreateJobPostingButton: React.FC = () => {
         )}
         <DialogFooter>
           <PrimaryButton onClick={submitCreateJob}>Create</PrimaryButton>
-          <DefaultButton onClick={toggleHideDialog}>Cancel</DefaultButton>
+          <DefaultButton onClick={() => setHideDialog(true)}>
+            Cancel
+          </DefaultButton>
         </DialogFooter>
       </Dialog>
     </>

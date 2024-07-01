@@ -88,7 +88,7 @@ export const Home: React.FunctionComponent = () => {
         )}
         {isSignedIn && (
           <li>
-            <span>Register. </span>
+            {/* <span>Register. </span>
             <Button
               appearance="primary"
               disabled={registering}
@@ -108,7 +108,7 @@ export const Home: React.FunctionComponent = () => {
               <p>
                 <code>{registerResult}</code>
               </p>
-            )}
+            )} */}<span>Follow the readme steps to register your container type with VS Code & Postman</span>
           </li>
         )}
 

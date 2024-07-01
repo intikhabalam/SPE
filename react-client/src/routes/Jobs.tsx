@@ -63,6 +63,9 @@ export const Jobs: React.FunctionComponent = () => {
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<IJob[]>(jobs);
   const [currentFilter, setCurrentFilter] = useState<string>("all");
+  const [hideDialog, setHideDialog] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [formResetTrigger, setFormResetTrigger] = useState(0);
 
   registerIcons({
     icons: {
@@ -75,10 +78,14 @@ export const Jobs: React.FunctionComponent = () => {
     styles: { root: { color: "black", height: "16px", width: "16px" } },
   };
 
-  if (job) {
-    //navigate(`/jobs/${job.id}`);
-    //window.open(`/jobs/${job.id}`);
-  }
+  useEffect(() => {
+    if (job) {
+      setSaving(false);
+      setHideDialog(true);
+      setFormResetTrigger((prev) => prev + 1); // Trigger form reset
+      // Add logic to refresh the jobs list if needed
+    }
+  }, [job]);
 
   const selection = useRef(
     new Selection({
@@ -157,7 +164,7 @@ export const Jobs: React.FunctionComponent = () => {
       isResizable: true,
       onRender: (job: Job) => {
         const date = new Date(job.createdDateTime ?? 0);
-        const formattedDate = date.toLocaleDateString(); 
+        const formattedDate = date.toLocaleDateString();
         return <span>{formattedDate}</span>;
       },
       styles: {
@@ -259,7 +266,13 @@ export const Jobs: React.FunctionComponent = () => {
           </Pivot>
         </div>
         <div className="spe-job-header-filter">
-          <CreateJobPostingButton />
+          <CreateJobPostingButton
+            hideDialog={hideDialog}
+            setHideDialog={setHideDialog}
+            saving={saving}
+            setSaving={setSaving}
+            formResetTrigger={formResetTrigger}
+          />
         </div>
       </div>
       <div style={{ height: "600px", overflowY: "auto" }}>

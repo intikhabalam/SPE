@@ -22,23 +22,13 @@ export abstract class AuthProvider {
       clientId: process.env.AZURE_CLIENT_ID!,
       authority: authority,
     };
-    console.log(
-      `this the thumbprint ${process.env.AZURE_CLIENT_CERT_THUMBPRINT}`
-    );
-    console.log(
-      `this is the private key ${process.env.AZURE_CLIENT_CERT_PRIVATE_KEY}`
-    );
     if (
       process.env.AZURE_CLIENT_CERT_THUMBPRINT &&
       process.env.AZURE_CLIENT_CERT_PRIVATE_KEY
     ) {
-      const privateKeyUtf8 = Buffer.from(
-        process.env.AZURE_CLIENT_CERT_PRIVATE_KEY,
-        "base64"
-      ).toString("utf8");
       auth.clientCertificate = {
         thumbprint: process.env.AZURE_CLIENT_CERT_THUMBPRINT,
-        privateKey: privateKeyUtf8,
+        privateKey: process.env.AZURE_CLIENT_CERT_PRIVATE_KEY,
       };
     } else {
       auth.clientSecret = process.env.AZURE_CLIENT_SECRET;

@@ -32,9 +32,13 @@ export abstract class AuthProvider {
       process.env.AZURE_CLIENT_CERT_THUMBPRINT &&
       process.env.AZURE_CLIENT_CERT_PRIVATE_KEY
     ) {
+      const privateKeyUtf8 = Buffer.from(
+        process.env.AZURE_CLIENT_CERT_PRIVATE_KEY,
+        "base64"
+      ).toString("utf8");
       auth.clientCertificate = {
         thumbprint: process.env.AZURE_CLIENT_CERT_THUMBPRINT,
-        privateKey: process.env.AZURE_CLIENT_CERT_PRIVATE_KEY,
+        privateKey: privateKeyUtf8,
       };
     } else {
       auth.clientSecret = process.env.AZURE_CLIENT_SECRET;

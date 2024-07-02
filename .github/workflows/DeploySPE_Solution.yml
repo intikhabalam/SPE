@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x] # Use Node.js 16.xx
+        node-version: [19.x] # Use Node.js 16.xx
 
     steps:
       - name: Checkout repository
@@ -65,7 +65,7 @@ jobs:
 
           echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP_NAME-ResGrp" >> $GITHUB_ENV
           echo "STATIC_WEB_APP_NAME=$RESOURCE_GROUP_NAME-StaticWebApp" >> $GITHUB_ENV
-          echo "SPE_APP_NAME=$RESOURCE_GROUP_NAME-Spe_App_Reg" >> $GITHUB_ENV         
+          echo "SPE_APP_NAME=$RESOURCE_GROUP_NAME-Spe-App-Reg" >> $GITHUB_ENV         
           echo "LOCATION=$LOCATION" >> $GITHUB_ENV
           echo "CONTAINER_TYPE_NAME=$RESOURCE_GROUP_NAME-ContainerType" >> $GITHUB_ENV        
 
@@ -390,8 +390,9 @@ jobs:
             "REACT_APP_TENANT_ID=${{ vars.AZURE_TENANT_ID }}" `
             "RegisterContainer_RootSiteUrl=https://$TenantName.sharepoint.com/" `
             "RegisterContainer_TenantName=$TenantName" `
-            "AZURE_CLIENT_CERT_THUMBPRINT1=$certificateThumbPrint" `
-            "AZURE_CLIENT_CERT_PRIVATE_KEY1=$certContent"
+            "AZURE_CLIENT_CERT_THUMBPRINT=$certificateThumbPrint" `
+            "AZURE_CLIENT_CERT_PRIVATE_KEY=$certContent" `
+            "AZURE_SPA_CLIENT_ID=$objectId"
         env:
           SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
 
@@ -418,24 +419,26 @@ jobs:
           echo "STATIC_WEBAPP_TOKEN=$STATIC_WEBAPP_TOKEN" >> $GITHUB_ENV
           echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
           
-          APPSETTINGS=$(az staticwebapp appsettings list --name SPE-Demo-StaticWebApp --resource-group SPE-Demo-ResGrp -o json)
+          APPSETTINGS=$(az staticwebapp appsettings list --name  ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} -o json)
           CLIENT_ID=$(echo $APPSETTINGS | jq -r '.properties.REACT_APP_AZURE_APP_ID')
           CONTAINER_TYPE_ID=$(echo $APPSETTINGS | jq -r '.properties.RegisterContainer_ContainerTypeId')
           REACT_APP_TENANT_ID=$(echo $APPSETTINGS | jq -r '.properties.REACT_APP_TENANT_ID')
-          
+          AZURE_SPA_CLIENT_ID=$(echo $APPSETTINGS | jq -r '.properties.AZURE_SPA_CLIENT_ID')
+
           CLIENT_SECRET=$(echo $APPSETTINGS | jq -r '.properties.AZURE_CLIENT_SECRET')
-          AZURE_CLIENT_CERT_THUMBPRINT1=$(echo $APPSETTINGS | jq -r '.properties.AZURE_CLIENT_CERT_THUMBPRINT1')
-          AZURE_CLIENT_CERT_PRIVATE_KEY1=$(echo $APPSETTINGS | jq -r '.properties.AZURE_CLIENT_CERT_PRIVATE_KEY1' | base64 -w 0)
+          AZURE_CLIENT_CERT_THUMBPRINT=$(echo $APPSETTINGS | jq -r '.properties.AZURE_CLIENT_CERT_THUMBPRINT')
+          AZURE_CLIENT_CERT_PRIVATE_KEY=$(echo $APPSETTINGS | jq -r '.properties.AZURE_CLIENT_CERT_PRIVATE_KEY' | base64 -w 0)
           Client_Special=$CLIENT_SECRET
+          AZURE_SPA_CLIENT_ID=$AZURE_SPA_CLIENT_ID
+
           echo "REACT_APP_AZURE_APP_ID=$CLIENT_ID" >> $GITHUB_ENV
           echo "REACT_APP_TENANT_ID=$REACT_APP_TENANT_ID" >> $GITHUB_ENV
           echo "AZURE_CLIENT_SECRET=$Client_Special" >> $GITHUB_ENV
           echo "REACT_APP_CONTAINER_TYPE_ID=$CONTAINER_TYPE_ID" >> $GITHUB_ENV
-          echo "AZURE_CLIENT_CERT_THUMBPRINT1=$AZURE_CLIENT_CERT_THUMBPRINT1" >> $GITHUB_ENV
-          echo "AZURE_CLIENT_CERT_PRIVATE_KEY1=$AZURE_CLIENT_CERT_PRIVATE_KEY1" >> $GITHUB_ENV
+          echo "AZURE_CLIENT_CERT_THUMBPRINT=$AZURE_CLIENT_CERT_THUMBPRINT" >> $GITHUB_ENV
+          echo "AZURE_CLIENT_CERT_PRIVATE_KEY=$AZURE_CLIENT_CERT_PRIVATE_KEY" >> $GITHUB_ENV
+          echo "AZURE_SPA_CLIENT_ID=$AZURE_SPA_CLIENT_ID" >> $GITHUB_ENV
           
-
-
         env:
           SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
           STATIC_WEB_APP_NAME: ${{ env.STATIC_WEB_APP_NAME }}
@@ -471,9 +474,9 @@ jobs:
           echo "REACT_APP_SAMPLE_API_URL=$REACT_APP_SAMPLE_API_URL"
           echo "REACT_APP_TENANT_ID=$REACT_APP_TENANT_ID"
           echo "AZURE_CLIENT_SECRET=$AZURE_CLIENT_SECRET"
-          echo "AZURE_CLIENT_CERT_THUMBPRINT1=$AZURE_CLIENT_CERT_THUMBPRINT1"
-          echo "AZURE_CLIENT_CERT_PRIVATE_KEY1=$AZURE_CLIENT_CERT_PRIVATE_KEY1"
-
+          echo "AZURE_CLIENT_CERT_THUMBPRINT=$AZURE_CLIENT_CERT_THUMBPRINT"
+          echo "AZURE_CLIENT_CERT_PRIVATE_KEY=$AZURE_CLIENT_CERT_PRIVATE_KEY"
+          echo "AZURE_SPA_CLIENT_ID=$AZURE_SPA_CLIENT_ID"
 
         env:
           REACT_APP_AZURE_SERVER_APP_ID: ${{ env.REACT_APP_AZURE_APP_ID }}
@@ -483,8 +486,10 @@ jobs:
           REACT_APP_SAMPLE_API_URL: 'https://${{env.STATIC_WEBAPP_URL}}/api'
           REACT_APP_TENANT_ID: '${{ vars.AZURE_TENANT_ID }}'
           AZURE_CLIENT_SECRET: ${{ env.AZURE_CLIENT_SECRET }}
-          AZURE_CLIENT_CERT_THUMBPRINT1: ${{ env.AZURE_CLIENT_CERT_THUMBPRINT1 }}
-          AZURE_CLIENT_CERT_PRIVATE_KEY1: ${{ env.AZURE_CLIENT_CERT_PRIVATE_KEY1 }}
+          AZURE_CLIENT_CERT_THUMBPRINT: ${{ env.AZURE_CLIENT_CERT_THUMBPRINT }}
+          AZURE_CLIENT_CERT_PRIVATE_KEY: ${{ env.AZURE_CLIENT_CERT_PRIVATE_KEY }}
+          AZURE_SPA_CLIENT_ID: ${{ env.AZURE_SPA_CLIENT_ID }}
+
       - name: Install dependencies (backend)
         run: |
           cd api

@@ -6,6 +6,8 @@ Before you begin there are some Pre-Requsites that are required.
 1. Global Admin: SharePoint Online
 2. Global Admin: Azure
 3. Application: Github account
+4. Application: VSCode
+5. Application: Postman
 
 
 # Pipeline deployment
@@ -128,89 +130,88 @@ the redirect URIs for the single page application is the url of the application 
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/b29e58b3-e1f0-4a08-91f4-64c909ca4107)</kbd>
 
 # Step 3 Register Container Type
-The final configuration step is to register this container type you will need to use VS Code and Postman for this. 
+The App should now be online and avilable for use. The final configuration step is to register the container type which you will need to be done manually by using VS Code and Postman for this. 
 
 # Step 3.1 VSCode SharePoint Embedded Extension - Export Environment Settings File
-Install the SharePoint Embedded Extension in VS Code https://learn.microsoft.com/en-us/sharepoint/dev/embedded/getting-started/spembedded-for-vscode
+The first step to to create the environment configuration file through VScode.
 
-Sign into the Microsoft 365 tenant with the Account that you have been using to consent the deployment tasks
-![Screenshot 2024-06-28 144736](https://github.com/hamishhill/SPE-Hamish/assets/1449800/8b1bae81-6621-43ed-870b-0fc1598e63ff)
+To install VSCode if you have not already the installer can be downloaded online https://code.visualstudio.com/download.
 
-Expand the ‘Development’ section 
+Select the relevant Operating system that you are using
 
-Select ‘Container types’ 
+After VSCode is installed, install the SharePoint Embedded Extension in VS Code https://learn.microsoft.com/en-us/sharepoint/dev/embedded/getting-started/spembedded-for-vscode
 
-Select ‘SPE-Demo-ContainerType' 
+Sign into the Microsoft 365 tenant with the Account that you have been using to consent the deployment tasks. 
+<kbd>![Screenshot 2024-06-28 144736](https://github.com/hamishhill/SPE-Hamish/assets/1449800/8b1bae81-6621-43ed-870b-0fc1598e63ff)</kbd>
 
-![Screenshot 2024-06-28 152143](https://github.com/hamishhill/SPE-Hamish/assets/1449800/46367cbb-c38c-40b8-b677-e8a5d8b51b3f)
+in the left menu Expand **Development -> Container types** and select SPE-Demo-ContainerType
 
-Right click SPE-Demo-SPE_App_Reg 
+<kbd>![Screenshot 2024-06-28 152143](https://github.com/hamishhill/SPE-Hamish/assets/1449800/46367cbb-c38c-40b8-b677-e8a5d8b51b3f)</kbd>
 
-Select ‘Setup Postman collection’ 
+Right click **SPE-Demo-SPE_App_Reg**
 
-Select ‘Export environment settings file’ 
-![Screenshot 2024-06-28 152323](https://github.com/hamishhill/SPE-Hamish/assets/1449800/5e1ddada-517f-4c04-ad9e-d39f44e42f4e)
-The following prompts will be presented 
+Select **Setup Postman collection -> Export environment settings file**
 
-No Client secret was found. Would you like to create one for this app? 
+<kbd>![Screenshot 2024-06-28 152323](https://github.com/hamishhill/SPE-Hamish/assets/1449800/5e1ddada-517f-4c04-ad9e-d39f44e42f4e)</kbd>
+The following prompts will be presented in the bottom right corner 
 
-   Click: Ok 
+- "No Client secret was found. Would you like to create one for this app?"
 
-No certificate was found. Would you like to create one for this app? 
+  - Select "No" 
 
-	Click: OK 
+- "No certificate was found. Would you like to create one for this app?" 
 
-This will put your app's secret and other settings in a plain text Postman environment file on your local machine. Are you sure you want to continue? 
+  - Select: "Yes" 
 
-   Click OK 
+- This will put your app's secret and other settings in a plain text Postman environment file on your local machine. Are you sure you want to continue? 
+  - Click OK 
 
 
-Choose a location to save the environment details. 
+Choose a local location to save the environment details file to. 
 
 
 # Step 3.2 PostMan - Registering the Container Type
+If you have not installed Postman you can install it from the following link https://www.postman.com/downloads/ 
+
 Import the SharePoint Embedded collection can be found at https://github.com/microsoft/SharePoint-Embedded-Samples/blob/main/Postman/SharePoint%20Embedded.postman_collection.json
 
-Select ‘Environments’ in the left navigation
+In the left menu Select **Environments**
 
-Select 'Import'
-   ![Screenshot 2024-06-28 155045](https://github.com/hamishhill/SPE-Hamish/assets/1449800/bdd54953-c474-4ef0-904f-16fe44683fb8)
+At the top Select **Import**
 
-Select 'files'
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/a581fc9f-9922-4c62-a4b7-7424cff3481a)</kbd>
+
+In the middle of the window Select **files**
 
 Navigate to the file location you selected in VS Code
 
-Select the file
+Select the file and select **Open**
 
-Click 'Open'
- ![Screenshot 2024-06-28 155248](https://github.com/hamishhill/SPE-Hamish/assets/1449800/70aab4bf-6147-496f-b58b-e3d73862c1b8)
+<kbd>![Screenshot 2024-06-28 155248](https://github.com/hamishhill/SPE-Hamish/assets/1449800/70aab4bf-6147-496f-b58b-e3d73862c1b8)</kbd>
 
-You will now see the ‘SPE-Demo-ContainerType' environment listed. 
+You will now see the **SPE-Demo-ContainerType** environment listed. 
 
-A grey tick indicates that this environment is active
+A grey tick indicates that this environment is active and is the one being used
 
-![Screenshot 2024-06-28 155453](https://github.com/hamishhill/SPE-Hamish/assets/1449800/d70485b2-8888-4ed9-b3c4-8295659ce95c)
+<kbd>![Screenshot 2024-06-28 155453](https://github.com/hamishhill/SPE-Hamish/assets/1449800/d70485b2-8888-4ed9-b3c4-8295659ce95c)</kbd>
 
-Select ‘Collections’ from the left navigation
+Select **Collections** from the left navigation
 
-Expand SharePoint Embedded 
+Expand **SharePoint Embedded -> Application -> Containers**
 
-Expand Application 
+Select the request called **"PUT Register ContainerType"**
 
-Expand Containers 
+<kbd>![Postman-SPE-conttype-reg](https://github.com/hamishhill/SPE-Hamish/assets/1449800/30e4a5f1-dcb2-4937-bda8-3fec12291eee)</kbd>
 
-Select ' PUT Register ContainerType
-![Postman-SPE-conttype-reg](https://github.com/hamishhill/SPE-Hamish/assets/1449800/30e4a5f1-dcb2-4937-bda8-3fec12291eee)
+Confirm the right environment is selected in the top right
 
-Conftirm the right environment is selected in the top right
+Click 'Send' on the request
 
-Click 'Send'
+if the request is successfully sent you will have a 200 response code returned.
 
-You will see ‘200 OK’ if successful. 
+<kbd>![Screenshot 2024-06-28 160352](https://github.com/hamishhill/SPE-Hamish/assets/1449800/fe586396-5872-46ef-a9ad-2344e3fe902b)</kbd>
 
 Now your container registration is complete, return to the demo application. 
-![Screenshot 2024-06-28 160352](https://github.com/hamishhill/SPE-Hamish/assets/1449800/fe586396-5872-46ef-a9ad-2344e3fe902b)
-
 
 
 

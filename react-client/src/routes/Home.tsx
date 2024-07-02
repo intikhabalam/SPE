@@ -31,6 +31,7 @@ export const Home: React.FunctionComponent = () => {
   const [registering, setRegistering] = useState<boolean>(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [containers, setContainers] = useState<IContainer[] | undefined>();
+  const [registerResult, setRegisterResult] = useState<any>();
 
   const handleContainerCreated = () => {
     setRefreshKey((prevKey) => prevKey + 1); // Increment the refresh key
@@ -46,8 +47,10 @@ export const Home: React.FunctionComponent = () => {
   useEffect(() => {
     const fetchContainers = async () => {
       try {
-        const containerList = await containersApi.list();
-        setContainers(containerList);
+        if (isSignedIn) {
+          const containerList = await containersApi.list();
+          setContainers(containerList);
+        }
       } catch (error) {
         console.error(error);
       }
@@ -55,6 +58,14 @@ export const Home: React.FunctionComponent = () => {
 
     fetchContainers();
   }, [refreshKey, isSignedIn]);
+
+  const onRegisterContainerType = async () => {
+    setRegistering(true);
+    const containersApi = ContainersApiProvider.instance;
+    const result = await containersApi.registerContainerType();
+    setRegistering(false);
+    setRegisterResult(JSON.stringify(result));
+  };
 
   return (
     <div>
@@ -91,10 +102,27 @@ export const Home: React.FunctionComponent = () => {
         )}
         {isSignedIn && (
           <li>
-            <span>
-              Follow the readme steps to register your container type with VS
-              Code & Postman
-            </span>
+            <span>Register. </span>
+            <Button
+              appearance="primary"
+              disabled={registering}
+              onClick={() => onRegisterContainerType()}
+              style={{
+                backgroundColor: "#393EB3",
+                color: "white",
+                padding: "5px",
+                borderRadius: "5px",
+              }}
+            >
+              Register
+            </Button>
+            <span> the Container Type with your SharePoint instance</span>
+            {registering && <p>Registering...</p>}
+            {!registering && (
+              <p>
+                <code>{registerResult}</code>
+              </p>
+            )}
           </li>
         )}
 

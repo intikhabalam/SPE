@@ -1,12 +1,12 @@
+import React, { useEffect, useState } from "react";
 import { Button } from "@fluentui/react-components";
 import { Login, ProviderState, Providers } from "@microsoft/mgt-react";
-import { useEffect, useState } from "react";
 import * as Constants from "../common/Constants";
-import { Link } from "react-router-dom";
 import { CreateContainerButton } from "../components/CreateContainerButton";
-import { ContainerSelector } from "../components/ContainerSelector";
 import { ContainersApiProvider } from "../providers/ContainersApiProvider";
 import { IContainer } from "../../../common/schemas/ContainerSchemas";
+import { Link } from "react-router-dom";
+import GetStartedButton from "../components/GetStartedButton"; // Import the GetStartedButton component
 
 const containersApi = ContainersApiProvider.instance;
 
@@ -67,6 +67,8 @@ export const Home: React.FunctionComponent = () => {
     setRegisterResult(JSON.stringify(result));
   };
 
+  const isDisabled = !containers || containers.length === 0;
+
   return (
     <div>
       <h1>Getting started with the SharePoint Embedded demo app</h1>
@@ -102,7 +104,6 @@ export const Home: React.FunctionComponent = () => {
         )}
         {isSignedIn && (
           <li>
-            <span>Register. </span>
             <Button
               appearance="primary"
               disabled={registering}
@@ -132,38 +133,13 @@ export const Home: React.FunctionComponent = () => {
               <CreateContainerButton
                 onContainerCreated={handleContainerCreated}
               />
-              {containers && containers.length === 0 && (
-                <span style={{ margin: "0 5px" }}>your first job posting</span>
-              )}
-
-              {containers && containers.length > 0 && (
-                <>
-                  <span style={{ margin: "0 5px" }}>another job posting</span>
-                  {/* <ContainerSelector refreshKey={refreshKey} /> */}
-                </>
-              )}
+              <span style={{ margin: "0 5px" }}>your first job posting</span>
             </div>
           </li>
         )}
-        {isSignedIn && containers && containers.length > 0 && (
+        {isSignedIn && (
           <li>
-            <Button
-              appearance="primary"
-              disabled={registering}
-              style={{
-                backgroundColor: "#393EB3",
-                color: "white",
-                padding: "5px 10px",
-                borderRadius: "5px",
-              }}
-            >
-              <Link
-                to="/hiring"
-                style={{ color: "white", textDecoration: "none" }}
-              >
-                Get Started
-              </Link>
-            </Button>
+            <GetStartedButton isDisabled={isDisabled} />
             <span> with your SharePoint Embedded Demo</span>
           </li>
         )}

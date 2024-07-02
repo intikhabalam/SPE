@@ -7,7 +7,7 @@ import {
   IJobClientCreateRequest,
 } from "../../../common/schemas/JobSchemas";
 import { Tag } from "@fluentui/react-components";
-import { IIconProps, Pivot, PivotItem } from "@fluentui/react";
+import { Pivot, PivotItem } from "@fluentui/react";
 import { MarqueeSelection } from "@fluentui/react/lib/MarqueeSelection";
 import {
   DetailsList,
@@ -19,13 +19,12 @@ import {
 import { TooltipHost, ITooltipHostStyles } from "@fluentui/react/lib/Tooltip";
 import { Job } from "../model/Job";
 import { getFileTypeIconProps } from "@fluentui/react-file-type-icons";
-import { Icon, registerIcons, Link as FluentLink } from "@fluentui/react";
+import { Icon, Link as FluentLink } from "@fluentui/react";
 import { CreateJobPostingButton } from "../components/CreateJobPostingButton";
-//import { mockJobs } from "../model/Job.mock";
-import { useRef, useState, useEffect } from "react";
-import { Filter20Regular, Info20Regular } from "@fluentui/react-icons";
 
-// To Be uncommented when APIs decide to work
+import { useRef, useState, useEffect } from "react";
+import {} from "@fluentui/react-icons";
+
 export async function loader({ params }: ILoaderParams): Promise<Job[]> {
   const jobsLite = await JobsApiProvider.instance.list();
   const jobs = jobsLite.map(async (job) => {
@@ -33,11 +32,6 @@ export async function loader({ params }: ILoaderParams): Promise<Job[]> {
   });
   return Promise.all(jobs);
 }
-
-// To Be uncommented for Local use
-// export async function loader({ params }: ILoaderParams): Promise<IJob[]> {
-//   return mockJobs; // Return mock data directly
-// }
 
 export async function action({ params, request }: ILoaderParams) {
   const formData = await request.formData();
@@ -67,23 +61,11 @@ export const Jobs: React.FunctionComponent = () => {
   const [saving, setSaving] = useState(false);
   const [formResetTrigger, setFormResetTrigger] = useState(0);
 
-  registerIcons({
-    icons: {
-      Info20Regular: <Info20Regular />,
-      Filter20Regular: <Filter20Regular />,
-    },
-  });
-  const filterIcon: IIconProps = {
-    iconName: "Filter20Regular",
-    styles: { root: { color: "black", height: "16px", width: "16px" } },
-  };
-
   useEffect(() => {
     if (job) {
       setSaving(false);
       setHideDialog(true);
-      setFormResetTrigger((prev) => prev + 1); // Trigger form reset
-      // Add logic to refresh the jobs list if needed
+      setFormResetTrigger((prev) => prev + 1);
     }
   }, [job]);
 
@@ -112,14 +94,6 @@ export const Jobs: React.FunctionComponent = () => {
           new Date(b.createdDateTime || 0).getTime() -
           new Date(a.createdDateTime || 0).getTime()
       );
-      // } else if (currentFilter === "fulltime") {
-      //   sortedFilteredJobs = sortedFilteredJobs.filter(
-      //     (job) => job.customProperties?.employmentType.value === "Full time"
-      //   );
-      // } else if (currentFilter === "parttime") {
-      //   sortedFilteredJobs = sortedFilteredJobs.filter(
-      //     (job) => job.customProperties?.employmentType.value === "Part time"
-      //   );
     }
     setFilteredJobs(sortedFilteredJobs);
   }, [currentFilter, jobs]);

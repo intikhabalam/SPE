@@ -299,7 +299,7 @@ export const ViewJob: React.FunctionComponent = () => {
                         >
                           <div>
                             <TooltipHost
-                              content="SharePoint Embedded contextual content displays within these tooltips"
+                              content=" While SharePoint Embedded manages container permissions at the application level, documents can also be shared for collaboration across your organization"
                               id="postingTooltip"
                               calloutProps={{ gapSpace: 0 }}
                               styles={tooltipHostStyles}

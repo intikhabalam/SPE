@@ -31,7 +31,7 @@ export type ICreateContainerButtonProps = {
 
 const dialogContentProps = {
   type: DialogType.largeHeader,
-  title: "Create a new storage Container",
+  title: "Create a new job",
 };
 
 export const CreateContainerButton: React.FunctionComponent<
@@ -128,14 +128,14 @@ export const CreateContainerButton: React.FunctionComponent<
         <form noValidate autoComplete="off">
           <TextField
             id={displayName}
-            label="Container name:"
+            label="Job name:"
             required
             value={displayName}
             onChange={handleDisplayNameChange}
           />
           <TextField
             id={description}
-            label="Container description:"
+            label="Job description:"
             required
             value={description}
             onChange={handleDescriptionChange}
@@ -144,7 +144,7 @@ export const CreateContainerButton: React.FunctionComponent<
         {saving && (
           <Spinner
             size={SpinnerSize.medium}
-            label="Creating storage Container..."
+            label="Creating job..."
             labelPosition="right"
             style={{ marginTop: "10px" }}
           />

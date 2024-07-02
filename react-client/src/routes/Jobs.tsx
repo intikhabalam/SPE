@@ -206,7 +206,7 @@ export const Jobs: React.FunctionComponent = () => {
         <div style={{ display: "flex", alignItems: "center" }}>
           Posting Document
           <TooltipHost
-            content="SharePoint Embedded contextual content displays within these tooltips"
+            content="Developers can use SharePoint Embedded containers to easily secure content at the application level. For example, all job specific content is stored in it's own container."
             id="postingTooltip"
             calloutProps={{ gapSpace: 0 }}
             styles={tooltipHostStyles}

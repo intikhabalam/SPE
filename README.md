@@ -6,6 +6,8 @@ Before you begin there are some Pre-Requsites that are required.
 1. Global Admin: SharePoint Online
 2. Global Admin: Azure
 3. Application: Github account
+4. Application: VSCode
+5. Application: Postman
 
 
 # Pipeline deployment
@@ -128,12 +130,18 @@ the redirect URIs for the single page application is the url of the application 
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/b29e58b3-e1f0-4a08-91f4-64c909ca4107)</kbd>
 
 # Step 3 Register Container Type
-The final configuration step is to register this container type you will need to use VS Code and Postman for this. 
+The App should now be online and avilable for use. The final configuration step is to register the container type which you will need to be done manually by using VS Code and Postman for this. 
 
 # Step 3.1 VSCode SharePoint Embedded Extension - Export Environment Settings File
-Install the SharePoint Embedded Extension in VS Code https://learn.microsoft.com/en-us/sharepoint/dev/embedded/getting-started/spembedded-for-vscode
+The first step to to create the environment configuration file through VScode.
 
-Sign into the Microsoft 365 tenant with the Account that you have been using to consent the deployment tasks
+To install VSCode if you have not already the installer can be downloaded online https://code.visualstudio.com/download.
+
+Select the relevant Operating system that you are using
+
+After VSCode is installed, install the SharePoint Embedded Extension in VS Code https://learn.microsoft.com/en-us/sharepoint/dev/embedded/getting-started/spembedded-for-vscode
+
+Sign into the Microsoft 365 tenant with the Account that you have been using to consent the deployment tasks. 
 ![Screenshot 2024-06-28 144736](https://github.com/hamishhill/SPE-Hamish/assets/1449800/8b1bae81-6621-43ed-870b-0fc1598e63ff)
 
 Expand the ‘Development’ section 
@@ -150,15 +158,15 @@ Select ‘Setup Postman collection’
 
 Select ‘Export environment settings file’ 
 ![Screenshot 2024-06-28 152323](https://github.com/hamishhill/SPE-Hamish/assets/1449800/5e1ddada-517f-4c04-ad9e-d39f44e42f4e)
-The following prompts will be presented 
+The following prompts will be presented in the bottom right corner 
 
-No Client secret was found. Would you like to create one for this app? 
+"No Client secret was found. Would you like to create one for this app?"
 
-   Click: Ok 
+   Select "No" 
 
-No certificate was found. Would you like to create one for this app? 
+"No certificate was found. Would you like to create one for this app?" 
 
-	Click: OK 
+   Select: "Yes" 
 
 This will put your app's secret and other settings in a plain text Postman environment file on your local machine. Are you sure you want to continue? 
 

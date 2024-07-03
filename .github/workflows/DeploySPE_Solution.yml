@@ -30,8 +30,22 @@ jobs:
         shell: pwsh
         run: |
           # Connect to Azure using device login
-          az login --use-device-code
-          az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/7a489777-fcac-4af7-bb9b-2118b4d14728"     --headers "Content-Type=application/json"     --body '{\"spa\":{\"redirectUris\":[\"https://black-sky-0aeca3e10.5.azurestaticapps.net/\"]}}'
+          # az login --use-device-code
+          # az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/7a489777-fcac-4af7-bb9b-2118b4d14728"     --headers "Content-Type=application/json"     --body '{\"spa\":{\"redirectUris\":[\"https://black-sky-0aeca3e10.5.azurestaticapps.net/\"]}}'
+
+          #limit the scope to updating applications only
+          Connect-MgGraph -Scopes "Application.Read.All","Application.ReadWrite.All" -UseDeviceCode
+          
+          #ObjectID of the App registration you want to set
+          $applicationId = "7a489777-fcac-4af7-bb9b-2118b4d14728"
+          
+          #Values you want to set. this is an array so add as many as you need
+          $params = @{
+            redirectUris = @("https://black-Whale-0aeca3e10.5.azurestaticapps.net/")
+          }
+          
+          Update-MgApplication -ApplicationId "7a489777-fcac-4af7-bb9b-2118b4d14728" -Spa $params
+
       #     $body = @{
       #       spa = @{
       #         redirectUris = @("${{ env.STATIC_WEBAPP_URL }}/")

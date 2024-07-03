@@ -475,7 +475,7 @@ jobs:
                     
           #Values you want to set. this is an array so add as many as you need
           $params = @{
-            redirectUris = @("${{ env.STATIC_WEBAPP_URL }}/")
+            redirectUris = @("https://${{ env.STATIC_WEBAPP_URL }}/")
           }
           
           Update-MgApplication -ApplicationId ${{ env.AZURE_SPA_CLIENT_ID }} -Spa $params

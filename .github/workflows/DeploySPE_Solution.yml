@@ -25,26 +25,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2        
           
-      - name: Create Service Principal, ContainerType and Get Credentials
-        id: create_service_principal_container_type2
-        shell: pwsh
-        run: |
-          # Connect to Azure using device login
-          # az login --use-device-code
-          # az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/7a489777-fcac-4af7-bb9b-2118b4d14728"     --headers "Content-Type=application/json"     --body '{\"spa\":{\"redirectUris\":[\"https://black-sky-0aeca3e10.5.azurestaticapps.net/\"]}}'
+      # - name: Create Service Principal, ContainerType and Get Credentials
+      #   id: create_service_principal_container_type2
+      #   shell: pwsh
+      #   run: |
+      #     # Connect to Azure using device login
+      #     # az login --use-device-code
+      #     # az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/7a489777-fcac-4af7-bb9b-2118b4d14728"     --headers "Content-Type=application/json"     --body '{\"spa\":{\"redirectUris\":[\"https://black-sky-0aeca3e10.5.azurestaticapps.net/\"]}}'
 
-          #limit the scope to updating applications only
-          Connect-MgGraph -Scopes "Application.Read.All","Application.ReadWrite.All" -UseDeviceCode
-          
-          #ObjectID of the App registration you want to set
-          $applicationId = "7a489777-fcac-4af7-bb9b-2118b4d14728"
-          
-          #Values you want to set. this is an array so add as many as you need
-          $params = @{
-            redirectUris = @("https://black-Whale-0aeca3e10.5.azurestaticapps.net/")
-          }
-          
-          Update-MgApplication -ApplicationId "7a489777-fcac-4af7-bb9b-2118b4d14728" -Spa $params
 
       #     $body = @{
       #       spa = @{
@@ -250,6 +238,14 @@ jobs:
 
           $certificateThumbPrint = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials" | Select-String -Pattern '"customKeyIdentifier": "([^"]+)"' | ForEach-Object { $_.Matches.Groups[1].Value }
 
+          
+          #Values you want to set. this is an array so add as many as you need
+          $params = @{
+            redirectUris = @("${{env.STATIC_WEBAPP_URL}}/")
+          }
+          Update-MgApplication -ApplicationId  $objectId -Spa $params
+
+
           # Print the Thumbprint to verify
           Write-Output "The certificate ThumbPrint is: $certificateThumbPrint"
           
@@ -286,6 +282,19 @@ jobs:
           # Path to the manifest file
           $manifestPath = "$(pwd)/manifest.json"
           az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
+
+          ####################limit the scope to updating applications only##########################
+          # Connect-MgGraph -Scopes "Application.Read.All","Application.ReadWrite.All" -UseDeviceCode
+          
+          #ObjectID of the App registration you want to set
+          $applicationId = "7a489777-fcac-4af7-bb9b-2118b4d14728"
+          
+          #Values you want to set. this is an array so add as many as you need
+          $params = @{
+            redirectUris = @("https://black-Whale-0aeca3e10.5.azurestaticapps.net/")
+          }
+          
+          Update-MgApplication -ApplicationId "7a489777-fcac-4af7-bb9b-2118b4d14728" -Spa $params
 
           Start-Sleep -Seconds 20
           #Grant Admin Consent to App Permissions

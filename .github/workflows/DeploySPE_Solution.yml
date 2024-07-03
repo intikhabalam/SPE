@@ -469,17 +469,16 @@ jobs:
         run: |
           # Connect to Azure using device login
           echo "Azure Static Webapp URL ${{ env.STATIC_WEBAPP_URL }}"
-          echo "Azure Static Webapp URL $STATIC_WEBAPP_URL"
-
+          echo "Object Id ${{ env.AZURE_SPA_CLIENT_ID }}"
           #connect to the graph to create SPA
           Connect-MgGraph -Scopes "Application.Read.All","Application.ReadWrite.All" -UseDeviceCode
                     
           #Values you want to set. this is an array so add as many as you need
           $params = @{
-            redirectUris = @("$STATIC_WEBAPP_URL/")
+            redirectUris = @("${{ env.STATIC_WEBAPP_URL }}/")
           }
           
-          Update-MgApplication -ApplicationId $AZURE_SPA_CLIENT_ID -Spa $params
+          Update-MgApplication -ApplicationId ${{ env.AZURE_SPA_CLIENT_ID }} -Spa $params
         env:
           AZURE_SPA_CLIENT_ID: ${{ env.AZURE_SPA_CLIENT_ID }}
           STATIC_WEBAPP_URL: ${{env.STATIC_WEBAPP_URL}}

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Button } from "@fluentui/react-components";
 import { Login, ProviderState, Providers } from "@microsoft/mgt-react";
 import * as Constants from "../common/Constants";
 import { CreateContainerButton } from "../components/CreateContainerButton";
@@ -7,6 +6,7 @@ import { ContainersApiProvider } from "../providers/ContainersApiProvider";
 import { IContainer } from "../../../common/schemas/ContainerSchemas";
 import { Link } from "react-router-dom";
 import GetStartedButton from "../components/GetStartedButton"; // Import the GetStartedButton component
+import { PrimaryButton } from "@fluentui/react";
 
 const containersApi = ContainersApiProvider.instance;
 
@@ -82,41 +82,26 @@ export const Home: React.FunctionComponent = () => {
         {isSignedIn && (
           <li>
             <span>Grant </span>
-            <Button
-              appearance="primary"
-              disabled={registering}
-              style={{
-                backgroundColor: "#393EB3",
-                color: "white",
-                padding: "5px 10px",
-                borderRadius: "5px",
-              }}
-            >
+            <PrimaryButton className="primary-button" disabled={registering}>
               <Link
                 to={adminConsentLink}
                 style={{ color: "white", textDecoration: "none" }}
               >
                 Admin Consent
               </Link>
-            </Button>
+            </PrimaryButton>
             <span> to this demo app</span>
           </li>
         )}
         {isSignedIn && (
           <li>
-            <Button
-              appearance="primary"
+            <PrimaryButton
+              className="primary-button"
               disabled={registering}
               onClick={() => onRegisterContainerType()}
-              style={{
-                backgroundColor: "#393EB3",
-                color: "white",
-                padding: "5px",
-                borderRadius: "5px",
-              }}
             >
               Register
-            </Button>
+            </PrimaryButton>
             <span> the Container Type with your SharePoint instance</span>
             {registering && <p>Registering...</p>}
             {!registering && (

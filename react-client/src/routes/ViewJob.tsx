@@ -1,4 +1,5 @@
-import { Form, useLoaderData, useNavigate } from "react-router-dom";
+import "./App.css";
+import { Form, useLoaderData } from "react-router-dom";
 import { ILoaderParams } from "../common/ILoaderParams";
 import { JobsApiProvider } from "../providers/JobsApiProvider";
 import { Job } from "../model/Job";
@@ -21,10 +22,9 @@ import {
   IDividerAsProps,
 } from "@fluentui/react/lib/Breadcrumb";
 import { mergeStyles } from "@fluentui/react/lib/Styling";
-import { TextField } from "@fluentui/react/lib/TextField";
 import ContainerBrowser from "../components/ContainerBrowser";
-
 import { ViewJobApplicants } from "../components/ViewJobApplicants";
+import { JobDetailsForm } from "../components/JobDetailsForm";
 
 let job: Job | undefined;
 
@@ -80,8 +80,6 @@ export const ViewJob: React.FunctionComponent = () => {
   const [postingPreviewLink, setPostingPreviewLink] = useState<
     string | undefined
   >(undefined);
-  const [isReadOnly, setIsReadOnly] = useState(true);
-  const navigate = useNavigate();
 
   const itemsWithHref: IBreadcrumbItem[] = [
     { text: "Hiring", key: "f0", href: "/hiring" },
@@ -110,24 +108,9 @@ export const ViewJob: React.FunctionComponent = () => {
     }
   };
 
-  const deleteJob = async () => {
-    if (job) {
-      await JobsApiProvider.instance.deleteJob(job.id);
-      navigate("/jobs");
-    }
-  };
-
   function _getCustomDivider(dividerProps: IDividerAsProps): JSX.Element {
     return <Icon iconName="ChevronRight20Regular" className={iconClass} />;
   }
-
-  const formatDate = (dateString: string | number | Date | undefined) => {
-    if (!dateString) {
-      return "";
-    }
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
-  };
 
   return (
     <>
@@ -140,82 +123,14 @@ export const ViewJob: React.FunctionComponent = () => {
               dividerAs={_getCustomDivider}
               styles={breadcrumbStyles}
             />
-            <div
-              style={{
-                display: "inline-block",
-                padding: "2px 8px",
-                background: "#E4F1FD",
-                color: "#0F6CBD",
-              }}
-            >
+            <div className="view-job-breadcrumb-tag">
               <Tag appearance="brand">{job.state}</Tag>
             </div>
           </div>
           <Pivot>
             <PivotItem headerText="Details">
-              {" "}
               <div>
-                <Form className="edit-job" action="patch">
-                  <TextField
-                    className="view-job-form-input"
-                    label="Job Title"
-                    readOnly={isReadOnly}
-                    defaultValue={job.displayName}
-                  />
-                  <TextField
-                    className="view-job-form-textarea"
-                    label="Description"
-                    multiline
-                    rows={3}
-                    readOnly={isReadOnly}
-                    defaultValue={job.description}
-                  />
-                  <TextField
-                    className="view-job-form-input"
-                    label="Created"
-                    readOnly={isReadOnly}
-                    defaultValue={formatDate(job.createdDateTime)}
-                  />
-                </Form>
-                <div
-                  style={{
-                    margin: "25px 0",
-                    height: "1px",
-                    width: "100%",
-                    border: "1px solid #d1d1d1",
-                  }}
-                />
-                <DefaultButton
-                  text="Edit Details"
-                  onClick={() => setIsReadOnly(false)}
-                  style={{
-                    padding: "5px",
-                    borderRadius: "5px",
-                    marginRight: "10px",
-                  }}
-                />
-                {!job.isPublished && (
-                  <PrimaryButton
-                    text="Publish"
-                    onClick={() => setIsReadOnly(true)}
-                    style={{
-                      backgroundColor: "#393EB3",
-                      color: "white",
-                      padding: "5px",
-                      borderRadius: "5px",
-                      marginRight: "10px",
-                    }}
-                  />
-                )}
-                <DefaultButton
-                  text="Delete"
-                  onClick={deleteJob}
-                  style={{
-                    padding: "5px",
-                    borderRadius: "5px",
-                  }}
-                />
-
+                <JobDetailsForm job={job} />
                 <div className="view-job-posting-section">
                   {!job.postingDoc && (
                     <div className="create-posting-form">
@@ -227,13 +142,10 @@ export const ViewJob: React.FunctionComponent = () => {
                           value="true"
                         />
                         <PrimaryButton
+                          className="primary-button"
                           text="Create Posting"
                           type="submit"
                           style={{
-                            backgroundColor: "#393EB3",
-                            color: "white",
-                            padding: "5px",
-                            borderRadius: "5px",
                             marginRight: "10px",
                             marginBottom: "20px",
                           }}
@@ -244,15 +156,7 @@ export const ViewJob: React.FunctionComponent = () => {
                   {job.postingDoc && (
                     <div className="posting-content">
                       {postingEditLink && (
-                        <div
-                          style={{
-                            width: "100%",
-                            padding: "20px 10px",
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
+                        <div className="posting-edit-link-container">
                           <div>
                             <TooltipHost
                               content=" While SharePoint Embedded manages container permissions at the application level, documents can also be shared for collaboration across your organization"
@@ -273,13 +177,10 @@ export const ViewJob: React.FunctionComponent = () => {
                           </div>
                           <div>
                             <PrimaryButton
+                              className="primary-button"
                               aria-label="Edit job posting"
                               text="Edit"
                               style={{
-                                backgroundColor: "#393EB3",
-                                color: "white",
-                                padding: "5px",
-                                borderRadius: "5px",
                                 marginRight: "5px",
                               }}
                               iconProps={editIcon}

@@ -177,6 +177,11 @@ jobs:
           az login --use-device-code
 
           echo "Azure Static Webapp URL ${{ env.STATIC_WEBAPP_URL }}"
+          STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
+          echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
+          echo "Azure Static Webapp URL ${{ env.STATIC_WEBAPP_URL }}"
+
+          echo "Azure Static Webapp URL $STATIC_WEBAPP_URL"
 
           # Set the app registration display name
           $appName = "${{ env.SPE_APP_NAME }}"
@@ -246,7 +251,10 @@ jobs:
           
           $objectId = az ad app show --id $reactAppAzureAppId --query id -o tsv
           Write-Output "The Object ID is: $objectId"
+          echo "OBJECT_ID=$objectId" >> $GITHUB_ENV
 
+          echo "#########################################################"
+          echo "objectId $OBJECT_ID"
 
 
           #connect to the graph to create SPA
@@ -257,7 +265,7 @@ jobs:
             redirectUris = @("${{ env.STATIC_WEBAPP_URL }}/")
           }
           
-          Update-MgApplication -ApplicationId objectId -Spa $params
+          Update-MgApplication -ApplicationId $objectId -Spa $params
 
 
 

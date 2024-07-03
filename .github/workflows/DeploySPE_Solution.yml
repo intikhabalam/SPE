@@ -25,13 +25,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2        
           
-      # - name: Create Service Principal, ContainerType and Get Credentials
-      #   id: create_service_principal_container_type2
-      #   shell: pwsh
-      #   run: |
-      #     # Connect to Azure using device login
-      #     az login --use-device-code
-
+      - name: Create Service Principal, ContainerType and Get Credentials
+        id: create_service_principal_container_type2
+        shell: pwsh
+        run: |
+          # Connect to Azure using device login
+          az login --use-device-code
+          az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/7a489777-fcac-4af7-bb9b-2118b4d14728"     --headers "Content-Type=application/json"     --body '{\"spa\":{\"redirectUris\":[\"https://black-sky-0aeca3e10.5.azurestaticapps.net/\"]}}'
       #     $body = @{
       #       spa = @{
       #         redirectUris = @("${{ env.STATIC_WEBAPP_URL }}/")

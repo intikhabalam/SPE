@@ -18,7 +18,7 @@ export default function CodeDisplay() {
             padding: "5px 10px",
           }}
         >
-          Listening for an application call/action ...
+          Listening for API calls ...
         </div>
       ) : (
         apiRequests.map((req, curr) => (

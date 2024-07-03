@@ -3,13 +3,9 @@ import { makeStyles, shorthands, Button } from "@fluentui/react-components";
 import {
   IContextualMenuProps,
   IIconProps,
-  registerIcons,
 } from "@fluentui/react";
 import {
-  ArrowUpload20Filled,
-  Folder24Filled,
   Settings20Filled,
-  Add20Regular,
 } from "@fluentui/react-icons";
 import { DefaultButton } from "@fluentui/react/lib/Button";
 import { Toggle } from "@fluentui/react/lib/Toggle";
@@ -130,13 +126,6 @@ export const ContainerActionBar: React.FunctionComponent<
   );
   const uploadFileRef = useRef<HTMLInputElement>(null);
 
-  registerIcons({
-    icons: {
-      Add20Regular: <Add20Regular />,
-      Folder24Filled: <Folder24Filled />,
-      ArrowUpload20Filled: <ArrowUpload20Filled />,
-    },
-  });
   const addIcon: IIconProps = {
     iconName: "Add20Regular",
     styles: { root: { color: "black", height: "16px", width: "16px" } },

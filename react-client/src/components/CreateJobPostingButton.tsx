@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { useSubmit } from "react-router-dom";
-import { IIconProps, TextField, registerIcons } from "@fluentui/react";
+import { IIconProps, TextField } from "@fluentui/react";
 import { Dialog, DialogType, DialogFooter } from "@fluentui/react/lib/Dialog";
 import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
 import {
@@ -10,8 +10,6 @@ import {
   CommandBarButton,
   IButtonStyles,
 } from "@fluentui/react/lib/Button";
-import { useBoolean } from "@fluentui/react-hooks";
-import { Add20Regular } from "@fluentui/react-icons";
 
 const dialogContentProps = {
   type: DialogType.largeHeader,
@@ -48,11 +46,6 @@ export const CreateJobPostingButton: React.FC<{
     }
   }, [hideDialog, formResetTrigger]);
 
-  registerIcons({
-    icons: {
-      Add20Regular: <Add20Regular />,
-    },
-  });
   const addIcon: IIconProps = {
     iconName: "Add20Regular",
     styles: { root: { color: "black", height: "16px", width: "16px" } },

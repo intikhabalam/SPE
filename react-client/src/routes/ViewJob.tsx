@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { GraphProvider } from "../providers/GraphProvider";
 import {
   Icon,
-  registerIcons,
   Pivot,
   PivotItem,
   DefaultButton,
@@ -14,61 +13,27 @@ import {
   TooltipHost,
   ITooltipHostStyles,
 } from "@fluentui/react";
-import {
-  Button,
-  Divider,
-  Input,
-  Label,
-  Tag,
-  Toolbar,
-  ToolbarButton,
-} from "@fluentui/react-components";
+import { Tag } from "@fluentui/react-components";
 import {
   Breadcrumb,
   IBreadcrumbItem,
   IBreadcrumbStyles,
   IDividerAsProps,
 } from "@fluentui/react/lib/Breadcrumb";
-
 import { mergeStyles } from "@fluentui/react/lib/Styling";
-import {
-  Edit20Filled,
-  ArrowSync20Regular,
-  ChevronRight20Regular,
-  Info20Regular,
-} from "@fluentui/react-icons";
 import { TextField } from "@fluentui/react/lib/TextField";
 import ContainerBrowser from "../components/ContainerBrowser";
-//import { mockJobs } from "../model/Job.mock";
+
 import { ViewJobApplicants } from "../components/ViewJobApplicants";
 
 let job: Job | undefined;
 
-// To Be uncommented when APIs decide to work
 export async function loader({
   params,
 }: ILoaderParams): Promise<Job | undefined> {
   const jobId = params.jobId;
   return await JobsApiProvider.instance.get(jobId);
 }
-
-// Uncommented for Local use
-// export async function loader({
-//   params,
-// }: ILoaderParams): Promise<Job | undefined> {
-//   const jobId = params.jobId;
-//   console.log("Loader called with jobId:", jobId);
-//   // Search for the job in mockJobs
-//   const mockJob = mockJobs.find((job) => job.id === jobId);
-
-//   if (mockJob) {
-//     console.log("Job found:", mockJob);
-//     return new Job(mockJob);
-//   }
-
-//   console.log("No job found for jobId:", jobId);
-//   return undefined;
-// }
 
 export async function action({ params, request }: ILoaderParams) {
   const formData = await request.formData();
@@ -126,15 +91,6 @@ export const ViewJob: React.FunctionComponent = () => {
       href: "",
     },
   ];
-
-  registerIcons({
-    icons: {
-      ChevronRight20Regular: <ChevronRight20Regular />,
-      Info20Regular: <Info20Regular />,
-      Edit20Filled: <Edit20Filled />,
-      ArrowSync20Regular: <ArrowSync20Regular />,
-    },
-  });
 
   const editIcon = { iconName: "Edit20Filled" };
   const refreshIcon = { iconName: "ArrowSync20Regular" };

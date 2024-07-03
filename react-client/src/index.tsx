@@ -22,11 +22,51 @@ import {
   action as updateJobAction,
 } from "./routes/ViewJob";
 import { Home } from "./routes/Home";
-import { LoginPage } from "./routes/Login";
 import { GraphNetListenerProvider } from "./context/GraphNetListener";
+import {
+  MoreVertical24Filled,
+  Search12Regular,
+  Map20Regular,
+  People20Regular,
+  Open20Regular,
+  Star20Regular,
+  ChartMultiple20Regular,
+  DismissCircle20Regular,
+  Settings20Regular,
+  Filter20Regular,
+  Info20Regular,
+  ArrowUpload20Filled,
+  Folder24Filled,
+  Add20Regular,
+  Edit20Filled,
+  ArrowSync20Regular,
+  ChevronRight20Regular,
+} from "@fluentui/react-icons";
+import { registerIcons } from "@fluentui/react";
 
-// Register icons and pull the fonts from the default Microsoft Fluent CDN:
 initializeFileTypeIcons();
+
+registerIcons({
+  icons: {
+    MoreVertical24Filled: <MoreVertical24Filled />,
+    Search12Regular: <Search12Regular />,
+    Map20Regular: <Map20Regular />,
+    People20Regular: <People20Regular />,
+    Open20Regular: <Open20Regular />,
+    Star20Regular: <Star20Regular />,
+    ChartMultiple20Regular: <ChartMultiple20Regular />,
+    Info20Regular: <Info20Regular />,
+    Filter20Regular: <Filter20Regular />,
+    DismissCircle20Regular: <DismissCircle20Regular />,
+    Settings20Regular: <Settings20Regular />,
+    Add20Regular: <Add20Regular />,
+    Folder24Filled: <Folder24Filled />,
+    ArrowUpload20Filled: <ArrowUpload20Filled />,
+    ChevronRight20Regular: <ChevronRight20Regular />,
+    Edit20Filled: <Edit20Filled />,
+    ArrowSync20Regular: <ArrowSync20Regular />,
+  },
+});
 
 const provider = new Msal2Provider({
   clientId: Constants.REACT_APP_AZURE_SERVER_APP_ID,
@@ -45,7 +85,6 @@ provider.onStateChanged(() => {
 });
 
 const router = createBrowserRouter([
-  { path: "/login", element: <LoginPage /> },
   {
     path: "/",
     element: <App />,

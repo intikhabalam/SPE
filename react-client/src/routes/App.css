@@ -41,7 +41,7 @@ body {
   font-size: 20px;
   font-style: normal;
   font-weight: 600;
-  line-height: 80px; /* 130% */
+  line-height: 80px;
 }
 
 .spe-app-main-header-actions {
@@ -51,23 +51,23 @@ body {
   font-style: normal;
   font-weight: 600;
   line-height: 20px;
-  display: flex; /* Ensure items are displayed in a row */
-  gap: 10px; /* Adds space between the items */
+  display: flex;
+  gap: 10px;
 }
 
 .spe-app-main-description {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* Center vertically */
+  justify-content: center;
   color: #000;
   text-align: center;
   font-family: "Segoe UI";
   font-size: 24px;
   font-style: normal;
   font-weight: 600;
-  line-height: 26px; /* 130% */
-  margin: 80px 0 -80px 0; /* Adjust margin as needed */
+  line-height: 26px;
+  margin: 80px 0 -80px 0;
 }
 
 .spe-app-main-content {
@@ -93,28 +93,28 @@ body {
   top: 0;
   right: 0;
   height: 100%;
-  width: 600px; /* Adjust width as needed */
-  background-color: #f4f4f4; /* Example background color */
-  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1); /* Example shadow */
-  z-index: 5; /* Ensure it overlays content except header */
-  transform: translateX(100%); /* Initially off-screen */
-  transition: transform 0.3s ease-in-out; /* Smooth transition */
-  display: flex; /* Use flexbox for centering */
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
+  width: 600px;
+  background-color: #f4f4f4;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+  z-index: 5;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 120px 10px 10px 10px;
   overflow-x: hidden;
 }
 
 .side-panel-text {
-  font-size: 22px; /* Correct property name for font size */
+  font-size: 22px;
   font-weight: 600;
   color: #000;
-  text-align: center; /* Center text horizontally */
+  text-align: center;
 }
 
 .show-side-panel .custom-side-panel {
-  transform: translateX(0); /* Show panel by translating into view */
+  transform: translateX(0);
 }
 
 .spe-app-content-container {
@@ -128,29 +128,6 @@ body {
   box-shadow: 0px 5px 25px 0px rgba(0, 0, 0, 0.05);
 }
 
-/* .spe-app-banner {
-  background-color: #e92424;
-  color: white;
-  padding: 0 20px; 
-  display: flex;
-  align-items: center;
-  justify-content: space-between; 
-  height: 47px;
-  width: 100%;
-  box-sizing: border-box; 
-} */
-
-/* .spe-app-banner-content {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  justify-content: center; 
-} */
-
-/* .spe-app-banner-icon {
-  margin-right: 10px; 
-} */
-
 .spe-app-header-main-container {
   display: flex;
   flex-direction: column;
@@ -160,7 +137,7 @@ body {
 .spe-app-content-navigation {
   width: 225px;
   padding: 20px;
-  height: 100%; /* Adjust height */
+  height: 100%;
   background-color: #393eb3;
   transition: height 0.3s;
 }
@@ -173,7 +150,7 @@ body {
 .spe-app-header-container {
   display: flex;
   flex-direction: column;
-  flex: 1; /* Ensure it takes full height of its parent */
+  flex: 1;
 }
 
 .spe-app-header {
@@ -193,25 +170,6 @@ body {
   max-width: 344px;
   height: 38px;
 }
-
-/* .spe-app-search-results {
-  position: absolute;
-  background-color: white;
-  opacity: 1;
-  z-index: 1000;
-  border-radius: 10px;
-  border: 1px sold #333;
-  top: 32px;
-  min-width: 500px;
-  max-width: 500px;
-  width: 500px;
-  max-height: 400px;
-  overflow: auto;
-} */
-
-/* .spe-app-search-results-background {
-  background-color: white;
-} */
 
 .login {
   --login-person-avatar-size: 50px;
@@ -301,17 +259,6 @@ body {
   margin-right: 25px;
 }
 
-/* Login Page
-.spe-app-header-subtitle {
-  margin-top: 10px;
-  font-size: 16px;
-  color: #fff;
-}
-.spe-app-header-subtitle-button {
-  margin-top: 30px;
-} */
-
-/*Jobs Page*/
 .spe-job-header {
   display: flex;
   justify-content: space-between;
@@ -322,9 +269,34 @@ body {
   display: flex;
 }
 
-/* .create-job-posting-button {
-  /* Ensure the button stays to the right */
-/* } */
+.primary-button {
+  background-color: #393eb3 !important;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.primary-link {
+  background-color: #393eb3 !important;
+  color: white;
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.primary-link-disabled {
+  pointer-events: none;
+  background-color: grey !important;
+  color: white !important;
+  cursor: not-allowed;
+}
+
+.primary-button-disabled-button {
+  background-color: grey !important;
+  border: none;
+  color: lightgrey !important;
+  cursor: not-allowed;
+}
 
 .setup-steps li {
   margin: 20px;
@@ -475,15 +447,6 @@ body {
   align-items: center;
   margin-bottom: 40px;
 }
-
-/* .view-job-breadcrumb .fui-Breadcrumb {
-  margin-bottom: 20px;
-}
-
-.view-job-breadcrumb .fui-Breadcrumb button {
-  font-size: 30px;
-  font-weight: 500;
-} */
 
 .edit-job button {
   margin: 5px;

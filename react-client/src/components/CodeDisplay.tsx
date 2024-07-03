@@ -1,4 +1,5 @@
 import GraphNetListenerConsumer from "../context/GraphNetListener";
+import { TextField } from "@fluentui/react/lib/TextField";
 
 export default function CodeDisplay() {
   const { apiRequests } = GraphNetListenerConsumer();
@@ -7,16 +8,22 @@ export default function CodeDisplay() {
     <div style={{ width: "100%", height: "100%", overflowX: "scroll" }}>
       {apiRequests.map((req, curr) => {
         return (
-          <div>
-            <p>{req.endpoint}</p>
-            <p
-              style={{
-                wordBreak: "break-all",
-                whiteSpace: "normal",
-              }}
-            >
-              {req.response}
-            </p>
+          <div style={{ padding: "5px 10px" }}>
+            <TextField
+              label="Endpoint"
+              defaultValue={req.endpoint}
+              multiline
+              autoAdjustHeight
+              readOnly
+            />
+            <TextField
+              label="Response"
+              defaultValue={req.response}
+              multiline
+              autoAdjustHeight
+              readOnly
+              style={{ overflowY: "auto" }}
+            />
           </div>
         );
       })}

@@ -161,13 +161,13 @@ jobs:
           STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
           echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
 
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          client-id: ${{ vars.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-          allow-no-subscriptions: true
+      # - name: Azure Login
+      #   uses: azure/login@v1
+      #   with:
+      #     client-id: ${{ vars.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
+      #     tenant-id: ${{ vars.AZURE_TENANT_ID }}
+      #     subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      #     allow-no-subscriptions: true
 
       - name: Create Service Principal, ContainerType and Get Credentials
         id: create_service_principal_container_type
@@ -175,13 +175,6 @@ jobs:
         run: |
           # Connect to Azure using device login
           az login --use-device-code
-
-          echo "Azure Static Webapp URL ${{ env.STATIC_WEBAPP_URL }}"
-          STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
-          echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
-          echo "Azure Static Webapp URL ${{ env.STATIC_WEBAPP_URL }}"
-
-          echo "Azure Static Webapp URL $STATIC_WEBAPP_URL"
 
           # Set the app registration display name
           $appName = "${{ env.SPE_APP_NAME }}"
@@ -255,19 +248,6 @@ jobs:
 
           echo "#########################################################"
           echo "objectId $OBJECT_ID"
-
-
-          #connect to the graph to create SPA
-          Connect-MgGraph -Scopes "Application.Read.All","Application.ReadWrite.All" -UseDeviceCode
-                    
-          #Values you want to set. this is an array so add as many as you need
-          $params = @{
-            redirectUris = @("${{ env.STATIC_WEBAPP_URL }}/")
-          }
-          
-          Update-MgApplication -ApplicationId $objectId -Spa $params
-
-
 
 
           # Perform Azure REST API call to retrieve key credentials
@@ -435,7 +415,6 @@ jobs:
             "AZURE_SPA_CLIENT_ID=$objectId"
         env:
           SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
-          STATIC_WEBAPP_URL: ${{ env.STATIC_WEBAPP_URL }}
           
       - name: Azure Login
         uses: azure/login@v1
@@ -483,6 +462,42 @@ jobs:
           SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
           STATIC_WEB_APP_NAME: ${{ env.STATIC_WEB_APP_NAME }}
           RESOURCE_GROUP_NAME: ${{ env.RESOURCE_GROUP_NAME }}
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ vars.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          allow-no-subscriptions: true
+
+      - name: Create Service Principal, ContainerType and Get Credentials
+        id: create_app_registration_spa
+        shell: pwsh
+        run: |
+          # Connect to Azure using device login
+          STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
+          echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
+          echo "Azure Static Webapp URL ${{ env.STATIC_WEBAPP_URL }}"
+
+          echo "Azure Static Webapp URL $STATIC_WEBAPP_URL"
+          #connect to the graph to create SPA
+          Connect-MgGraph -Scopes "Application.Read.All","Application.ReadWrite.All" -UseDeviceCode
+                    
+          #Values you want to set. this is an array so add as many as you need
+          $params = @{
+            redirectUris = @("${{ env.STATIC_WEBAPP_URL }}/")
+          }
+          
+          Update-MgApplication -ApplicationId $AZURE_SPA_CLIENT_ID -Spa $params
+        env:
+          AZURE_SPA_CLIENT_ID: ${{ env.AZURE_SPA_CLIENT_ID }}
+
+
+
+
+
+
 
       - name: Set up Node.js
         uses: actions/setup-node@v2

@@ -110,26 +110,17 @@ Select the pipeline and select the main branch and select Run workflow
 
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/3c8f2619-756d-47da-84f7-6020e0e5a8a2)</kbd>
 
-The Pipeline deployment can take upwards to 15min to fully deploy and has 3 instances where you need to manually approve an Action
+The Pipeline deployment can take upwards to 15min to fully deploy and has 4 instances where you need to manually approve an Action
 
 <KBD>![image](https://github.com/intikhabalam/SPE/assets/171198457/e52662d5-ebad-4fc6-ab1b-40f9226b416b)</KBD>
 
-These steps will look like this. All 3 are covered under the "Create Service Principal and Get Credentials" step and the code will stop until you have submitted the auth codes. 
+These steps will look like this. All 4 are covered under the "Create Service Principal and Get Credentials" step and the code will stop until you have submitted the auth codes. 
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/f41f7cef-93ab-4683-bbf3-fb534921e2a0)</kbd>
 
 **The codes do have a time out so the pipline might fail if the code is not entered in a timely manner**
 
 
-# Step 2.1 Create Single Page Application
-Another setting that needs to be manually set is the Single Page Application as the there is not parameter to set this 
-
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/3ac96fd3-2410-493e-8501-33a0cec57ca5)</kbd>
-
-the redirect URIs for the single page application is the url of the application built in the pipeline
-
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/b29e58b3-e1f0-4a08-91f4-64c909ca4107)</kbd>
-
-# Step 3 Register Container Type
+# Step 3 Additional Information Steps
 The App should now be online and avilable for use. The final configuration step is to register the container type which you will need to be done manually by using VS Code and Postman for this. 
 
 # Step 3.1 VSCode SharePoint Embedded Extension - Export Environment Settings File

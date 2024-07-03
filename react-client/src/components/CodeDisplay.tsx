@@ -18,28 +18,30 @@ export default function CodeDisplay() {
             padding: "5px 10px",
           }}
         >
-          Listening for API calls ...
+          <p>Listening for API calls ...</p>
         </div>
       ) : (
-        apiRequests.map((req, curr) => (
-          <div key={curr} style={{ padding: "5px 10px" }}>
-            <TextField
-              label="Endpoint"
-              defaultValue={req.endpoint}
-              multiline
-              autoAdjustHeight
-              readOnly
-            />
-            <TextField
-              label="Response"
-              defaultValue={req.response}
-              multiline
-              autoAdjustHeight
-              readOnly
-              style={{ overflowY: "auto" }}
-            />
-          </div>
-        ))
+        apiRequests.map((req, curr) => {
+          return (
+            <div style={{ padding: "5px 10px" }}>
+              <TextField
+                label="Endpoint"
+                defaultValue={req.endpoint}
+                multiline
+                autoAdjustHeight
+                readOnly
+              />
+              <TextField
+                label="Response"
+                defaultValue={req.response}
+                multiline
+                autoAdjustHeight
+                readOnly
+                style={{ overflowY: "auto" }}
+              />
+            </div>
+          );
+        })
       )}
     </div>
   );

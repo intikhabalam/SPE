@@ -1,10 +1,10 @@
-import React from "react";
-import { Button } from "@fluentui/react-components";
+import "../routes/App.css";
+import { PrimaryButton } from "@fluentui/react";
 import { Link } from "react-router-dom";
 
 const GetStartedButton = ({ isDisabled }: { isDisabled: boolean }) => {
   return (
-    <Button
+    <PrimaryButton
       className={`primary-button ${
         isDisabled ? "primary-button-disabled-button" : ""
       }`}
@@ -24,7 +24,7 @@ const GetStartedButton = ({ isDisabled }: { isDisabled: boolean }) => {
       >
         Get Started
       </Link>
-    </Button>
+    </PrimaryButton>
   );
 };
 

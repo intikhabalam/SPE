@@ -1,18 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { makeStyles, useId } from "@fluentui/react-components";
+import { useId } from "@fluentui/react-components";
 import { Dropdown, IDropdownOption } from "@fluentui/react/lib/Dropdown";
 import { IContainer } from "../../../common/schemas/ContainerSchemas";
 import { ContainersApiProvider } from "../providers/ContainersApiProvider";
 
 const containersApi = ContainersApiProvider.instance;
-
-const useStyles = makeStyles({
-  containerSelectorControls: {
-    minWidth: "150px",
-    maxWidth: "250px",
-    width: "200px",
-  },
-});
 
 export type IContainerSelectorProps = {
   selectedContainerId?: string;
@@ -52,7 +44,6 @@ export const ContainerSelector: React.FunctionComponent<
     }
   };
 
-  const styles = useStyles();
   const dropdownOptions: IDropdownOption[] = containers
     ? containers.map((container) => ({
         key: container.id,
@@ -67,7 +58,7 @@ export const ContainerSelector: React.FunctionComponent<
       placeholder="Select"
       options={dropdownOptions}
       selectedKey={selectedContainerId}
-      className={styles.containerSelectorControls}
+      className="container-selector-controls"
       onChange={onContainerDropdownChange}
     />
   );

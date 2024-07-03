@@ -173,7 +173,7 @@ jobs:
         id: create_service_principal_container_type
         shell: pwsh
         run: |
-          Connect to Azure using device login
+          # Connect to Azure using device login
           az login --use-device-code
 
           echo "Azure Static Webapp URL ${{ env.STATIC_WEBAPP_URL }}"

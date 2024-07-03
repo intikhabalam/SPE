@@ -173,8 +173,10 @@ jobs:
         id: create_service_principal_container_type
         shell: pwsh
         run: |
-          # Connect to Azure using device login
-          #az login --use-device-code
+          Connect to Azure using device login
+          az login --use-device-code
+
+          echo "Azure Static Webapp URL ${{ env.STATIC_WEBAPP_URL }}"
 
           # Set the app registration display name
           $appName = "${{ env.SPE_APP_NAME }}"
@@ -244,6 +246,21 @@ jobs:
           
           $objectId = az ad app show --id $reactAppAzureAppId --query id -o tsv
           Write-Output "The Object ID is: $objectId"
+
+
+
+          #connect to the graph to create SPA
+          Connect-MgGraph -Scopes "Application.Read.All","Application.ReadWrite.All" -UseDeviceCode
+                    
+          #Values you want to set. this is an array so add as many as you need
+          $params = @{
+            redirectUris = @("${{ env.STATIC_WEBAPP_URL }}/")
+          }
+          
+          Update-MgApplication -ApplicationId objectId -Spa $params
+
+
+
 
           # Perform Azure REST API call to retrieve key credentials
           $response = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials"
@@ -410,7 +427,7 @@ jobs:
             "AZURE_SPA_CLIENT_ID=$objectId"
         env:
           SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
-
+          STATIC_WEBAPP_URL: ${{ env.STATIC_WEBAPP_URL }}
           
       - name: Azure Login
         uses: azure/login@v1

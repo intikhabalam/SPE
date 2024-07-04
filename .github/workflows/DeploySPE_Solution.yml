@@ -138,15 +138,21 @@ jobs:
         id: check_static_webapp
         run: pwsh ./.github/ps_scripts/CheckStaticWebApp.ps1 -staticWebAppName '${{ env.STATIC_WEB_APP_NAME }}' -resourceGroupName '${{ env.RESOURCE_GROUP_NAME }}'
 
+      # - name: Deploy Azure Static Webapp
+      #   if: env.staticWebApp_exists == 'false'
+      #   id: create_azure_static_webapp
+      #   run: |
+      #     az deployment group create --resource-group ${{ env.RESOURCE_GROUP_NAME }} --template-file .github/workflows/staticwebapp.bicep --parameters .github/workflows/parameters.json --parameters resourceGroupName=${{ env.RESOURCE_GROUP_NAME }} --parameters staticWebAppName=${{ env.STATIC_WEB_APP_NAME }}
+      #     STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "properties.apiKey" -o tsv)
+      #     echo "STATIC_WEBAPP_TOKEN=$STATIC_WEBAPP_TOKEN" >> $GITHUB_ENV
+      #     STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
+      #     echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
+
       - name: Deploy Azure Static Webapp
         if: env.staticWebApp_exists == 'false'
         id: create_azure_static_webapp
-        run: |
-          az deployment group create --resource-group ${{ env.RESOURCE_GROUP_NAME }} --template-file .github/workflows/staticwebapp.bicep --parameters .github/workflows/parameters.json --parameters resourceGroupName=${{ env.RESOURCE_GROUP_NAME }} --parameters staticWebAppName=${{ env.STATIC_WEB_APP_NAME }}
-          STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "properties.apiKey" -o tsv)
-          echo "STATIC_WEBAPP_TOKEN=$STATIC_WEBAPP_TOKEN" >> $GITHUB_ENV
-          STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
-          echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
+        run: pwsh ./.github/ps_scripts/DeployStaticWebApp.ps1 -resourceGroupName '${{ env.RESOURCE_GROUP_NAME }}' -staticWebAppName '${{ env.STATIC_WEB_APP_NAME }}'
+
 
       # - name: Azure Login
       #   uses: azure/login@v1

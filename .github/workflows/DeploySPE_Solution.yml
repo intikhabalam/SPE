@@ -112,27 +112,31 @@ jobs:
 
 
 
-      - name: Check if Resource Group exists
-        id: check_resource_group
-        run: |
-          if az group show --name ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
-            echo "Resource Group ${{ env.RESOURCE_GROUP_NAME }} already exists"
-            echo "::set-output name=rg_exists::true"
-          else
-            az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location "${{ env.LOCATION }}"
-            echo "Resource Group created."
-          fi
+      # - name: Check if Resource Group exists
+      #   id: check_resource_group
+      #   run: |
+      #     if az group show --name ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
+      #       echo "Resource Group ${{ env.RESOURCE_GROUP_NAME }} already exists"
+      #       echo "::set-output name=rg_exists::true"
+      #     else
+      #       az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location "${{ env.LOCATION }}"
+      #       echo "Resource Group created."
+      #     fi
+
+      # - name: Check if Static Web App exists
+      #   id: check_static_webapp
+      #   run: |
+      #     if ! az staticwebapp show --name ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
+      #       echo "Static Web App does not exist."
+      #       echo "staticWebApp_exists=false" >> $GITHUB_ENV
+      #     else
+      #       echo "Static Web App exists."
+      #       echo "staticWebApp_exists=true" >> $GITHUB_ENV
+      #     fi
 
       - name: Check if Static Web App exists
         id: check_static_webapp
-        run: |
-          if ! az staticwebapp show --name ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
-            echo "Static Web App does not exist."
-            echo "staticWebApp_exists=false" >> $GITHUB_ENV
-          else
-            echo "Static Web App exists."
-            echo "staticWebApp_exists=true" >> $GITHUB_ENV
-          fi
+        run: pwsh ./.github/ps_scripts/CheckStaticWebApp.ps1 -staticWebAppName '${{ env.STATIC_WEB_APP_NAME }}' -resourceGroupName '${{ env.RESOURCE_GROUP_NAME }}'
 
       - name: Deploy Azure Static Webapp
         if: env.staticWebApp_exists == 'false'

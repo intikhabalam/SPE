@@ -76,11 +76,11 @@ Navigate to your subscription and select **Access Control (IAM) -> Add -> Add Ro
 
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/3c2908d5-e251-4429-a870-96b855870ed1)</KBD>
 
-We are planning to assign the app refgistraion owner permissions at this time to allow it to complete its actions [Permissions are still being validated for least privledges] 
+We plan to grant the app registration the minimum necessary privileges, specifically 'Contribute' permissions, to perform its required actions. Although 'Owner' permissions would also suffice, they are not necessary at this time.  
 
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/97de4aca-4f6a-442f-8a3d-2b3c06a11fd9)</kbd>
 
-Select **Owner** and selct **Next**
+Select **Contribute** and select **Next**
 
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/6ac42dd1-f181-473b-b21c-e97619f6a8da)</kbd>
 

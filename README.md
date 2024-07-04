@@ -11,15 +11,15 @@ Before you begin there are some Pre-Requsites that are required.
 
 
 # Pipeline deployment
-While this has been automated to a high degree there are some manual steps that need to be added or completed as part of deployment process
+Although much of the process has been highly automated, there are still some manual steps that need to be added or completed as part of the deployment process.
 ## Step 1: Fork the SharePoint Embedded Repo
-Create a new fork of the existing code. This will allow you to create any customisation that you want to the code will bringing over the automation pipelines for the deployment
+Create a new fork of the existing code. This will allow you to create any customisation that you want to the code while bringing over the automation pipelines for the deployment
 
 Select **Fork - > Create new Fork** and create a new name
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/20e1ce24-aa51-410b-9862-2d36d824d3d9)</kbd>
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/a6d396e3-05d8-4203-bd46-14d002244104)</kbd>
 
-Now that the we have a fork of the deployment code we will need to update some of the configuration variables. These are variables that are specific to you tenant.
+Now that the we have a fork of the deployment code we will need to update some of the configuration variables. These are variables that are specific to your tenant.
 
 Select **Settings -> Secrets and variables -> Actions**
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/0d727d84-7c2b-4f63-8c67-617005822bd0)</kbd>
@@ -54,6 +54,8 @@ From here we will create a GitHub deployed action
 
 For the default values they are the following from Github.
 
+<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/494c7cd2-826b-4e49-ac27-534f8f51e3d4)</kbd>
+
 **GitHub Details**
 - Orgainsation : This is the name of your repositiory
 - Respoitory : This is the name of the forked repository
@@ -64,8 +66,6 @@ For the default values they are the following from Github.
 -  Name : This is a name for this credential
 -  Description : Description of the credential
 
-
-<kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/494c7cd2-826b-4e49-ac27-534f8f51e3d4)</kbd>
 
 Copy the application ID and set the variable AZURE_SERVICEPRICIPAL_CLIENT_ID to this value
 
@@ -196,7 +196,7 @@ Select the request called **"PUT Register ContainerType"**
 
 Confirm the right environment is selected in the top right
 
-Click 'Send' on the request
+Click **Send** on the request
 
 if the request is successfully sent you will have a 200 response code returned.
 

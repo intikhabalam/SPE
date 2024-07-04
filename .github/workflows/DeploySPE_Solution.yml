@@ -108,7 +108,7 @@ jobs:
       - name: Check if Resource Group exists
         id: check_resource_group_script
         run: |
-          pwsh ./.github/workflow/ps_scripts/CheckResourceGroup.ps1 -resourceGroupName '${{ env.RESOURCE_GROUP_NAME }}' -location '${{ env.LOCATION }}'
+          run: ./.github/ps_scripts/CheckResourceGroup.ps1 -resourceGroupName '${{ env.RESOURCE_GROUP_NAME }}' -location '${{ env.LOCATION }}'
           exit 1
 
 

@@ -25,32 +25,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2        
 
-      # - name: Azure Login
-      #   uses: azure/login@v1
-      #   with:
-      #     client-id: ${{ vars.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
-      #     tenant-id: ${{ vars.AZURE_TENANT_ID }}
-      #     subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      #     allow-no-subscriptions: true
-
-      # - name: Create Service Principal, ContainerType and Get Credentials
-      #   id: create_service_principal_container_type2
-      #   shell: pwsh
-      #   run: |
-      #     #limit the scope to updating applications only
-      #     # Connect-MgGraph -Scopes "Application.Read.All","Application.ReadWrite.All" -UseDeviceCode
-          
-      #     #ObjectID of the App registration you want to set
-      #     $applicationId = "7a489777-fcac-4af7-bb9b-2118b4d14728"
-          
-      #     #Values you want to set. this is an array so add as many as you need
-      #     $params = @{
-      #       redirectUris = @("https://black-Whale-0aeca3e10.5.azurestaticapps.net/")
-      #     }
-          
-      #     Update-MgApplication -ApplicationId "7a489777-fcac-4af7-bb9b-2118b4d14728" -Spa $params
-
-
       - name: Install jq
         run: sudo apt-get install jq
 
@@ -64,8 +38,15 @@ jobs:
           Get-Module -Name Az -ListAvailable
         shell: pwsh
 
+      - name: Install new PnP PowerShell module
+        run: |
+          Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force -AllowPrerelease -SkipPublisherCheck
+          # Validate installation
+          Get-Module -Name PnP.PowerShell -ListAvailable
+        shell: pwsh
+
       - name: Extract variables from Parameters JSON file
-        id: extract_parameters2
+        id: Extract_variables
         run: |
           RESOURCE_GROUP_NAME=$(jq -r '.parameters.resourcePrefix.value' .github/workflows/parameters.json)
           LOCATION=$(jq -r '.parameters.location.value' .github/workflows/parameters.json)
@@ -76,14 +57,15 @@ jobs:
           echo "LOCATION=$LOCATION" >> $GITHUB_ENV
           echo "CONTAINER_TYPE_NAME=$RESOURCE_GROUP_NAME-ContainerType" >> $GITHUB_ENV        
 
-          echo $RESOURCE_GROUP_NAME
-          echo $STATIC_WEB_APP_NAME
-          echo $SPE_APP_NAME
-          echo $CONTAINER_TYPE_NAME
-          echo $LOCATION
-          echo "##########################################################################"
+          # echo $RESOURCE_GROUP_NAME
+          # echo $STATIC_WEB_APP_NAME
+          # echo $SPE_APP_NAME
+          # echo $CONTAINER_TYPE_NAME
+          # echo $LOCATION
+          # echo "##########################################################################"
 
       - name: Create API permissions manifest file
+        id: Create_API_Permissions_Manifest
         run: |
           echo '[
             {
@@ -109,18 +91,11 @@ jobs:
 
           echo "API permissions manifest file created"
 
-      - name: Print manifest.json file and path
-        run: |
-          echo "Contents of manifest.json:"
-          cat manifest.json
-          echo "Path to manifest.json: $(pwd)/manifest.json"
-
-      - name: Install new PnP PowerShell module
-        run: |
-          Install-Module -Name PnP.PowerShell -Scope CurrentUser -Force -AllowPrerelease -SkipPublisherCheck
-          # Validate installation
-          Get-Module -Name PnP.PowerShell -ListAvailable
-        shell: pwsh
+      # - name: Print manifest.json file and path
+      #   run: |
+      #     echo "Contents of manifest.json:"
+      #     cat manifest.json
+      #     echo "Path to manifest.json: $(pwd)/manifest.json"
         
       - name: Azure Login
         uses: azure/login@v1
@@ -129,6 +104,13 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           allow-no-subscriptions: true
+
+      - name: Check if Resource Group exists
+        id: check_resource_group_script
+        run: |
+          pwsh ./.github/workflow/ps_scripts/CheckResourceGroup.ps1 -resourceGroupName '${{ env.RESOURCE_GROUP_NAME }}' -location '${{ env.LOCATION }}'
+          exit 1
+
 
       - name: Check if Resource Group exists
         id: check_resource_group
@@ -140,6 +122,7 @@ jobs:
             az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location "${{ env.LOCATION }}"
             echo "Resource Group created."
           fi
+
       - name: Check if Static Web App exists
         id: check_static_webapp
         run: |

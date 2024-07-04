@@ -1,11 +1,9 @@
 import * as React from "react";
-import { Button } from "@fluentui/react-components";
 import { Dialog, DialogType, DialogFooter } from "@fluentui/react/lib/Dialog";
 import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
 import { PrimaryButton, DefaultButton } from "@fluentui/react/lib/Button";
 import { TextField } from "@fluentui/react";
 import { useBoolean } from "@fluentui/react-hooks";
-
 import {
   IContainer,
   IContainerClientCreateRequest,
@@ -106,19 +104,13 @@ export const CreateContainerButton: React.FunctionComponent<
 
   return (
     <>
-      <Button
-        appearance="primary"
+      <PrimaryButton
+        className="primary-button"
         onClick={toggleHideDialog}
-        style={{
-          backgroundColor: "#393EB3",
-          color: "white",
-          padding: "5px",
-          borderRadius: "5px",
-        }}
         disabled={containerCount >= 5}
       >
         Create
-      </Button>
+      </PrimaryButton>
       <Dialog
         hidden={hideDialog}
         onDismiss={toggleHideDialog}

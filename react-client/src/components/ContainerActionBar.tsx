@@ -1,55 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
-import { makeStyles, shorthands, Button } from "@fluentui/react-components";
-import {
-  IContextualMenuProps,
-  IIconProps,
-} from "@fluentui/react";
-import {
-  Settings20Filled,
-} from "@fluentui/react-icons";
+import { Button } from "@fluentui/react-components";
+import { IContextualMenuProps, IIconProps } from "@fluentui/react";
+import { Settings20Filled } from "@fluentui/react-icons";
 import { DefaultButton } from "@fluentui/react/lib/Button";
 import { Toggle } from "@fluentui/react/lib/Toggle";
 import { IDriveItem } from "../common/FileSchemas";
 import { GraphProvider } from "../providers/GraphProvider";
 import { getFileTypeIconProps } from "@fluentui/react-file-type-icons";
-//import { ContainerSettingsDialog } from "./ContainerSettingsDialog";
 import { IContainer } from "../../../common/schemas/ContainerSchemas";
 import { ContainersApiProvider } from "../providers/ContainersApiProvider";
 
 const containersApi = ContainersApiProvider.instance;
 const filesApi = GraphProvider.instance;
-
-const useStyles = makeStyles({
-  actionBar: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-    fontSize: "10px",
-    backgroundColor: "white",
-    boxShadow:
-      "0 4px 8px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.05)",
-    marginBottom: "20px",
-    ...shorthands.borderRadius("10px"),
-    ...shorthands.padding("10px"),
-  },
-  leftSection: {
-    display: "flex",
-    alignItems: "center",
-    columnGap: "10px",
-  },
-  rightSection: {
-    display: "flex",
-    alignItems: "center",
-    columnGap: "10px",
-  },
-  processingSwitch: {
-    alignContent: "flex-end",
-    textAlign: "left",
-    alignItems: "left",
-    justifyContent: "left",
-  },
-});
 
 type IPendingUpload = {
   driveId: string;
@@ -209,10 +171,9 @@ export const ContainerActionBar: React.FunctionComponent<
     }
   };
 
-  const styles = useStyles();
   return (
-    <div className={styles.actionBar}>
-      <div className={styles.leftSection}>
+    <div className="action-bar">
+      <div className="left-section">
         <input
           ref={uploadFileRef}
           type="file"
@@ -233,13 +194,11 @@ export const ContainerActionBar: React.FunctionComponent<
           style={{ border: "none" }}
         />
       </div>
-      <div className={styles.rightSection}>
+      <div className="right-section">
         <Settings20Filled style={{ marginRight: "10px" }} />
-        {/* <ContainerSettingsDialog isOpen={showContainerSettings} container={props.container} /> */}
         {uploads.size > 0 && (
           <Button disabled={true}>{uploads.size} files uploading</Button>
         )}
-
         <Toggle
           checked={processingEnabled}
           inlineLabel

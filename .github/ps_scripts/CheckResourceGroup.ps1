@@ -13,3 +13,5 @@ if ($resourceGroup -notmatch "ResourceNotFound") {
     az group create --name $resourceGroupName --location $location
     Write-Output "Resource Group created."
 }
+# Exit script
+exit

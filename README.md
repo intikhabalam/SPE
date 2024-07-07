@@ -80,7 +80,7 @@ We plan to grant the app registration the minimum necessary privileges, specific
 
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/97de4aca-4f6a-442f-8a3d-2b3c06a11fd9)</kbd>
 
-Select **Contribute** and select **Next**
+Select **Owner** and select **Next**
 
 <kbd>![image](https://github.com/intikhabalam/SPE/assets/171198457/6ac42dd1-f181-473b-b21c-e97619f6a8da)</kbd>
 

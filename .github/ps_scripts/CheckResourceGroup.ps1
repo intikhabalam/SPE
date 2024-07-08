@@ -5,7 +5,8 @@ param (
 
 # Check if the resource group exists
 $resourceGroup = az group show --name $resourceGroupName -o json 2>&1
-
+az group show --name $resourceGroupName -o json
+echo $resourceGroup
 if ($resourceGroup -notmatch "ResourceNotFound") {
     Write-Output "Resource Group $resourceGroupName already exists"
     Write-Output "::set-output name=rg_exists::true"

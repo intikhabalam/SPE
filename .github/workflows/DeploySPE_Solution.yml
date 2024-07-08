@@ -33,10 +33,7 @@ jobs:
           curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
       - name: Install Az module
-        run: |
-          Install-PSResource Az -allowClobber -Scope CurrentUser
-          //Install-Module -Name Az -Scope CurrentUser -Force -verbose
-          Get-Module -Name Az -ListAvailable
+        run: Install-Module -Name Az -Force -Scope CurrentUser -verbose
         shell: pwsh
 
       - name: Install new PnP PowerShell module

@@ -5,6 +5,8 @@ param (
 
 # Check if the static web app exists
 $staticWebApp = az staticwebapp show --name $staticWebAppName --resource-group $resourceGroupName -o json 2>&1
+az staticwebapp show --name $staticWebAppName --resource-group $resourceGroupName -o json
+Write-Output $staticWebApp
 
 if ($staticWebApp -notmatch "ResourceNotFound") {
     Write-Output "Static Web App exists."

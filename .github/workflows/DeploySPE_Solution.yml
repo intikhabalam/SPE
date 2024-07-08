@@ -103,53 +103,53 @@ jobs:
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           allow-no-subscriptions: true
 
-      - name: Check if Resource Group exists
-        id: check_resource_group_script
-        shell: pwsh
-        run: pwsh ./.github/ps_scripts/CheckResourceGroup.ps1 -resourceGroupName '${{ env.RESOURCE_GROUP_NAME }}' -location '${{ env.LOCATION }}'
-
-
-
       # - name: Check if Resource Group exists
-      #   id: check_resource_group
-      #   run: |
-      #     if az group show --name ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
-      #       echo "Resource Group ${{ env.RESOURCE_GROUP_NAME }} already exists"
-      #       echo "::set-output name=rg_exists::true"
-      #     else
-      #       az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location "${{ env.LOCATION }}"
-      #       echo "Resource Group created."
-      #     fi
+      #   id: check_resource_group_script
+      #   shell: pwsh
+      #   run: pwsh ./.github/ps_scripts/CheckResourceGroup.ps1 -resourceGroupName '${{ env.RESOURCE_GROUP_NAME }}' -location '${{ env.LOCATION }}'
 
-      # - name: Check if Static Web App exists
-      #   id: check_static_webapp
-      #   run: |
-      #     if ! az staticwebapp show --name ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
-      #       echo "Static Web App does not exist."
-      #       echo "staticWebApp_exists=false" >> $GITHUB_ENV
-      #     else
-      #       echo "Static Web App exists."
-      #       echo "staticWebApp_exists=true" >> $GITHUB_ENV
-      #     fi
+
+
+      - name: Check if Resource Group exists
+        id: check_resource_group
+        run: |
+          if az group show --name ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
+            echo "Resource Group ${{ env.RESOURCE_GROUP_NAME }} already exists"
+            echo "::set-output name=rg_exists::true"
+          else
+            az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location "${{ env.LOCATION }}"
+            echo "Resource Group created."
+          fi
 
       - name: Check if Static Web App exists
         id: check_static_webapp
-        run: pwsh ./.github/ps_scripts/CheckStaticWebApp.ps1 -staticWebAppName '${{ env.STATIC_WEB_APP_NAME }}' -resourceGroupName '${{ env.RESOURCE_GROUP_NAME }}'
+        run: |
+          if ! az staticwebapp show --name ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} &>/dev/null; then
+            echo "Static Web App does not exist."
+            echo "staticWebApp_exists=false" >> $GITHUB_ENV
+          else
+            echo "Static Web App exists."
+            echo "staticWebApp_exists=true" >> $GITHUB_ENV
+          fi
 
-      # - name: Deploy Azure Static Webapp
-      #   if: env.staticWebApp_exists == 'false'
-      #   id: create_azure_static_webapp
-      #   run: |
-      #     az deployment group create --resource-group ${{ env.RESOURCE_GROUP_NAME }} --template-file .github/workflows/staticwebapp.bicep --parameters .github/workflows/parameters.json --parameters resourceGroupName=${{ env.RESOURCE_GROUP_NAME }} --parameters staticWebAppName=${{ env.STATIC_WEB_APP_NAME }}
-      #     STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "properties.apiKey" -o tsv)
-      #     echo "STATIC_WEBAPP_TOKEN=$STATIC_WEBAPP_TOKEN" >> $GITHUB_ENV
-      #     STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
-      #     echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
+      # - name: Check if Static Web App exists
+      #   id: check_static_webapp
+      #   run: pwsh ./.github/ps_scripts/CheckStaticWebApp.ps1 -staticWebAppName '${{ env.STATIC_WEB_APP_NAME }}' -resourceGroupName '${{ env.RESOURCE_GROUP_NAME }}'
 
       - name: Deploy Azure Static Webapp
         if: env.staticWebApp_exists == 'false'
         id: create_azure_static_webapp
-        run: pwsh ./.github/ps_scripts/DeployStaticWebApp.ps1 -resourceGroupName '${{ env.RESOURCE_GROUP_NAME }}' -staticWebAppName '${{ env.STATIC_WEB_APP_NAME }}'
+        run: |
+          az deployment group create --resource-group ${{ env.RESOURCE_GROUP_NAME }} --template-file .github/workflows/staticwebapp.bicep --parameters .github/workflows/parameters.json --parameters resourceGroupName=${{ env.RESOURCE_GROUP_NAME }} --parameters staticWebAppName=${{ env.STATIC_WEB_APP_NAME }}
+          STATIC_WEBAPP_TOKEN=$(az staticwebapp secrets list -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "properties.apiKey" -o tsv)
+          echo "STATIC_WEBAPP_TOKEN=$STATIC_WEBAPP_TOKEN" >> $GITHUB_ENV
+          STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
+          echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
+
+      # - name: Deploy Azure Static Webapp
+      #   if: env.staticWebApp_exists == 'false'
+      #   id: create_azure_static_webapp
+      #   run: pwsh ./.github/ps_scripts/DeployStaticWebApp.ps1 -resourceGroupName '${{ env.RESOURCE_GROUP_NAME }}' -staticWebAppName '${{ env.STATIC_WEB_APP_NAME }}'
 
 
       # - name: Azure Login

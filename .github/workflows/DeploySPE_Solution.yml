@@ -34,7 +34,8 @@ jobs:
 
       - name: Install Az module
         run: |
-          Install-Module -Name Az -Scope CurrentUser -Force
+          Install-PSResource Az
+          //Install-Module -Name Az -Scope CurrentUser -Force
           Get-Module -Name Az -ListAvailable
         shell: pwsh
 

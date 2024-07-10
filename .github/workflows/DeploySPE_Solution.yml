@@ -297,8 +297,14 @@ jobs:
           Get-PnPContainerType
           $containerType = Get-PnPContainerType
           echo "Container Type $containerType"
+
+
+          $ContainerTypeClassification = $containerType.Classification
+          echo "ContainerTypeId $ContainerTypeId"
+
+
           # Check if container type exists
-          if ($containerType) {
+          if ($containerType -and $ContainerTypeClassification -eq 'Trial') {
 
               $OwningAppId = $containerType.OwningAppId
               echo "OwningApplicationId $OwningAppId"
@@ -313,11 +319,10 @@ jobs:
                   # Attempt to get the list of containers
                   $containers = Get-PnPContainer -OwningApplicationId $OwningAppId
               } catch {
-                  echo "An error occurred while retrieving containers for OwningApplicationId: $OwningAppId"
+                  #echo "An error occurred while retrieving containers for OwningApplicationId: $OwningAppId"
                   echo "Assuming no containers exist for OwningApplicationId: $OwningAppId"
                   $containers = @()
               }
-
               # Check if containers were retrieved
               if ($containers -eq $null -or $containers.Count -eq 0) {
                   echo "No containers found for OwningApplicationId: $OwningAppId"

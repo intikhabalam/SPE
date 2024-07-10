@@ -303,8 +303,8 @@ jobs:
           echo "ContainerTypeId $ContainerTypeClassification"
 
 
-          # Check if container type exists
-          if ($containerType -and $ContainerTypeClassification -eq 'Trial') 
+          # Check if container type exists and classification contains 'Trial'
+          if ($containerType -and $ContainerTypeClassification -like '*Trial*')
           {
               $OwningAppId = $containerType.OwningAppId
               echo "OwningApplicationId $OwningAppId"
@@ -551,3 +551,20 @@ jobs:
           action: 'upload'
           app_location: 'react-client/build'
           api_location: 'api'
+
+
+      - name: Print Deployed Solution URL
+        id: print_static_webapp_url
+        shell: pwsh
+        run: |
+          echo "#####################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ############################"
+          echo "#####################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ############################"
+          echo "#####################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` Congratulations ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ############################"
+          echo "##################### You have successfully deployed the SharePoint Containerized solution to Azure Static Web Apps. ############################"
+          echo "#####################                                                                                                ############################"
+          echo "#####################   Here is the link to access the deployed solution: https://${{env.STATIC_WEBAPP_URL}} ``` ``` ############################"
+          echo "#####################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ############################"
+          echo "#####################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ############################"
+          echo "#####################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ############################"
+        env:
+          STATIC_WEBAPP_URL: ${{ env.STATIC_WEBAPP_URL }}

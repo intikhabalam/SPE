@@ -296,9 +296,6 @@ jobs:
           # Get container type information
           Get-PnPContainerType
           $containerType = Get-PnPContainerType
-          echo "Container Type $containerType"
-
-
           $ContainerTypeClassification = $containerType.SPContainerTypeBillingClassification 
           echo "ContainerTypeId $ContainerTypeClassification"
 
@@ -328,14 +325,15 @@ jobs:
                   echo "No containers found for OwningApplicationId: $OwningAppId"
                   # Delete the container type
                   Remove-PnPContainerType -Identity $ContainerTypeId
-                  echo "Deleting existing container type."
+                  echo "################## ``` ``` ``` ``` Deleting existing Trail Container type ``` ``` ``` ``` ##################"
+
               } else {
                   # Print and delete the list of containers
                   echo "List of Containers:"
                   foreach ($container in $containers) {
                       echo "ID: $($container.ContainerId) - Name: $($container.ContainerName)"
                       Remove-PnPContainer -Identity $container.ContainerId
-                      echo "Deleted Container ID: $($container.ContainerId)"
+                      echo "################## ``` ``` ``` ``` Deleted Container ID: $($container.ContainerId) ``` ``` ``` ``` ##################"
                   }
                   
                   echo ""

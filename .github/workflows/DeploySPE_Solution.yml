@@ -328,10 +328,6 @@ jobs:
               $ContainerTypeId = $containerType.ContainerTypeId
               echo "ContainerTypeId $ContainerTypeId"
             
-              # Get the list of containers
-              #$containers = $(Get-PnPContainer -OwningApplicationId $OwningAppId)
-
-
               try {
                   # Attempt to get the list of containers
                   $containers = Get-PnPContainer -OwningApplicationId $OwningAppId
@@ -385,10 +381,10 @@ jobs:
               echo "################## ``` ``` ``` ``` No Trail Container type exists ``` ``` ``` ``` ##################"
           }
           echo "################## ``` ``` ``` ``` Creating new container type ``` ``` ``` ``` ##################"
-          New-PnPContainerType -TrialContainerType -ContainerTypeName ${{ env.CONTAINER_TYPE_NAME }} -OwningApplicationId $reactAppAzureAppId
+          $containerType = @(New-PnPContainerType -TrialContainerType -ContainerTypeName ${{ env.CONTAINER_TYPE_NAME }} -OwningApplicationId $reactAppAzureAppId)
           # Get container type information
-          $containerType = Get-PnPContainerType
-
+          # $containerType = Get-PnPContainerType
+          echo "Container Type Information: $containerType"
           # Store each value in a separate variable
           $ContainerTypeId = $containerType.ContainerTypeId
           echo "CONTAINER_TYPE_ID=$ContainerTypeId" >> $GITHUB_ENV

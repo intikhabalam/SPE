@@ -299,9 +299,29 @@ jobs:
           $ContainerTypeClassification = $containerType.SPContainerTypeBillingClassification 
           echo "ContainerTypeId $ContainerTypeClassification"
 
+          # Initialize variable to store the ContainerTypeId with 'Trial' Classification
+          $trialContainerTypeId = $null
+          
+          # Get container type information
+          $containerTypes = Get-PnPContainerType
+          
+          # Loop through each container type and check for Classification 'Trial'
+          foreach ($containerType in $containerTypes) {
+              if ($containerType.SPContainerTypeBillingClassification -eq 'Trial') {
+                  $trialContainerTypeId = $containerType.ContainerTypeId
+                  break
+              }
+          }
+
+          # Print the ContainerTypeId with 'Trial' Classification
+          if ($trialContainerTypeId) {
+              echo "ContainerTypeId with 'Trial' Classification: $trialContainerTypeId"
+          } else {
+              echo "No ContainerType found with 'Trial' Classification."
+          }
 
           # Check if container type exists and classification contains 'Trial'
-          if ($ContainerTypeClassification -like '*Trial*')
+          if ($trialContainerTypeId)
           {
               $OwningAppId = $containerType.OwningAppId
               echo "OwningApplicationId $OwningAppId"

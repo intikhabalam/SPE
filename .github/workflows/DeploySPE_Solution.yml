@@ -304,7 +304,7 @@ jobs:
 
 
           # Check if container type exists and classification contains 'Trial'
-          if ($containerType -and $ContainerTypeClassification -like '*Trial*')
+          if ($ContainerTypeClassification -like '*Trial*')
           {
               $OwningAppId = $containerType.OwningAppId
               echo "OwningApplicationId $OwningAppId"
@@ -364,9 +364,9 @@ jobs:
           } 
           else 
           {
-              echo "Container type does not exist."
+              echo "################## ``` ``` ``` ``` No Trail Container type exists ``` ``` ``` ``` ##################"
           }
-          echo "Creating new container type."
+          echo "################## ``` ``` ``` ``` Creating new container type ``` ``` ``` ``` ##################"
           New-PnPContainerType -TrialContainerType -ContainerTypeName ${{ env.CONTAINER_TYPE_NAME }} -OwningApplicationId $reactAppAzureAppId
           # Get container type information
           $containerType = Get-PnPContainerType

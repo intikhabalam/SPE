@@ -55,13 +55,6 @@ jobs:
           echo "LOCATION=$LOCATION" >> $GITHUB_ENV
           echo "CONTAINER_TYPE_NAME=$RESOURCE_GROUP_NAME-ContainerType" >> $GITHUB_ENV        
 
-          # echo $RESOURCE_GROUP_NAME
-          # echo $STATIC_WEB_APP_NAME
-          # echo $SPE_APP_NAME
-          # echo $CONTAINER_TYPE_NAME
-          # echo $LOCATION
-          # echo "##########################################################################"
-
       - name: Create API permissions manifest file
         id: Create_API_Permissions_Manifest
         run: |
@@ -88,12 +81,6 @@ jobs:
           ]' > manifest.json
 
           echo "API permissions manifest file created"
-
-      # - name: Print manifest.json file and path
-      #   run: |
-      #     echo "Contents of manifest.json:"
-      #     cat manifest.json
-      #     echo "Path to manifest.json: $(pwd)/manifest.json"
         
       - name: Azure Login
         uses: azure/login@v1
@@ -102,13 +89,6 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           allow-no-subscriptions: true
-
-      # - name: Check if Resource Group exists
-      #   id: check_resource_group_script
-      #   shell: pwsh
-      #   run: pwsh ./.github/ps_scripts/CheckResourceGroup.ps1 -resourceGroupName '${{ env.RESOURCE_GROUP_NAME }}' -location '${{ env.LOCATION }}'
-
-
 
       - name: Check if Resource Group exists
         id: check_resource_group
@@ -132,10 +112,6 @@ jobs:
             echo "staticWebApp_exists=true" >> $GITHUB_ENV
           fi
 
-      # - name: Check if Static Web App exists
-      #   id: check_static_webapp
-      #   run: pwsh ./.github/ps_scripts/CheckStaticWebApp.ps1 -staticWebAppName '${{ env.STATIC_WEB_APP_NAME }}' -resourceGroupName '${{ env.RESOURCE_GROUP_NAME }}'
-
       - name: Deploy Azure Static Webapp
         if: env.staticWebApp_exists == 'false'
         id: create_azure_static_webapp
@@ -145,20 +121,6 @@ jobs:
           echo "STATIC_WEBAPP_TOKEN=$STATIC_WEBAPP_TOKEN" >> $GITHUB_ENV
           STATIC_WEBAPP_URL=$(az staticwebapp show -n ${{ env.STATIC_WEB_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "defaultHostname" -o tsv)
           echo "STATIC_WEBAPP_URL=$STATIC_WEBAPP_URL" >> $GITHUB_ENV
-
-      # - name: Deploy Azure Static Webapp
-      #   if: env.staticWebApp_exists == 'false'
-      #   id: create_azure_static_webapp
-      #   run: pwsh ./.github/ps_scripts/DeployStaticWebApp.ps1 -resourceGroupName '${{ env.RESOURCE_GROUP_NAME }}' -staticWebAppName '${{ env.STATIC_WEB_APP_NAME }}'
-
-
-      # - name: Azure Login
-      #   uses: azure/login@v1
-      #   with:
-      #     client-id: ${{ vars.AZURE_SERVICEPRINCIPAL_CLIENT_ID }}
-      #     tenant-id: ${{ vars.AZURE_TENANT_ID }}
-      #     subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      #     allow-no-subscriptions: true
 
       - name: Create Service Principal, ContainerType and Get Credentials
         id: create_service_principal_container_type
@@ -200,8 +162,6 @@ jobs:
 
           # Read the certificate content and extract only the private key
           $certContent = Get-Content $certPath -Raw
-          echo "Certificate content: $certContent"
-          echo "#########################################################"
           $certContent = $certContent -replace '(?s)^.*?(-----BEGIN PRIVATE KEY-----.*?-----END PRIVATE KEY-----).*$', '$1'
 
           # Store the private key content in an environment variable
@@ -222,10 +182,6 @@ jobs:
           # Update the application with redirect URIs
           az ad app update --id $reactAppAzureAppId --web-redirect-uris  "https://localhost/signout-oidc" "https://localhost/Onboarding/ProcessCode" "https://localhost/signin-oidc" "https://oauth.pstmn.io/v1/callback" "https://oauth.pstmn.io/v1/browser-callback" "http://localhost/redirect"
 
-          # Print the values
-          Write-Host "App ID: $reactAppAzureAppId"
-          Write-Host "Display Name: $displayName"
-
           # Store values in environment variables
           echo "REACT_APP_AZURE_APP_ID=$reactAppAzureAppId" >> $GITHUB_ENV
           echo "REACT_APP_AZURE_APP_SECRET=$reactAppAzureSecret" >> $GITHUB_ENV
@@ -237,19 +193,12 @@ jobs:
           Write-Output "The Object ID is: $objectId"
           echo "OBJECT_ID=$objectId" >> $GITHUB_ENV
 
-          echo "#########################################################"
-          echo "objectId $OBJECT_ID"
-
-
           # Perform Azure REST API call to retrieve key credentials
           $response = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials"
           Write-Output "The response ID is: $response"
 
           $certificateThumbPrint = az rest --method GET --url "https://graph.microsoft.com/v1.0/applications/$objectId/keyCredentials" | Select-String -Pattern '"customKeyIdentifier": "([^"]+)"' | ForEach-Object { $_.Matches.Groups[1].Value }
-
-          # Print the Thumbprint to verify
-          Write-Output "The certificate ThumbPrint is: $certificateThumbPrint"
-          
+         
           # Update Azure AD Application Identifier URI
           az ad app update --id $reactAppAzureAppId --identifier-uris "api://$reactAppAzureAppId"
 
@@ -284,11 +233,8 @@ jobs:
           $manifestPath = "$(pwd)/manifest.json"
           az ad app update --id $reactAppAzureAppId --required-resource-accesses @$manifestPath
 
+          # Wait for 20 seconds before granting admin consent, otherwise the permissions may not be granted.
           Start-Sleep -Seconds 20
-          #Grant Admin Consent to App Permissions
-          # echo "Granting Admin Consent to App Permissions..."
-          # az rest --method PATCH     --uri "https://graph.microsoft.com/v1.0/applications/$objectId" --headers "Content-Type=application/json" --body '{\"spa\":{\"redirectUris\":[\"$STATIC_WEBAPP_URL/\"]}}'
-
           az ad app permission admin-consent --id $reactAppAzureAppId
 
           ################################ ContainerType Creation - Start ##############################################
@@ -297,7 +243,6 @@ jobs:
           Get-PnPContainerType
           $containerType = Get-PnPContainerType
           $ContainerTypeClassification = $containerType.SPContainerTypeBillingClassification 
-          echo "ContainerTypeId $ContainerTypeClassification"
 
           # Initialize variable to store the ContainerTypeId with 'Trial' Classification
           $trialContainerTypeId = $null
@@ -324,15 +269,12 @@ jobs:
           if ($trialContainerTypeId)
           {
               $OwningAppId = $containerType.OwningAppId
-              echo "OwningApplicationId $OwningAppId"
               $ContainerTypeId = $containerType.ContainerTypeId
-              echo "ContainerTypeId $ContainerTypeId"
             
               try {
                   # Attempt to get the list of containers
                   $containers = Get-PnPContainer -OwningApplicationId $OwningAppId
               } catch {
-                  #echo "An error occurred while retrieving containers for OwningApplicationId: $OwningAppId"
                   echo "Assuming no containers exist for OwningApplicationId: $OwningAppId"
                   $containers = @()
               }
@@ -382,9 +324,6 @@ jobs:
           }
           echo "################## ``` ``` ``` ``` Creating new container type ``` ``` ``` ``` ##################"
           $containerType = @(New-PnPContainerType -TrialContainerType -ContainerTypeName ${{ env.CONTAINER_TYPE_NAME }} -OwningApplicationId $reactAppAzureAppId)
-          # Get container type information
-          # $containerType = Get-PnPContainerType
-          echo "Container Type Information: $containerType"
           # Store each value in a separate variable
           $ContainerTypeId = $containerType.ContainerTypeId
           echo "CONTAINER_TYPE_ID=$ContainerTypeId" >> $GITHUB_ENV
@@ -495,12 +434,6 @@ jobs:
           AZURE_SPA_CLIENT_ID: ${{ env.AZURE_SPA_CLIENT_ID }}
           STATIC_WEBAPP_URL: ${{env.STATIC_WEBAPP_URL}}
 
-
-
-
-
-
-
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
@@ -523,18 +456,6 @@ jobs:
         run: |
           cd react-client
           CI=false npm run build # Set CI=false to avoid treating warnings as errors
-
-          echo "REACT_APP_AZURE_APP_ID=$REACT_APP_AZURE_SERVER_APP_ID"
-          echo "AZURE_CLIENT_SECRET=$AZURE_CLIENT_SECRET"
-          echo "REACT_APP_CONTAINER_TYPE_ID=$REACT_APP_"
-          echo "REACT_APP_SP_ROOT_SITE_URL=$REACT_APP_SP_ROOT_SITE_URL"
-          echo "REACT_APP_SAMPLE_API_URL=$REACT_APP_SAMPLE_API_URL"
-          echo "REACT_APP_TENANT_ID=$REACT_APP_TENANT_ID"
-          echo "AZURE_CLIENT_SECRET=$AZURE_CLIENT_SECRET"
-          echo "AZURE_CLIENT_CERT_THUMBPRINT=$AZURE_CLIENT_CERT_THUMBPRINT"
-          echo "AZURE_CLIENT_CERT_PRIVATE_KEY=$AZURE_CLIENT_CERT_PRIVATE_KEY"
-          echo "AZURE_SPA_CLIENT_ID=$AZURE_SPA_CLIENT_ID"
-
         env:
           REACT_APP_AZURE_SERVER_APP_ID: ${{ env.REACT_APP_AZURE_APP_ID }}
           REACT_APP_AZURE_APP_ID: ${{ env.REACT_APP_AZURE_APP_ID }}

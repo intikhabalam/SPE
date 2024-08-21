@@ -20,13 +20,13 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: https://sonar.provoke.co.nz
-        SONAR_SCANNER_OPTS: "-Dsonar.ssl.verifyServerCertificate=false"
 
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
       with:
-        projectBaseDir: .
-        args: -Dsonar.organization=provoke -Dsonar.projectKey=ARLDigital
+        args: 
+          -Dsonar.projectKey=ARLDigital
+          -Dsonar.sources=.
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ env.SONAR_HOST_URL }}
+        SONAR_HOST_URL: https://sonar.provoke.co.nz

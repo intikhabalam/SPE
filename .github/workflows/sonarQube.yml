@@ -1,22 +1,32 @@
+name: CI Pipeline
+
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+
+    - name: Set up SonarQube environment variables
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: https://sonar.provoke.co.nz
+        SONAR_SCANNER_OPTS: "-Dsonar.ssl.verifyServerCertificate=false"
+
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
       with:
         projectBaseDir: .
-        args: >
-          -Dsonar.organization=provoke
-          -Dsonar.sources=.
-          -Dsonar.projectKey=ARLDigital
+        args: -Dsonar.organization=provoke -Dsonar.projectKey=ARLDigital
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: "https://sonar.provoke.co.nz"
+        SONAR_HOST_URL: ${{ env.SONAR_HOST_URL }}

@@ -16,6 +16,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build the project
+      run: npm run build
+
     - name: Set up SonarQube environment variables
       run: |
         echo "SONAR_TOKEN=${{ secrets.SONAR_TOKEN }}" >> $GITHUB_ENV
@@ -25,7 +36,7 @@ jobs:
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
       with:
-        args: 
+        args: >
           -Dsonar.organization=provoke
           -Dsonar.sources=.
           -Dsonar.projectKey=ARLDigital

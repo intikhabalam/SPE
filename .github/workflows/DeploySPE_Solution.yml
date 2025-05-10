@@ -375,6 +375,7 @@ jobs:
             "AZURE_SPA_CLIENT_ID=$objectId"
         env:
           SHAREPOINT_ADMIN_SITE_URL: ${{ vars.SHAREPOINT_ADMIN_SITE_URL }}
+          CONNECTPNP: ${{ vars.CONNECTPNP }}
           
       - name: Azure Login
         uses: azure/login@v1

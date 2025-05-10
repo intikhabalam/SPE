@@ -336,7 +336,7 @@ jobs:
           # $containerType = @(New-PnPContainerType -TrialContainerType -ContainerTypeName ${{ env.CONTAINER_TYPE_NAME }} -OwningApplicationId $reactAppAzureAppId)
           # Store each value in a separate variable
 
-          $ContainerTypeId = "2c8296f8-7838-4628-afdc-85f301b7f72e"
+          $ContainerTypeId = "ab0ec2c5-8c4d-408c-9244-37b37b003066"
           $ContainerTypeId = $containerType.ContainerTypeId
           echo "CONTAINER_TYPE_ID=$ContainerTypeId" >> $GITHUB_ENV
           echo "CONTAINER_TYPE_ID_Output=$ContainerTypeId" >> "$GITHUB_OUTPUT"

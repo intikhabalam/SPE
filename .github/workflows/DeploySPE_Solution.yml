@@ -240,11 +240,12 @@ jobs:
           ################################ ContainerType Creation - Start ##############################################
           Write-Host "Admin Site URL: $env:SHAREPOINT_ADMIN_SITE_URL"
 
+          Connect-PnPOnline -Url "https://hashtechnologies1-admin.sharepoint.com" -Interactive
           #Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
-          Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL `
-            -ClientId 'bbe1149a-e8f6-478e-81e2-134bfeb0f9e5' `
-            -Tenant 'hashtechnologies1.onmicrosoft.com' `
-            -ClientSecret $env:CONNECTPNP
+          # Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL `
+          #   -ClientId 'bbe1149a-e8f6-478e-81e2-134bfeb0f9e5' `
+          #   -Tenant 'hashtechnologies1.onmicrosoft.com' `
+          #   -ClientSecret $env:CONNECTPNP
 
           
           

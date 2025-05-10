@@ -63,6 +63,7 @@ export const Home: React.FunctionComponent = () => {
     setRegistering(true);
     const containersApi = ContainersApiProvider.instance;
     const result = await containersApi.registerContainerType();
+    console.log("Registering container type result: ", result);
     setRegistering(false);
     setRegisterResult(JSON.stringify(result));
   };

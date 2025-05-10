@@ -238,7 +238,10 @@ jobs:
           az ad app permission admin-consent --id $reactAppAzureAppId
 
           ################################ ContainerType Creation - Start ##############################################
+          Write-Host "Admin Site URL: $env:SHAREPOINT_ADMIN_SITE_URL"
+
           Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
+          
           # Get container type information
           Get-PnPContainerType
           $containerType = Get-PnPContainerType

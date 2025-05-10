@@ -240,101 +240,103 @@ jobs:
           ################################ ContainerType Creation - Start ##############################################
           Write-Host "Admin Site URL: $env:SHAREPOINT_ADMIN_SITE_URL"
 
-          Connect-PnPOnline -Url "https://hashtechnologies1-admin.sharepoint.com" -Interactive
-          #Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
-          # Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL `
-          #   -ClientId 'bbe1149a-e8f6-478e-81e2-134bfeb0f9e5' `
-          #   -Tenant 'hashtechnologies1.onmicrosoft.com' `
-          #   -ClientSecret $env:CONNECTPNP
+          # Connect-PnPOnline -Url "https://hashtechnologies1-admin.sharepoint.com" -Interactive
+          # #Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL -DeviceLogin
+          # # Connect-PnPOnline -Url $env:SHAREPOINT_ADMIN_SITE_URL `
+          # #   -ClientId 'bbe1149a-e8f6-478e-81e2-134bfeb0f9e5' `
+          # #   -Tenant 'hashtechnologies1.onmicrosoft.com' `
+          # #   -ClientSecret $env:CONNECTPNP
 
           
           
-          # Get container type information
-          Get-PnPContainerType
-          $containerType = Get-PnPContainerType
-          $ContainerTypeClassification = $containerType.SPContainerTypeBillingClassification 
+          # # Get container type information
+          # Get-PnPContainerType
+          # $containerType = Get-PnPContainerType
+          # $ContainerTypeClassification = $containerType.SPContainerTypeBillingClassification 
 
-          # Initialize variable to store the ContainerTypeId with 'Trial' Classification
-          $trialContainerTypeId = $null
+          # # Initialize variable to store the ContainerTypeId with 'Trial' Classification
+          # $trialContainerTypeId = $null
           
-          # Get container type information
-          $containerTypes = Get-PnPContainerType
+          # # Get container type information
+          # $containerTypes = Get-PnPContainerType
           
-          # Loop through each container type and check for Classification 'Trial'
-          foreach ($containerType in $containerTypes) {
-              if ($containerType.SPContainerTypeBillingClassification -eq 'Trial') {
-                  $trialContainerTypeId = $containerType.ContainerTypeId
-                  break
-              }
-          }
+          # # Loop through each container type and check for Classification 'Trial'
+          # foreach ($containerType in $containerTypes) {
+          #     if ($containerType.SPContainerTypeBillingClassification -eq 'Trial') {
+          #         $trialContainerTypeId = $containerType.ContainerTypeId
+          #         break
+          #     }
+          # }
 
-          # Print the ContainerTypeId with 'Trial' Classification
-          if ($trialContainerTypeId) {
-              echo "ContainerTypeId with 'Trial' Classification: $trialContainerTypeId"
-          } else {
-              echo "No ContainerType found with 'Trial' Classification."
-          }
+          # # Print the ContainerTypeId with 'Trial' Classification
+          # if ($trialContainerTypeId) {
+          #     echo "ContainerTypeId with 'Trial' Classification: $trialContainerTypeId"
+          # } else {
+          #     echo "No ContainerType found with 'Trial' Classification."
+          # }
 
-          # Check if container type exists and classification contains 'Trial'
-          if ($trialContainerTypeId)
-          {
-              $OwningAppId = $containerType.OwningAppId
-              $ContainerTypeId = $containerType.ContainerTypeId
+          # # Check if container type exists and classification contains 'Trial'
+          # if ($trialContainerTypeId)
+          # {
+          #     $OwningAppId = $containerType.OwningAppId
+          #     $ContainerTypeId = $containerType.ContainerTypeId
             
-              try {
-                  # Attempt to get the list of containers
-                  $containers = Get-PnPContainer -OwningApplicationId $OwningAppId
-              } catch {
-                  echo "Assuming no containers exist for OwningApplicationId: $OwningAppId"
-                  $containers = @()
-              }
-              # Check if containers were retrieved
-              if ($containers -eq $null -or $containers.Count -eq 0) {
-                  echo "No containers found for OwningApplicationId: $OwningAppId"
-                  # Delete the container type
-                  Remove-PnPContainerType -Identity $ContainerTypeId
-                  echo "################## ``` ``` ``` ``` Deleting existing Trail Container type ``` ``` ``` ``` ##################"
+          #     try {
+          #         # Attempt to get the list of containers
+          #         $containers = Get-PnPContainer -OwningApplicationId $OwningAppId
+          #     } catch {
+          #         echo "Assuming no containers exist for OwningApplicationId: $OwningAppId"
+          #         $containers = @()
+          #     }
+          #     # Check if containers were retrieved
+          #     if ($containers -eq $null -or $containers.Count -eq 0) {
+          #         echo "No containers found for OwningApplicationId: $OwningAppId"
+          #         # Delete the container type
+          #         Remove-PnPContainerType -Identity $ContainerTypeId
+          #         echo "################## ``` ``` ``` ``` Deleting existing Trail Container type ``` ``` ``` ``` ##################"
 
-              } else {
-                  # Print and delete the list of containers
-                  echo "List of Containers:"
-                  foreach ($container in $containers) {
-                      echo "ID: $($container.ContainerId) - Name: $($container.ContainerName)"
-                      Remove-PnPContainer -Identity $container.ContainerId
-                      echo "################## ``` ``` ``` ``` Deleted Container ID: $($container.ContainerId) ``` ``` ``` ``` ##################"
-                  }
+          #     } else {
+          #         # Print and delete the list of containers
+          #         echo "List of Containers:"
+          #         foreach ($container in $containers) {
+          #             echo "ID: $($container.ContainerId) - Name: $($container.ContainerName)"
+          #             Remove-PnPContainer -Identity $container.ContainerId
+          #             echo "################## ``` ``` ``` ``` Deleted Container ID: $($container.ContainerId) ``` ``` ``` ``` ##################"
+          #         }
                   
-                  echo ""
-                  echo ""
-                  echo ""
-                  echo "########################################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` #################################################"
-                  echo "########################################``` ``` ``` ``` ``` ``` WARNING ``` ``` ``` ``` ``` ``` #################################################"
-                  echo "########################################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` #################################################"
-                  echo "SharePoint admin center has Deleted containers. File storage containers are retained for 93 days and then permanently deleted."
-                  echo ""
-                  echo "Please access the URL $env:SHAREPOINT_ADMIN_SITE_URL/_layouts/15/online/AdminHome.aspx#/deletedContainers and Permanently delete these containers."
-                  echo ""
-                  echo ""
-                  echo ""
-                  echo "`e[1m`e[4m`e[31mSharePoint admin center has Deleted containers. File storage containers are retained for 93 days and then permanently deleted.`e[0m"
-                  echo ""
-                  echo "`e[1m`e[4m`e[31mPlease access the URL $env:SHAREPOINT_ADMIN_SITE_URL/_layouts/15/online/AdminHome.aspx#/deletedContainers and Permanently delete these containers.`e[0m"
-                  echo "########################################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` #################################################"
-                  echo "########################################``` ``` ``` ``` ``` ``` WARNING ``` ``` ``` ``` ``` ``` #################################################"
-                  echo "########################################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` #################################################"
+          #         echo ""
+          #         echo ""
+          #         echo ""
+          #         echo "########################################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` #################################################"
+          #         echo "########################################``` ``` ``` ``` ``` ``` WARNING ``` ``` ``` ``` ``` ``` #################################################"
+          #         echo "########################################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` #################################################"
+          #         echo "SharePoint admin center has Deleted containers. File storage containers are retained for 93 days and then permanently deleted."
+          #         echo ""
+          #         echo "Please access the URL $env:SHAREPOINT_ADMIN_SITE_URL/_layouts/15/online/AdminHome.aspx#/deletedContainers and Permanently delete these containers."
+          #         echo ""
+          #         echo ""
+          #         echo ""
+          #         echo "`e[1m`e[4m`e[31mSharePoint admin center has Deleted containers. File storage containers are retained for 93 days and then permanently deleted.`e[0m"
+          #         echo ""
+          #         echo "`e[1m`e[4m`e[31mPlease access the URL $env:SHAREPOINT_ADMIN_SITE_URL/_layouts/15/online/AdminHome.aspx#/deletedContainers and Permanently delete these containers.`e[0m"
+          #         echo "########################################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` #################################################"
+          #         echo "########################################``` ``` ``` ``` ``` ``` WARNING ``` ``` ``` ``` ``` ``` #################################################"
+          #         echo "########################################``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` ``` #################################################"
           
-                  # Exit the script to break the pipeline
-                  exit 1
+          #         # Exit the script to break the pipeline
+          #         exit 1
 
-              }
-          } 
-          else 
-          {
-              echo "################## ``` ``` ``` ``` No Trail Container type exists ``` ``` ``` ``` ##################"
-          }
-          echo "################## ``` ``` ``` ``` Creating new container type ``` ``` ``` ``` ##################"
-          $containerType = @(New-PnPContainerType -TrialContainerType -ContainerTypeName ${{ env.CONTAINER_TYPE_NAME }} -OwningApplicationId $reactAppAzureAppId)
+          #     }
+          # } 
+          # else 
+          # {
+          #     echo "################## ``` ``` ``` ``` No Trail Container type exists ``` ``` ``` ``` ##################"
+          # }
+          # echo "################## ``` ``` ``` ``` Creating new container type ``` ``` ``` ``` ##################"
+          # $containerType = @(New-PnPContainerType -TrialContainerType -ContainerTypeName ${{ env.CONTAINER_TYPE_NAME }} -OwningApplicationId $reactAppAzureAppId)
           # Store each value in a separate variable
+
+          $ContainerTypeId = "2c8296f8-7838-4628-afdc-85f301b7f72e"
           $ContainerTypeId = $containerType.ContainerTypeId
           echo "CONTAINER_TYPE_ID=$ContainerTypeId" >> $GITHUB_ENV
           echo "CONTAINER_TYPE_ID_Output=$ContainerTypeId" >> "$GITHUB_OUTPUT"

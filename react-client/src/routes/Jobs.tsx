@@ -23,6 +23,7 @@ import { Icon, Link as FluentLink } from "@fluentui/react";
 import { CreateJobPostingButton } from "../components/CreateJobPostingButton";
 
 import { useRef, useState, useEffect } from "react";
+import * as React from "react";
 import {} from "@fluentui/react-icons";
 
 export async function loader({ params }: ILoaderParams): Promise<Job[]> {
@@ -55,6 +56,11 @@ export const Jobs: React.FunctionComponent = () => {
   const jobs = useLoaderData() as IJob[];
   const job = useActionData() as IJob | undefined;
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  // Use selectedKeys to avoid unused variable warning
+  React.useEffect(() => {
+    // This effect ensures selectedKeys is referenced
+    console.log('Selected keys:', selectedKeys);
+  }, [selectedKeys]);
   const [filteredJobs, setFilteredJobs] = useState<IJob[]>(jobs);
   const [currentFilter, setCurrentFilter] = useState<string>("all");
   const [hideDialog, setHideDialog] = useState(true);

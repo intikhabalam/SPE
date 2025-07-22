@@ -4,7 +4,6 @@ import {
   IContainerUpdateRequest,
 } from "../../../common/schemas/ContainerSchemas";
 import * as Scopes from "../common/Scopes";
-import { ProviderState, Providers } from "@microsoft/mgt-element";
 import { CustomAppApiAuthProvider } from "./CustomAppApiAuthProvider";
 
 export class ContainersApiProvider {

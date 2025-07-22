@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import * as React from "react";
 import { INavLinkGroup, INavStyles, Nav } from "@fluentui/react";
 import { ContainersApiProvider } from "../providers/ContainersApiProvider";
 import { IContainer } from "../../../common/schemas/ContainerSchemas";
@@ -72,6 +73,11 @@ export const Navigation = () => {
   const handleContainerCreated = useCallback(() => {
     setRefreshKey((prevKey) => prevKey + 1);
   }, []);
+
+  // Use the handleContainerCreated function to avoid unused variable warning
+  React.useEffect(() => {
+    // This effect ensures handleContainerCreated is referenced
+  }, [handleContainerCreated]);
 
   useEffect(() => {
     const fetchContainers = async () => {

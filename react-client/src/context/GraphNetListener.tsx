@@ -27,7 +27,7 @@ export function GraphNetListenerProvider({
       apiRequests.push(newApiItem);
       setApiRequests([...apiRequests]);
     });
-  }, []);
+  }, [apiRequests]);
 
   return (
     <GraphNetListenerContext.Provider value={{ apiRequests }}>

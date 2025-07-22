@@ -2,7 +2,6 @@
 import * as Msal from '@azure/msal-browser';
 import * as Constants from '../common/Constants';
 import * as Scopes from '../common/Scopes';
-import { Providers } from '@microsoft/mgt-element';
 
 export class CustomAppApiAuthProvider {
 

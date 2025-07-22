@@ -1,5 +1,25 @@
-This article provides a comprehensive manual for deploying Microsoft Embedded systems. It guides you through the entire deployment process using a GitHub pipeline.
+# SharePoint Embedded Demo Application
 
+This article provides a comprehensive manual for deploying Microsoft SharePoint Embedded systems. It guides you through the entire deployment process using a GitHub pipeline.
+
+## 🚀 What You Can Do With This Application
+
+**Quick Answer**: This is a complete HR document management system built with SharePoint Embedded that lets you create job postings, manage documents, and organize content in SharePoint containers.
+
+**📖 [Read the Full Capabilities Guide →](./CAPABILITIES.md)**  
+**⚡ [Quick Start Guide →](./QUICK_START.md)**
+
+### Key Features:
+- 🔐 Microsoft 365 authentication and admin setup
+- 📁 Create and manage SharePoint Embedded containers  
+- 💼 Job posting creation and management
+- 📄 Document upload and organization
+- 🔍 Search across all content
+- 🎨 Modern Fluent UI interface
+
+---
+
+## Prerequisites
 
 Before you begin there are some Pre-Requsites that are required.
 
